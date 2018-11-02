@@ -1,5 +1,5 @@
-name: tekartik_firebase_storage_test
-description: Firebase storage test
+name: tekartik_firebase_storage_fs
+description: Firebase storage fs
 version: 0.3.6
 #homepage: https://www.example.com
 #author: alex <email@example.com>
@@ -8,6 +8,7 @@ environment:
   sdk: '>=2.0.0-dev.54 <3.0.0'
 
 dependencies:
+  fs_shim: '>=0.10.0'
   uuid: '>=1.0.0'
   tekartik_firebase_storage:
     git:
@@ -15,14 +16,17 @@ dependencies:
       path: storage
       ref: dart2
     version: 0.3.6
-  test: ">=1.0.0"
 
 dev_dependencies:
-  dev_test: '>=0.12.0-dev.1'
+  test: any
+  build_runner: ">=0.9.1"
+  build_test: ">=0.10.3"
+  tekartik_firebase_storage_test:
+    path: ../storage_test
 
 dependency_overrides:
   tekartik_firebase_storage:
     path: ../storage
-#TODO
+  #TODO
   tekartik_firebase:
     path: ../../firebase.dart/firebase

@@ -1,35 +1,38 @@
 
+import 'package:meta/meta.dart';
 import 'package:tekartik_firebase/firebase.dart';
+import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:test/test.dart';
 
-void run(Firebase firebase) {
+void run({@required Firebase firebase,
+  @required StorageServiceProvider provider,
+  AppOptions options}) {
   App app = firebase.initializeApp();
 
   tearDownAll(() {
     return app.delete();
   });
 
-  runApp(app);
+  runApp(app, service: provider.storageService(firebase));
 }
 
 String defaultBucketName = "tekartik-free-dev.appspot.com";
-runApp(App app) {
+runApp(App app, {@required StorageService service}) {
+  var storage = service.storage(app);
   group('storage', () {
-    var storage = app.storage();
     test('storage', () {
-      var storage = app.storage();
       expect(storage, isNotNull);
     });
 
     group('bucket', () {
       test('default_bucket', () {
-        var bucket = app.storage().bucket();
+        var bucket = storage.bucket();
         expect(bucket, isNotNull);
         //expect(bucket.name, isNotNull);
       });
 
       test('bucket', () {
-        var bucket = app.storage().bucket("test");
+        var bucket = storage.bucket("test");
         expect(bucket, isNotNull);
         expect(bucket.name, "test");
       });
