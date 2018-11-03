@@ -18,10 +18,6 @@ abstract class File {
   Future delete();
 }
 
-abstract class StorageServiceProvider {
-  StorageService storageService(Firebase firebase);
-}
-
 abstract class StorageService {
   Storage storage(App app);
 }

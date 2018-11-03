@@ -1,26 +1,18 @@
 import 'dart:async';
 import 'dart:io' as io;
-
+import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_memory.dart' as fs;
+import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:path/path.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase/firebase_local.dart';
 
-
-class StorageServiceProviderFs implements StorageServiceProvider {
-  @override
-  StorageService storageService(Firebase firebase) {
-    assert(firebase is FirebaseLocal, 'invalid firebase type');
-    return StorageServiceFs(firebase as FirebaseLocal);
-  }
-}
-
 class StorageServiceFs implements StorageService {
-  final FirebaseLocal _firebaseLocal;
-
+  final fs.FileSystem fileSystem;
   final _storages = <App, StorageFs>{};
 
-  StorageServiceFs(this._firebaseLocal);
+  StorageServiceFs(this.fileSystem);
   @override
   Storage storage(App app) {
     var storage = _storages[app];
@@ -30,15 +22,15 @@ class StorageServiceFs implements StorageService {
     }
     return storage;
   }
-  
 }
-StorageServiceProviderFs _storageServiceProviderFs;
-StorageServiceProviderFs get storageServiceProviderFs =>
-    _storageServiceProviderFs ?? StorageServiceProviderFs();
 
-StorageServiceProvider get storageServiceProvider => storageServiceProviderFs;
-StorageServiceProvider get firebaseStorageServiceProviderFs => storageServiceProviderFs;
+StorageServiceFs _storageServiceMemory;
+StorageServiceFs get storageServiceFsMemory =>
+    _storageServiceMemory ??= StorageServiceFs(fs.newFileSystemMemory());
 
+StorageServiceFs _storageServiceIo;
+StorageServiceFs get storageServiceFsIo =>
+    _storageServiceIo ??= StorageServiceFs(fs.fileSystemIo);
 
 class FileIo implements File {
   final BucketIo bucket;
