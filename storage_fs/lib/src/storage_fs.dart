@@ -6,7 +6,7 @@ import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:path/path.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
-import 'package:tekartik_firebase/firebase_local.dart';
+import 'package:tekartik_firebase_local/firebase_local.dart';
 
 class StorageServiceFs implements StorageService {
   final fs.FileSystem fileSystem;

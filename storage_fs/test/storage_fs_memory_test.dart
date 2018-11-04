@@ -4,7 +4,7 @@ library tekartik_firebase_sembast.storage_io_test;
 import 'dart:io' as io;
 
 import 'package:path/path.dart';
-import 'package:tekartik_firebase/firebase_local.dart';
+import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart';
 
 import 'package:tekartik_firebase_storage_fs/storage_fs.dart';

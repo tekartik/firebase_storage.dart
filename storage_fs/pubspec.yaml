@@ -16,6 +16,12 @@ dependencies:
       path: storage
       ref: dart2
     version: 0.3.6
+  tekartik_firebase_local:
+    git:
+      url: git://github.com/tekartik/firebase.dart
+      path: firebase_local
+      ref: dart2
+    version: '>=0.3.7'
 
 dev_dependencies:
   test: any

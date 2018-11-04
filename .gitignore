@@ -1,4 +1,12 @@
 .packages
 pubspec.lock
-.idea/
+.pub/
+build/
 .dart_tool/
+
+# Intellij
+.idea/
+*.iml
+
+# VSCode
+.vscode
