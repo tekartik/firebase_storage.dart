@@ -1,0 +1,12 @@
+.packages
+pubspec.lock
+.pub/
+build/
+.dart_tool/
+
+# Intellij
+.idea/
+*.iml
+
+# VSCode
+.vscode

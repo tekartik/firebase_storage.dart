@@ -1,0 +1,110 @@
+# Created with https://github.com/dart-lang/mono_repo
+language: dart
+
+sudo: required
+addons:
+  chrome: stable
+
+jobs:
+  include:
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_fs"
+      dart: dev
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage"
+      dart: dev
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_browser"
+      dart: dev
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_node"
+      dart: dev
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_test"
+      dart: dev
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage"
+      dart: dev
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage_fs"
+      dart: dev
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage_node"
+      dart: dev
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_test"
+      dart: dev
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_browser"
+      dart: dev
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_fs"
+      dart: dev
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_fs"
+      dart: stable
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage"
+      dart: stable
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_browser"
+      dart: stable
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_node"
+      dart: stable
+    - stage: analyzer_and_format
+      script: ./tool/travis.sh dartfmt dartanalyzer
+      env: PKG="storage_test"
+      dart: stable
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage"
+      dart: stable
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage_fs"
+      dart: stable
+    - stage: test_vm
+      script: ./tool/travis.sh test_vm
+      env: PKG="storage_node"
+      dart: stable
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_test"
+      dart: stable
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_browser"
+      dart: stable
+    - stage: test_browser
+      script: ./tool/travis.sh test_browser
+      env: PKG="storage_fs"
+      dart: stable
+stages:
+  - analyzer_and_format
+  - test_vm
+
+# Only building master means that we don't run two builds for each pull request.
+branches:
+  only:
+    - master
+    - dart2
+
+cache:
+  directories:
+    - $HOME/.pub-cache
