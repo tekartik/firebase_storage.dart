@@ -1,13 +1,12 @@
 //import 'package:tekartik_build_utils/cmd_run.dart';
 import 'package:tekartik_build_utils/common_import.dart';
 
-/*
 Future testStorage() async {
   var dir = 'storage';
   await runCmd(PubCmd(pubRunTestArgs(platforms: ['vm', 'chrome']))
     ..workingDirectory = dir);
 }
-*/
+
 Future testStorageFs() async {
   var dir = 'storage_fs';
   await runCmd(
@@ -40,6 +39,7 @@ Future testStorageTest() async {
 
 Future main() async {
   Future.wait([
+    testStorage(),
     testStorageBrowser(),
     testStorageFs(),
     // testStorageNode(),

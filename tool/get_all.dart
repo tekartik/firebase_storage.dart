@@ -27,7 +27,7 @@ var packages = [
   'storage_test',
 ];
 
-var flutterPackages = ['storage_flutter'];
+var flutterPackages = <String>[]; // 'storage_flutter'];
 
 Future main() async {
   await Future.wait([getAll(packages), flutterGetAll(flutterPackages)]);
