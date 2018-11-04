@@ -41,10 +41,6 @@ jobs:
       dart: dev
     - stage: test_browser
       script: ./tool/travis.sh test_browser
-      env: PKG="storage_test"
-      dart: dev
-    - stage: test_browser
-      script: ./tool/travis.sh test_browser
       env: PKG="storage_browser"
       dart: dev
     - stage: test_browser
@@ -82,10 +78,6 @@ jobs:
     - stage: test_vm
       script: ./tool/travis.sh test_vm
       env: PKG="storage_node"
-      dart: stable
-    - stage: test_browser
-      script: ./tool/travis.sh test_browser
-      env: PKG="storage_test"
       dart: stable
     - stage: test_browser
       script: ./tool/travis.sh test_browser
