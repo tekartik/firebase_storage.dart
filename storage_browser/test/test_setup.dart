@@ -21,6 +21,10 @@ Future<AppOptions> setup() async {
         print('Missing "projectId" in local.config.yaml');
         return null;
       }
+      if (options.storageBucket == null) {
+        print('Missing "storageBucket" in local.config.yaml');
+        return null;
+      }
       return options;
     } catch (e) {
       print(e);

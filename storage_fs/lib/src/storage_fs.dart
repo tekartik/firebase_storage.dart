@@ -17,7 +17,7 @@ class StorageServiceFs implements StorageService {
   Storage storage(App app) {
     var storage = _storages[app];
     if (storage == null) {
-      storage = StorageFs(app as AppLocal);
+      storage = StorageFs(this, app as AppLocal);
       _storages[app] = storage;
     }
     return storage;
@@ -32,23 +32,23 @@ StorageServiceFs _storageServiceIo;
 StorageServiceFs get storageServiceFsIo =>
     _storageServiceIo ??= StorageServiceFs(fs.fileSystemIo);
 
-class FileIo implements File {
-  final BucketIo bucket;
+class FileFs implements File {
+  final BucketFs bucket;
   final String path;
 
   String get localPath => join(bucket.localPath, path);
 
-  io.File get ioFile => io.File(localPath);
+  io.File get fsFile => io.File(localPath);
 
-  FileIo(this.bucket, this.path);
+  FileFs(this.bucket, this.path);
 
   @override
   Future save(content) async {
     _write() async {
       if (content is String) {
-        await ioFile.writeAsString(content);
+        await fsFile.writeAsString(content);
       } else {
-        await ioFile.writeAsBytes(content as List<int>);
+        await fsFile.writeAsBytes(content as List<int>);
       }
     }
 
@@ -56,7 +56,7 @@ class FileIo implements File {
       await _write();
     } catch (_) {
       try {
-        await ioFile.parent.create(recursive: true);
+        await fsFile.parent.create(recursive: true);
       } catch (_) {}
       // try again
       await _write();
@@ -65,54 +65,47 @@ class FileIo implements File {
 
   @override
   Future<List<int>> download() async {
-    return await ioFile.readAsBytes();
+    return await fsFile.readAsBytes();
   }
 
   @override
   Future<bool> exists() async {
-    return await ioFile.exists();
+    return await fsFile.exists();
   }
 
   @override
   Future delete() async {
-    return await ioFile.delete();
+    return await fsFile.delete();
   }
 }
 
-class BucketIo implements Bucket {
+class BucketFs implements Bucket {
   final StorageFs storage;
   final String name;
 
   String localPath;
 
-  BucketIo(this.storage, this.name) {
-    localPath = join(storage.ioApp.localPath, 'storage.${name ?? '_default'}');
+  BucketFs(this.storage, String name) : name = name ?? '_default' {
+    localPath = join(storage.ioApp.localPath, 'storage.${this.name}');
   }
 
   @override
-  File file(String path) => FileIo(this, path);
+  File file(String path) => FileFs(this, path);
 
   @override
   Future<bool> exists() async {
-    // TODO: implement exists
-    return true;
+    return await storage.service.fileSystem.directory(localPath).exists();
   }
 }
 
 class StorageFs implements Storage {
+  final StorageServiceFs service;
   final AppLocal ioApp;
 
-  StorageFs(this.ioApp);
+  StorageFs(this.service, this.ioApp);
 
   @override
   Bucket bucket([String name]) {
-    var bucket = BucketIo(this, name);
-    if (name == null && firebaseSembastIoDefaultBucketLocalPath != null) {
-      bucket.localPath = firebaseSembastIoDefaultBucketLocalPath;
-    }
-    return bucket;
+    return BucketFs(this, name);
   }
 }
-
-// Allow overriding the default bucket location
-String firebaseSembastIoDefaultBucketLocalPath;
