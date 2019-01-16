@@ -16,7 +16,7 @@ class StorageServiceNode implements StorageService {
   @override
   Storage storage(App app) {
     assert(app is AppNode, 'invalid firebase app type');
-    AppNode appNode = app;
+    final appNode = app as AppNode;
     StorageNode storage = _storages[appNode];
     if (storage == null) {
       // ignore: invalid_use_of_protected_member

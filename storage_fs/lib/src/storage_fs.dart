@@ -46,7 +46,7 @@ class FileFs implements File {
 
   @override
   Future save(content) async {
-    _write() async {
+    Future _write() async {
       if (content is String) {
         await fsFile.writeAsString(content);
       } else {
@@ -72,7 +72,7 @@ class FileFs implements File {
 
   @override
   Future<bool> exists() async {
-    return await fsFile.exists();
+    return fsFile.existsSync();
   }
 
   @override
@@ -83,6 +83,7 @@ class FileFs implements File {
 
 class BucketFs implements Bucket {
   final StorageFs storage;
+  @override
   final String name;
 
   String localPath;
