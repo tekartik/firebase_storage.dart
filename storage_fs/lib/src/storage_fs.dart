@@ -11,8 +11,10 @@ import 'package:tekartik_firebase_local/firebase_local.dart';
 class StorageServiceFs implements StorageService {
   final fs.FileSystem fileSystem;
   final _storages = <App, StorageFs>{};
+  final String basePath;
 
-  StorageServiceFs(this.fileSystem);
+  StorageServiceFs(this.fileSystem, {this.basePath});
+
   @override
   Storage storage(App app) {
     var storage = _storages[app];
@@ -44,7 +46,7 @@ class FileFs implements File {
 
   @override
   Future save(content) async {
-    _write() async {
+    Future _write() async {
       if (content is String) {
         await fsFile.writeAsString(content);
       } else {
@@ -70,7 +72,7 @@ class FileFs implements File {
 
   @override
   Future<bool> exists() async {
-    return await fsFile.exists();
+    return fsFile.existsSync();
   }
 
   @override
@@ -81,12 +83,17 @@ class FileFs implements File {
 
 class BucketFs implements Bucket {
   final StorageFs storage;
+  @override
   final String name;
 
   String localPath;
 
   BucketFs(this.storage, String name) : name = name ?? '_default' {
-    localPath = join(storage.ioApp.localPath, 'storage.${this.name}');
+    if (storage.service.basePath != null) {
+      localPath = join(storage.service.basePath, this.name);
+    } else {
+      localPath = join(storage.ioApp.localPath, 'storage.${this.name}');
+    }
   }
 
   @override

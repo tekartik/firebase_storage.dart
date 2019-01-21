@@ -14,7 +14,7 @@ import 'package:fs_shim/fs.dart' as fs;
 void main() {
   var firebase = FirebaseLocal();
 
-  group('storage_fs', () {
+  group('storage_fs_io', () {
     run(firebase: firebase, storageService: storageServiceIo);
 
     fs.FileSystem fileSystem =
@@ -48,6 +48,18 @@ void main() {
       await fileFs.save("test");
       expect(await fileFs.exists(), isTrue);
       expect(await bucket.exists(), isTrue);
+    });
+
+    group('basePath', () {
+      var storageService = createStorageServiceIo(
+          basePath: join('.dart_tool', 'firebase_storage_fs', 'base_path'));
+      test('override', () async {
+        var storage = storageService.storage(app);
+
+        var bucketIo = storage.bucket() as BucketFs;
+        expect(bucketIo.localPath,
+            join(".dart_tool", "firebase_storage_fs", "base_path", "_default"));
+      });
     });
   });
 }
