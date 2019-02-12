@@ -16,7 +16,7 @@ void run(
   runApp(app, storageService: storageService);
 }
 
-runApp(App app, {@required StorageService storageService}) {
+void runApp(App app, {@required StorageService storageService}) {
   var storage = storageService.storage(app);
   group('storage', () {
     test('storage', () {

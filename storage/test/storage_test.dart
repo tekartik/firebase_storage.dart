@@ -7,10 +7,10 @@ void main() {
   group('storage', () {
     test('api', () {
       // Exported
-      Storage;
-      File;
-      Bucket;
-      StorageService;
+      expect(Storage, isNotNull);
+      expect(File, isNotNull);
+      expect(Bucket, isNotNull);
+      expect(StorageService, isNotNull);
     });
   });
 }
