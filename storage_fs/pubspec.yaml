@@ -5,10 +5,10 @@ version: 0.3.7+1
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.0.0-dev.54 <3.0.0'
+  sdk: '>=2.1.0-dev <3.0.0'
 
 dependencies:
-  fs_shim: '>=0.10.0'
+  fs_shim: '>=0.11.0+2'
   uuid: '>=1.0.0'
   tekartik_firebase_storage:
     git:
@@ -22,6 +22,7 @@ dependencies:
       path: firebase_local
       ref: dart2
     version: '>=0.3.7'
+  process_run: '>=0.10.2'
 
 dev_dependencies:
   test: any
