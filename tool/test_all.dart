@@ -38,7 +38,7 @@ Future testStorageTest() async {
 }
 
 Future main() async {
-  Future.wait([
+  await Future.wait([
     testStorage(),
     testStorageBrowser(),
     testStorageFs(),

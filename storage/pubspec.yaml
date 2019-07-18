@@ -4,7 +4,7 @@ version: 0.3.7
 author: alex <alex@tekartik.com>
 
 environment:
-  sdk: '>=2.0.0-dev.54 <3.0.0'
+  sdk: '>=2.1.0-dev <3.0.0'
 
 dependencies:
   tekartik_firebase:
@@ -16,6 +16,7 @@ dependencies:
 
 dev_dependencies:
   test: "^1.0.0"
+  process_run: '>=0.10.2'
 
 dependency_overrides:
 #  tekartik_firebase:
