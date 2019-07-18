@@ -19,6 +19,7 @@ dependencies:
 
 dev_dependencies:
   dev_test: '>=0.12.0-dev.1'
+  process_run: '>=0.10.2'
 
 dependency_overrides:
   tekartik_firebase_storage:
