@@ -7,7 +7,7 @@ void run(
     {@required Firebase firebase,
     @required StorageService storageService,
     AppOptions options}) {
-  App app = firebase.initializeApp();
+  var app = firebase.initializeApp();
 
   tearDownAll(() {
     return app.delete();
@@ -32,9 +32,9 @@ void runApp(App app, {@required StorageService storageService}) {
 
       test('bucket', () {
         try {
-          var bucket = storage.bucket("test");
+          var bucket = storage.bucket('test');
           expect(bucket, isNotNull);
-          expect(bucket.name, "test");
+          expect(bucket.name, 'test');
         } catch (_) {
           // Allow failing here
         }
@@ -44,15 +44,15 @@ void runApp(App app, {@required StorageService storageService}) {
     group('file', () {
       var bucket = storage.bucket();
       test('exists', () async {
-        var file = bucket.file("dummy-file-that-should-not-exists");
+        var file = bucket.file('dummy-file-that-should-not-exists');
         expect(await file.exists(), isFalse);
       });
 
       test('save_download_delete', () async {
-        var file = bucket.file("file.txt");
-        await file.save("simple content");
+        var file = bucket.file('file.to_delete.txt');
+        await file.save('simple content');
         expect(await file.exists(), isTrue);
-        expect(String.fromCharCodes(await file.download()), "simple content");
+        expect(String.fromCharCodes(await file.download()), 'simple content');
         await file.delete();
       });
     });

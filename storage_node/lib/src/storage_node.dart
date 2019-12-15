@@ -17,7 +17,7 @@ class StorageServiceNode implements StorageService {
   Storage storage(App app) {
     assert(app is AppNode, 'invalid firebase app type');
     final appNode = app as AppNode;
-    StorageNode storage = _storages[appNode];
+    var storage = _storages[appNode];
     if (storage == null) {
       // ignore: invalid_use_of_protected_member
       var storageApp = (appNode.nativeInstance).nativeInstance;
@@ -41,7 +41,7 @@ class StorageNode implements Storage {
   Bucket bucket([String name]) {
     native.Bucket nativeBucket;
     if (name == null) {
-      nativeBucket = callMethod(nativeInstance, "bucket", []) as native.Bucket;
+      nativeBucket = callMethod(nativeInstance, 'bucket', []) as native.Bucket;
     } else {
       nativeBucket = nativeInstance.bucket(name);
     }
