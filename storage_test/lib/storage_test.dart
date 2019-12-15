@@ -49,7 +49,7 @@ void runApp(App app, {@required StorageService storageService}) {
       });
 
       test('save_download_delete', () async {
-        var file = bucket.file('file.txt');
+        var file = bucket.file('file.to_delete.txt');
         await file.save('simple content');
         expect(await file.exists(), isTrue);
         expect(String.fromCharCodes(await file.download()), 'simple content');

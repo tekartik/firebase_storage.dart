@@ -7,6 +7,6 @@ Future main() async {
 dartanalyzer --fatal-warnings --fatal-infos .
 dartfmt -n --set-exit-if-changed .
 
-pub run test -p vm
+pub run test -p vm -j 1
 ''');
 }
