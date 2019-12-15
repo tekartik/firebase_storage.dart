@@ -8,7 +8,7 @@ Future main() async {
     'storage_browser',
     'storage_fs',
     'storage_node',
-    // 'storage_test',
+    'storage_test',
   ]) {
     shell = shell.pushd(dir);
     await shell.run('''
