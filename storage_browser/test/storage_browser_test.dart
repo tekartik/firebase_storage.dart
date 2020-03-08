@@ -11,6 +11,7 @@ import 'test_setup.dart';
 void main() async {
   var options = await setup();
   if (options == null) {
+    test('no setup', () {});
     return;
   }
   var firebase = firebaseBrowser;
