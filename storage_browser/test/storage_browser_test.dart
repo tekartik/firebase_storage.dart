@@ -8,14 +8,11 @@ import 'test_setup.dart';
 
 void main() async {
   var options = await setup();
-  if (options == null) {
-    return;
-  }
   // var firebase = firebaseBrowser;
   group('browser', () {
     test('api', () {
       storageServiceBrowser;
     });
     // run(firebase: firebase, storageService: storageService, options: options);
-  });
+  }, skip: options == null);
 }
