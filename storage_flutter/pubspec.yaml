@@ -1,0 +1,39 @@
+name: tekartik_firebase_storage_flutter
+description: Firebase storage for flutter
+version: 0.4.0
+publish_to: none
+
+environment:
+  sdk: '>=2.7.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path:
+  tekartik_firebase_storage:
+    git:
+      url: git://github.com/tekartik/firebase_storage.dart
+      path: storage
+      ref: dart2
+    version: '>=0.4.0'
+  tekartik_firebase_flutter:
+    git:
+      url: git://github.com/tekartik/firebase.dart
+      path: firebase_flutter
+      ref: dart2
+    version: '>=0.6.0'
+  firebase_storage: any
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  process_run: '>=0.10.2'
+
+dependency_overrides:
+  pedantic: '>=1.9.0'
+  tekartik_firebase_storage:
+    path: ../storage

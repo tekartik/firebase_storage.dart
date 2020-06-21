@@ -1,0 +1,55 @@
+name: tekartik_firebase_storage_rest
+description: Firebase storage rest API
+version: 0.7.2
+publish_to: none
+
+environment:
+  sdk: '>=2.7.0 <3.0.0'
+
+dependencies:
+  fs_shim:
+  sembast: '>=1.19.0-dev.3'
+  uuid: '>=1.0.0'
+  tekartik_firebase_storage:
+    git:
+      url: git://github.com/tekartik/firebase_storage.dart
+      path: storage
+      ref: dart2
+    version: '>=0.4.0'
+  tekartik_firebase_rest:
+    git:
+      url: git://github.com/tekartik/firebase.dart
+      path: firebase_rest
+      ref: dart2
+    version: '>=0.6.4'
+  googleapis:
+  googleapis_beta:
+  googleapis_auth:
+  tekartik_http:
+    git:
+      url: git://github.com/tekartik/http.dart
+      path: http
+      ref: dart2
+    version: '>=0.2.0+2'
+  path:
+
+dev_dependencies:
+  tekartik_firebase_local:
+    git:
+      url: git://github.com/tekartik/firebase.dart
+      path: firebase_local
+      ref: dart2
+    version: '>=0.3.7'
+  test: any
+  build_runner: ">=0.9.1"
+  build_test: ">=0.10.3"
+  tekartik_firebase_storage_test:
+    path: ../storage_test
+  process_run: '>=0.10.2'
+
+dependency_overrides:
+  tekartik_firebase_storage:
+    path: ../storage
+  # tmp
+  # tekartik_firebase_rest:
+  #   path: ../../firebase.dart/firebase_rest
