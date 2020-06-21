@@ -11,5 +11,5 @@ dependencies:
       url: git://github.com/tekartik/firebase_storage.dart
       path: storage_rest
       ref: dart2
-    version: '>=0.6.0'
+    version: '>=0.7.2'
 ```
