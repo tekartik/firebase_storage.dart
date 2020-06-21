@@ -7,6 +7,6 @@ Future main() async {
 dartanalyzer --fatal-warnings --fatal-infos .
 dartfmt -n --set-exit-if-changed .
 
-pub run test -p vm,chrome
+pub run test -p chrome
 ''');
 }
