@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:js/js_util.dart';
 import 'package:node_interop/util.dart';
 import 'package:tekartik_common_utils/common_utils_import.dart';
@@ -66,11 +67,11 @@ class FileNode implements File {
   }
 
   @override
-  Future<List<int>> download() async {
+  Future<Uint8List> download() async {
     // Array with first item as the response
     var downloadResponse =
         (await promiseToFuture(nativeInstance.download())) as List;
-    return downloadResponse[0] as List<int>;
+    return downloadResponse[0] as Uint8List;
   }
 
   @override

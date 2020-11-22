@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:typed_data';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_memory.dart' as fs;
 import 'package:fs_shim/fs_io.dart' as fs;
@@ -66,7 +67,7 @@ class FileFs implements File {
   }
 
   @override
-  Future<List<int>> download() async {
+  Future<Uint8List> download() async {
     return await fsFile.readAsBytes();
   }
 

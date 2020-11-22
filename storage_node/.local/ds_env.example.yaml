@@ -1,0 +1,10 @@
+# Local Environment path and variable for `Shell.run` calls.
+# See <https://github.com/tekartik/process_run.dart/blob/master/doc/user_config.md> for more information
+# To copy as `ds_env.yaml` in the same folder `.local`, excluded from source control by default
+#
+var:
+  # Credentials for firebase account hublotbbe
+  storageBucket: 1************appspot.com
+  # Define a unique readwrite path to run the tests
+  rootPath: f291356c-97e0-4f5b-9a0e-e8461b585cca
+

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:tekartik_firebase/firebase.dart';
 
 abstract class Storage {
@@ -14,7 +15,7 @@ abstract class Bucket {
 abstract class File {
   Future save(/* String | List<int> */ dynamic content);
   Future<bool> exists();
-  Future<List<int>> download();
+  Future<Uint8List> download();
   Future delete();
 }
 

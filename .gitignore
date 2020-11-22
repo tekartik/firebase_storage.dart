@@ -10,3 +10,6 @@ build/
 
 # VSCode
 .vscode
+
+# Local
+.local/

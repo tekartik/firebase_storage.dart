@@ -1,3 +1,15 @@
+## Setup
+
+```yaml
+dependencies:
+  tekartik_firebase_storage_node:
+    git:
+      url: git://github.com/tekartik/firebase_storage.dart
+      path: storage_node
+      ref: dart2
+    version: 0.4.0
+```
+
 ## Test setup
 
  Use dart2 and set env variable
