@@ -38,6 +38,7 @@ Future<native.Reference> getReferenceFromName(
 }
 
 class FileFlutter implements File {
+  @override
   final BucketFlutter bucket;
   final String path;
   native.Reference _ref;
@@ -86,6 +87,9 @@ class FileFlutter implements File {
     _ref ??= await _initRef();
     await _ref.delete();
   }
+
+  @override
+  String get name => _ref.name;
 }
 
 class BucketFlutter implements Bucket {

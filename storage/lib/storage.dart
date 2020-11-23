@@ -1,2 +1,9 @@
 export 'package:tekartik_firebase_storage/src/storage.dart'
-    show Storage, Bucket, File, StorageService;
+    show
+        Storage,
+        StorageMixin,
+        Bucket,
+        File,
+        StorageService,
+        GetFilesOptions,
+        GetFilesResponse;

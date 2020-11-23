@@ -4,7 +4,11 @@
 #
 var:
   # Credentials for firebase account hublotbbe
-  storageBucket: 1************appspot.com
+  firebaseStorageTestBucket: 1************appspot.com
   # Define a unique readwrite path to run the tests
-  rootPath: f291356c-97e0-4f5b-9a0e-e8461b585cca
+  firebaseStorageTestRootPath: f291356c-97e0-4f5b-9a0e-e8461b585cca
+  # Google credentials
+  GOOGLE_APPLICATION_CREDENTIALS: /path/to/credentials
+  # Firebase config
+  FIREBASE_CONFIG: /path/to/service_account
 

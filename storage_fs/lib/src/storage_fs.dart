@@ -36,6 +36,7 @@ StorageServiceFs get storageServiceFsIo =>
     _storageServiceIo ??= StorageServiceFs(fs.fileSystemIo);
 
 class FileFs implements File {
+  @override
   final BucketFs bucket;
   final String path;
 
@@ -80,6 +81,12 @@ class FileFs implements File {
   Future delete() async {
     return await fsFile.delete();
   }
+
+  @override
+  String get name => path;
+
+  @override
+  String toString() => 'FileFs($name)';
 }
 
 class BucketFs implements Bucket {

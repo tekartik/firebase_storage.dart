@@ -16,7 +16,7 @@ class StorageServiceNode implements StorageService {
 
   @override
   Storage storage(App app) {
-    assert(app is AppNode, 'invalid firebase app type');
+    assert(app is AppNode, 'invalid firebase app type ${app.runtimeType}');
     final appNode = app as AppNode;
     var storage = _storages[appNode];
     if (storage == null) {
@@ -76,6 +76,15 @@ class FileNode implements File {
 
   @override
   Future delete() => promiseToFuture(nativeInstance.delete());
+
+  @override
+  String toString() => 'FileNode($name)';
+
+  @override
+  String get name => nativeInstance.name;
+
+  @override
+  Bucket get bucket => BucketNode(nativeInstance.bucket);
 }
 
 class BucketNode implements Bucket {
@@ -92,6 +101,25 @@ class BucketNode implements Bucket {
 
   @override
   String get name => nativeInstance.name;
+
+  Future<GetFilesResponse> getFiles([GetFilesOptions options]) async {
+    var nativeResponse = await native.bucketGetFiles(
+        nativeInstance, _unwrapGetFilesOptions(options));
+    return GetFilesResponseNode(nativeResponse);
+  }
+}
+
+class GetFilesResponseNode implements GetFilesResponse {
+  final native.GetFilesResponse nativeInstance;
+
+  GetFilesResponseNode(this.nativeInstance);
+
+  @override
+  List<File> get files => nativeInstance.files.map((e) => FileNode(e)).toList();
+
+  @override
+  GetFilesOptions get nextQuery =>
+      _wrapGetFilesOptions(nativeInstance.nextQuery);
 }
 
 BucketNode _wrapBucket(native.Bucket nativeInstance) =>
@@ -99,3 +127,26 @@ BucketNode _wrapBucket(native.Bucket nativeInstance) =>
 
 FileNode _wrapFile(native.File nativeInstance) =>
     nativeInstance != null ? FileNode(nativeInstance) : null;
+
+native.GetFilesOptions _unwrapGetFilesOptions(GetFilesOptions options) {
+  if (options == null) {
+    return null;
+  }
+  return native.GetFilesOptions(
+    maxResults: options.maxResults,
+    prefix: options.prefix,
+    autoPaginate: options.autoPaginate,
+    pageToken: options.pageToken,
+  );
+}
+
+GetFilesOptions _wrapGetFilesOptions(native.GetFilesOptions options) {
+  if (options == null) {
+    return null;
+  }
+  return GetFilesOptions(
+      maxResults: options.maxResults,
+      prefix: options.prefix,
+      autoPaginate: options.autoPaginate,
+      pageToken: options.pageToken);
+}
