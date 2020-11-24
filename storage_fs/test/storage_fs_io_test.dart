@@ -12,7 +12,10 @@ void main() {
   var firebase = FirebaseLocal();
 
   group('storage_fs_io', () {
-    run(firebase: firebase, storageService: storageServiceIo);
+    run(
+        firebase: firebase,
+        storageService: storageServiceIo,
+        storageOptions: TestStorageOptions(bucket: 'my_bucket'));
 
     var fileSystem = (storageServiceIo as StorageServiceFs).fileSystem;
     var app = firebase.initializeApp();

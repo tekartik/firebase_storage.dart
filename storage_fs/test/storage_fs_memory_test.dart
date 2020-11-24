@@ -10,6 +10,9 @@ void main() {
   var firebase = FirebaseLocal();
 
   group('storage_fs', () {
-    run(firebase: firebase, storageService: storageServiceMemory);
+    run(
+        firebase: firebase,
+        storageService: storageServiceMemory,
+        storageOptions: TestStorageOptions(bucket: 'my_bucket'));
   });
 }

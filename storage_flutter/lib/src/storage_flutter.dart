@@ -37,7 +37,7 @@ Future<native.Reference> getReferenceFromName(
   return ref;
 }
 
-class FileFlutter implements File {
+class FileFlutter with FileMixin implements File {
   @override
   final BucketFlutter bucket;
   final String path;
@@ -92,7 +92,7 @@ class FileFlutter implements File {
   String get name => _ref.name;
 }
 
-class BucketFlutter implements Bucket {
+class BucketFlutter with BucketMixin implements Bucket {
   final StorageFlutter storage;
   @override
   final String name;

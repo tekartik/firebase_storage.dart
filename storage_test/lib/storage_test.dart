@@ -19,13 +19,14 @@ class TestStorageOptions {
 void run(
     {@required Firebase firebase,
     @required StorageService storageService,
-    AppOptions options}) {
+    AppOptions options,
+    TestStorageOptions storageOptions}) {
   var app = firebase.initializeApp();
   tearDownAll(() {
     return app.delete();
   });
 
-  runApp(app, storageService: storageService);
+  runApp(app, storageService: storageService, storageOptions: storageOptions);
 }
 
 void runApp(App app,
@@ -42,7 +43,7 @@ void runApp(App app,
         var bucket = storage.bucket();
         expect(bucket, isNotNull);
         expect(bucket.name, isNotNull);
-      });
+      }, skip: 'Default bucket can be null');
 
       test('bucket', () {
         try {
@@ -104,6 +105,47 @@ void runApp(App app,
         await file.save(content);
         expect(await file.exists(), isTrue);
         expect(String.fromCharCodes(await file.download()), content);
+      });
+
+      test('list_files', () async {
+        var content = 'storage_list_files_test';
+        await bucket
+            .file('test/list_files/no/file0.txt')
+            .writeAsString(content);
+        await bucket
+            .file('test/list_files/yes/file1.txt')
+            .writeAsString(content);
+        await bucket
+            .file('test/list_files/yes/sub/file2.txt')
+            .writeAsString(content);
+        await bucket
+            .file('test/list_files/yes/other_sub/sub/file3.txt')
+            .writeAsString(content);
+        var names = <String>[];
+
+        var query = GetFilesOptions(
+            maxResults: 2, prefix: 'test/list_files/yes', autoPaginate: false);
+        var response = await bucket.getFiles(query);
+        // devPrint(response);
+        names.addAll(response.files.map((e) => e.name));
+        while (response.nextQuery != null) {
+          response = await bucket.getFiles(response.nextQuery);
+          // devPrint(response);
+          names.addAll(response.files.map((e) => e.name));
+        }
+        expect(names, contains('test/list_files/yes/file1.txt'));
+        expect(names, contains('test/list_files/yes/sub/file2.txt'));
+        expect(names, contains('test/list_files/yes/other_sub/sub/file3.txt'));
+        expect(names, isNot(contains('test/list_files/no/file0.txt')));
+      });
+      test('list_no_files', () async {
+        var query = GetFilesOptions(
+            maxResults: 2,
+            prefix: 'test/dummy_path_that_should_not_exists',
+            autoPaginate: false);
+        var response = await bucket.getFiles(query);
+        // devPrint(response);
+        expect(response.files, isEmpty);
       });
     },
         skip: storageOptions?.bucket == null

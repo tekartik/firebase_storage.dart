@@ -50,7 +50,7 @@ class StorageNode implements Storage {
   }
 }
 
-class FileNode implements File {
+class FileNode with FileMixin implements File {
   final native.File nativeInstance;
 
   FileNode(this.nativeInstance);
@@ -102,6 +102,7 @@ class BucketNode implements Bucket {
   @override
   String get name => nativeInstance.name;
 
+  @override
   Future<GetFilesResponse> getFiles([GetFilesOptions options]) async {
     var nativeResponse = await native.bucketGetFiles(
         nativeInstance, _unwrapGetFilesOptions(options));
@@ -120,6 +121,12 @@ class GetFilesResponseNode implements GetFilesResponse {
   @override
   GetFilesOptions get nextQuery =>
       _wrapGetFilesOptions(nativeInstance.nextQuery);
+
+  @override
+  String toString() => {
+        'files': files,
+        if (nextQuery != null) 'nextQuery': nextQuery
+      }.toString();
 }
 
 BucketNode _wrapBucket(native.Bucket nativeInstance) =>
