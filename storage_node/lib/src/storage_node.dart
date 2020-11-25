@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:js/js_util.dart';
 import 'package:node_interop/util.dart';
 import 'package:tekartik_common_utils/common_utils_import.dart';
+import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
+import 'package:tekartik_firebase_node/impl/firebase_node.dart';
+import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_node/src/storage_bindings.dart'
     as native;
-import 'package:tekartik_firebase_storage/storage.dart';
-import 'package:tekartik_firebase_node/impl/firebase_node.dart';
 
 class StorageServiceNode implements StorageService {
   final _storages = <AppNode, StorageNode>{};
@@ -30,6 +32,7 @@ class StorageServiceNode implements StorageService {
 }
 
 StorageServiceNode _storageServiceNode;
+
 StorageServiceNode get storageServiceNode =>
     _storageServiceNode ??= StorageServiceNode();
 
@@ -78,13 +81,19 @@ class FileNode with FileMixin implements File {
   Future delete() => promiseToFuture(nativeInstance.delete());
 
   @override
-  String toString() => 'FileNode($name)';
+  String toString() =>
+      'FileNode($name${metadata != null ? ', metadata: $metadata' : ''})';
 
   @override
   String get name => nativeInstance.name;
 
   @override
   Bucket get bucket => BucketNode(nativeInstance.bucket);
+
+  @override
+  FileMetadata get metadata => nativeInstance.metadata == null
+      ? null
+      : FileMetadataNode(nativeInstance.metadata);
 }
 
 class BucketNode implements Bucket {
@@ -156,4 +165,29 @@ GetFilesOptions _wrapGetFilesOptions(native.GetFilesOptions options) {
       prefix: options.prefix,
       autoPaginate: options.autoPaginate,
       pageToken: options.pageToken);
+}
+
+class FileMetadataNode implements FileMetadata {
+  final native.FileMetadata nativeInstance;
+
+  FileMetadataNode(this.nativeInstance);
+
+  @override
+  String get md5Hash => nativeInstance.md5Hash == null
+      ? null
+      : base64.encode(nativeInstance.md5Hash.codeUnits);
+
+  @override
+  DateTime get dateUpdated => anyToDateTime(nativeInstance.updated);
+
+  @override
+  int get size =>
+      nativeInstance.size == null ? null : int.tryParse(nativeInstance.size);
+
+  @override
+  String toString() => {
+        'size': size,
+        'dateUpdated': dateUpdated?.toUtc()?.toIso8601String(),
+        'md5Hash': md5Hash
+      }.toString();
 }

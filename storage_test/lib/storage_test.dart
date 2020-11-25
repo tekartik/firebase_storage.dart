@@ -108,6 +108,7 @@ void runApp(App app,
       });
 
       test('list_files', () async {
+        var now = DateTime.now();
         var content = 'storage_list_files_test';
         await bucket
             .file('test/list_files/no/file0.txt')
@@ -121,22 +122,38 @@ void runApp(App app,
         await bucket
             .file('test/list_files/yes/other_sub/sub/file3.txt')
             .writeAsString(content);
-        var names = <String>[];
+        var files = <File>[];
 
         var query = GetFilesOptions(
             maxResults: 2, prefix: 'test/list_files/yes', autoPaginate: false);
         var response = await bucket.getFiles(query);
         // devPrint(response);
-        names.addAll(response.files.map((e) => e.name));
+        files.addAll(response.files);
         while (response.nextQuery != null) {
           response = await bucket.getFiles(response.nextQuery);
           // devPrint(response);
-          names.addAll(response.files.map((e) => e.name));
+          files.addAll(response.files);
         }
+        var names = files.map((e) => e.name).toList()..sort();
+
+        // Assume the directory was empty before
+        expect(names, [
+          'test/list_files/yes/file1.txt',
+          'test/list_files/yes/other_sub/sub/file3.txt',
+          'test/list_files/yes/sub/file2.txt'
+        ]);
         expect(names, contains('test/list_files/yes/file1.txt'));
         expect(names, contains('test/list_files/yes/sub/file2.txt'));
         expect(names, contains('test/list_files/yes/other_sub/sub/file3.txt'));
         expect(names, isNot(contains('test/list_files/no/file0.txt')));
+
+        // Check meta
+        var file = files.firstWhere(
+            (element) => element.name == 'test/list_files/yes/file1.txt');
+        expect(file.metadata.dateUpdated.isBefore(now), isFalse);
+        expect(file.metadata.md5Hash,
+            isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
+        expect(file.metadata.size, 23);
       });
       test('list_no_files', () async {
         var query = GetFilesOptions(

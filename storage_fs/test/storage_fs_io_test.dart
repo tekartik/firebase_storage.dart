@@ -29,8 +29,8 @@ void main() {
       var bucketIo = storage.bucket() as BucketFs;
       expect(
           bucketIo.localPath,
-          join('.dart_tool', 'tekartik_firebase_local', '_default',
-              'storage._default'));
+          join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
+              '_default'));
     });
     test('create_no_tree', () async {
       var bucket = storage.bucket('test');

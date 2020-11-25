@@ -6,6 +6,7 @@ export 'package:tekartik_firebase_storage/src/storage.dart'
         BucketMixin,
         File,
         FileMixin,
+        FileMetadata,
         StorageService,
         GetFilesOptions,
         GetFilesResponse;

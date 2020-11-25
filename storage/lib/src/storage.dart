@@ -77,6 +77,15 @@ abstract class File {
 
   /// The bucket instance the is attached to.
   Bucket get bucket;
+
+  /// Available when listed through getFiles
+  FileMetadata get metadata;
+}
+
+abstract class FileMetadata {
+  int get size;
+  DateTime get dateUpdated;
+  String get md5Hash;
 }
 
 mixin FileMixin implements File {
@@ -110,13 +119,15 @@ mixin FileMixin implements File {
   }
 
   @override
+  FileMetadata get metadata => throw UnimplementedError('metadata');
+
+  @override
   String get name => throw UnimplementedError('name');
 
   @override
   Future save(content) {
     throw UnimplementedError('save');
   }
-
 }
 
 abstract class StorageService {

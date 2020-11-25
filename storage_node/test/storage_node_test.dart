@@ -73,12 +73,14 @@ Future<void> main() async {
       while (true) {
         var response = await bucketNode.getFiles(query);
         response = await bucketNode.getFiles(response.nextQuery);
+        // devPrint(response);
+        // devPrint(response.files);
         query = response.nextQuery;
         if (query == null) {
           break;
         }
       }
-    });
+    }, skip: 'temp node test');
     // runApp(app, storageService: storageService);
   }, skip: options == null);
 }
