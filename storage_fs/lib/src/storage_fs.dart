@@ -38,6 +38,9 @@ StorageServiceFs _storageServiceMemory;
 StorageServiceFs get storageServiceFsMemory =>
     _storageServiceMemory ??= StorageServiceFs(fs.newFileSystemMemory());
 
+StorageServiceFs newStorageServiceFsMemory() =>
+    StorageServiceFs(fs.newFileSystemMemory());
+
 StorageServiceFs _storageServiceIo;
 
 StorageServiceFs get storageServiceFsIo =>
