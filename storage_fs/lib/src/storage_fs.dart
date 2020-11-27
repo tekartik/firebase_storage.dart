@@ -51,9 +51,9 @@ class FileFs with FileMixin implements File {
   final BucketFs bucket;
   final String path;
 
-  String get dataPath => join(bucket.dataPath, path);
+  String get dataPath => bucket.getFsFileDataPath(path);
 
-  String get metaPath => join(bucket.metaPath, '$path.json');
+  String get metaPath => bucket.getFsFileMetaPath(path);
 
   fs_shim.File get fsFile => bucket.fs.file(dataPath);
 
@@ -175,7 +175,7 @@ class BucketFs with BucketMixin implements Bucket {
       name == null ? dataPath : url.join(dataPath, name);
 
   String getFsFileMetaPath(String name) =>
-      name == null ? metaPath : url.join(metaPath, name);
+      name == null ? metaPath : url.join(metaPath, '$name.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
     // TODO handle directories

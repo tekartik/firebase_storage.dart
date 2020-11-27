@@ -155,6 +155,22 @@ void runApp(App app,
             isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
         expect(file.metadata.size, 23);
       });
+
+      test('list_files_meta', () async {
+        var content = 'storage_list_files_test';
+        await bucket.file('test/meta/file0.txt').writeAsString(content);
+
+        var query = GetFilesOptions(
+            maxResults: 2, prefix: 'test/meta/', autoPaginate: false);
+        var response = await bucket.getFiles(query);
+        var file1 = response.files.first;
+
+        response = await bucket.getFiles(query);
+        var file2 = response.files.first;
+        expect(file1.metadata.size, file2.metadata.size);
+        expect(file1.metadata.dateUpdated, file2.metadata.dateUpdated);
+        expect(file1.metadata.md5Hash, file2.metadata.md5Hash);
+      });
       test('list_no_files', () async {
         var query = GetFilesOptions(
             maxResults: 2,
