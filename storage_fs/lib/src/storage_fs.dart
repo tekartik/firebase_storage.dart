@@ -259,7 +259,7 @@ class BucketFs with BucketMixin implements Bucket {
   }
 }
 
-class StorageFs implements Storage {
+class StorageFs with StorageMixin implements Storage {
   final StorageServiceFs service;
   final AppLocal ioApp;
 

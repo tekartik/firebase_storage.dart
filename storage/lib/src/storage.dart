@@ -29,10 +29,27 @@ abstract class GetFilesResponse {
   GetFilesOptions get nextQuery;
 }
 
-class StorageMixin {}
+mixin StorageMixin implements Storage {
+  @override
+  Bucket bucket([String name]) {
+    throw UnimplementedError();
+  }
 
+  @override
+  Reference ref([String path]) {
+    throw UnimplementedError();
+  }
+}
+
+/// The entrypoint for firebase [Storage].
 abstract class Storage {
   Bucket bucket([String name]);
+
+  /// Returns a new [Reference].
+  ///
+  /// If the [path] is empty, the reference will point to the root of the
+  /// storage bucket.
+  Reference ref([String path]);
 }
 
 abstract class Bucket {
@@ -132,4 +149,18 @@ mixin FileMixin implements File {
 
 abstract class StorageService {
   Storage storage(App app);
+}
+
+/// Represents a reference to a Google Cloud Storage object. Developers can
+/// upload, download, and delete objects, as well as get/set object metadata.
+abstract class Reference {
+  /// Fetches a long lived download URL for this object.
+  Future<String> getDownloadUrl();
+}
+
+mixin ReferenceMixin implements Reference {
+  @override
+  Future<String> getDownloadUrl() {
+    throw UnimplementedError('getDownloadUrl');
+  }
 }

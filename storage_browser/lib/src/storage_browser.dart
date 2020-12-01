@@ -1,5 +1,6 @@
 import 'package:firebase/firebase.dart' as native;
 import 'package:tekartik_firebase/firebase.dart';
+
 // ignore: implementation_imports
 import 'package:tekartik_firebase_browser/src/firebase_browser.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
@@ -18,7 +19,7 @@ StorageServiceBrowser _firebaseStorageServiceBrowser;
 StorageService get storageService =>
     _firebaseStorageServiceBrowser ??= StorageServiceBrowser();
 
-class StorageBrowser implements Storage {
+class StorageBrowser with StorageMixin implements Storage {
   final native.Storage nativeInstance;
 
   StorageBrowser(this.nativeInstance);

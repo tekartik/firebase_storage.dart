@@ -36,7 +36,7 @@ StorageServiceNode _storageServiceNode;
 StorageServiceNode get storageServiceNode =>
     _storageServiceNode ??= StorageServiceNode();
 
-class StorageNode implements Storage {
+class StorageNode with StorageMixin implements Storage {
   final native.Storage nativeInstance;
 
   StorageNode(this.nativeInstance);

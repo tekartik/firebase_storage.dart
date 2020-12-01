@@ -121,6 +121,15 @@ class BucketFlutter with BucketMixin implements Bucket {
 
 String nameToUrl(String name) => 'gs://$name';
 
+class ReferenceFlutter with ReferenceMixin implements Reference {
+  final native.Reference nativeInstance;
+
+  ReferenceFlutter(this.nativeInstance);
+
+  @override
+  Future<String> getDownloadUrl() => nativeInstance.getDownloadURL();
+}
+
 class StorageFlutter implements Storage {
   final native.FirebaseStorage firebaseStorage;
 
@@ -129,6 +138,13 @@ class StorageFlutter implements Storage {
   @override
   Bucket bucket([String name]) {
     return BucketFlutter(this, name);
+  }
+
+  @override
+  Reference ref([String path]) {
+    path ??= '/';
+    path = path.isEmpty ? '/' : path;
+    return ReferenceFlutter(firebaseStorage.ref(path));
   }
 }
 
