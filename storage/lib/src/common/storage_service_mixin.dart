@@ -15,10 +15,9 @@ mixin StorageServiceMixin implements StorageService {
   }
 }
 
-
 /// Find the default storage bucket.
 String appOptionsGetStorageBucket(AppOptions options) {
   var storageBucket =
-  (options.storageBucket ?? '${options.projectId}.appspot.com');
+      (options.storageBucket ?? '${options.projectId}.appspot.com');
   return storageBucket;
 }
