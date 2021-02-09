@@ -11,7 +11,6 @@ import 'test_setup.dart';
 
 Future main() async {
   var context = await setup();
-  print(context.authClient);
   group('rest_io', () {
     // Temp
     //context = null;
