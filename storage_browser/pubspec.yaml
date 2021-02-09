@@ -14,7 +14,7 @@ dependencies:
       url: git://github.com/tekartik/firebase_storage.dart
       path: storage
       ref: dart2
-      version: 0.4.0
+      version: '>=0.4.0'
   tekartik_firebase_browser:
     git:
       url: git://github.com/tekartik/firebase.dart

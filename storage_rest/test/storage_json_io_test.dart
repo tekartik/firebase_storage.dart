@@ -11,12 +11,15 @@ import 'test_setup.dart';
 
 Future main() async {
   final context = await setup();
-  // print(context);
-  var api = UnauthenticatedStorageApi(
-      appOptions: context.options, client: context.authClient);
+
   group('rest', () {
     var supported = false;
+    UnauthenticatedStorageApi api;
+    // print(context);
+
     setUpAll(() async {
+      api = UnauthenticatedStorageApi(
+          appOptions: context.options, client: context.authClient);
       try {
         print('Testing storage support');
         await api.list(prefix: '_dummy_123456789_that_never_exists/');

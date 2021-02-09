@@ -8,6 +8,7 @@ import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_storage_rest/src/storage_json_impl.dart';
 import 'package:tekartik_http/http.dart';
 import 'package:tekartik_http/http_client.dart';
+import 'src/import.dart';
 
 // {
 //  "prefixes": [],
@@ -45,13 +46,6 @@ class GsReferenceListResponse {
 
   @override
   String toString() => toDebugMap().toString();
-}
-
-/// Find the default storage bucket.
-String appOptionsGetStorageBucket(AppOptions options) {
-  var storageBucket =
-      (options.storageBucket ?? '${options.projectId}.appspot.com');
-  return storageBucket;
 }
 
 var _baseUrl = 'https://firebasestorage.googleapis.com/v0';

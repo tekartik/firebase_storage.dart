@@ -82,12 +82,12 @@ mixin BucketMixin implements Bucket {
 abstract class File {
   Future<void> writeAsBytes(Uint8List bytes);
   Future<void> writeAsString(String text);
-  Future save(/* String | List<int> */ dynamic content);
+  Future<void> save(/* String | List<int> */ dynamic content);
   Future<bool> exists();
   Future<Uint8List> download();
   Future<Uint8List> readAsBytes();
   Future<String> readAsString();
-  Future delete();
+  Future<void> delete();
 
   /// Name of the remote file
   String get name;
@@ -125,6 +125,7 @@ mixin FileMixin implements File {
     throw UnimplementedError('delete');
   }
 
+  // To deprecate
   @override
   Future<Uint8List> download() {
     throw UnimplementedError('download');
@@ -141,8 +142,9 @@ mixin FileMixin implements File {
   @override
   String get name => throw UnimplementedError('name');
 
+  // To deprecate
   @override
-  Future save(content) {
+  Future<void> save(content) {
     throw UnimplementedError('save');
   }
 }

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:meta/meta.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
+import 'package:tekartik_firebase_storage_test/src/import.dart';
 import 'package:test/test.dart';
 import 'package:tekartik_common_utils/common_utils_import.dart';
 import 'package:path/path.dart';
@@ -21,7 +24,7 @@ void run(
     @required StorageService storageService,
     AppOptions options,
     TestStorageOptions storageOptions}) {
-  var app = firebase.initializeApp();
+  var app = firebase.initializeApp(options: options);
   tearDownAll(() {
     return app.delete();
   });
@@ -32,6 +35,15 @@ void run(
 void runApp(App app,
     {@required StorageService storageService,
     TestStorageOptions storageOptions}) {
+  String filePath(String path) {
+    if (storageOptions?.rootPath != null) {
+      return url.join(storageOptions.rootPath, path);
+    }
+    return path;
+  }
+
+  var storageBucket =
+      storageOptions.bucket ?? appOptionsGetStorageBucket(app.options);
   var storage = storageService.storage(app);
   group('storage', () {
     test('storage', () {
@@ -57,23 +69,27 @@ void runApp(App app,
     });
 
     group('file', () {
-      print('#: ${app.options.storageBucket?.runtimeType}');
-      print(app.options.storageBucket == null);
-      var bucket = app.options.storageBucket == null ? null : storage.bucket();
+      print('#: ${storageBucket?.runtimeType}');
+      print(storageBucket == null);
+      var bucket = storage.bucket(storageBucket);
       test('exists', () async {
-        var file = bucket.file('dummy-file-that-should-not-exists');
+        var file = bucket.file(filePath('dummy-file-that-should-not-exists'));
         expect(await file.exists(), isFalse);
       });
 
-      test('save_download_delete', () async {
-        var file = bucket.file('file.to_delete.txt');
-        await file.save('simple content');
-        expect(await file.exists(), isTrue);
-        expect(String.fromCharCodes(await file.download()), 'simple content');
-        await file.delete();
-      });
+      test(
+        'save_download_delete',
+        () async {
+          var file = bucket.file(filePath('file.to_delete.txt'));
+          await file.exists();
+          await file.save('simple content');
+          expect(await file.exists(), isTrue);
+          expect(String.fromCharCodes(await file.download()), 'simple content');
+          await file.delete();
+        },
+      );
     },
-        skip: app.options.storageBucket == null
+        skip: storageBucket == null
             ? 'No storage bucket define in FIREBASE_CONFIG'
             : false);
 
@@ -81,17 +97,11 @@ void runApp(App app,
       var bucket = storageOptions?.bucket == null
           ? null
           : storage.bucket(storageOptions.bucket);
-      var rootPath = storageOptions?.rootPath;
-      String getFullPath(String path) {
-        if (rootPath == null) {
-          return path;
-        } else {
-          return url.join(rootPath, path);
-        }
-      }
+      //var rootPath = storageOptions?.rootPath;
+      String getFullPath(String path) => filePath(path);
 
       test('exists', () async {
-        var file = bucket.file('dummy-file-that-should-not-exists');
+        var file = bucket.file(filePath('dummy-file-that-should-not-exists'));
         expect(await file.exists(), isFalse);
       });
 
@@ -100,32 +110,39 @@ void runApp(App app,
         try {
           await file.delete();
         } catch (_) {}
-        var content =
-            'simple content: ${DateTime.now().toUtc().toIso8601String()}';
+        var now = DateTime.now().toUtc();
+        var content = '${now.toIso8601String()}';
         await file.save(content);
         expect(await file.exists(), isTrue);
-        expect(String.fromCharCodes(await file.download()), content);
+        // Last text
+        var readContent = utf8.decode(await file.readAsBytes()).split(' ').last;
+        // devPrint('read $readContent');
+        var readDateTime = DateTime.tryParse(readContent);
+        // expect(String.fromCharCodes(await file.download()), content);
+        expect(now.difference(readDateTime), lessThan(Duration(minutes: 65)));
       });
 
       test('list_files', () async {
         var now = DateTime.now();
         var content = 'storage_list_files_test';
         await bucket
-            .file('test/list_files/no/file0.txt')
+            .file(filePath('test/list_files/no/file0.txt'))
             .writeAsString(content);
         await bucket
-            .file('test/list_files/yes/file1.txt')
+            .file(filePath('test/list_files/yes/file1.txt'))
             .writeAsString(content);
         await bucket
-            .file('test/list_files/yes/sub/file2.txt')
+            .file(filePath('test/list_files/yes/sub/file2.txt'))
             .writeAsString(content);
         await bucket
-            .file('test/list_files/yes/other_sub/sub/file3.txt')
+            .file(filePath('test/list_files/yes/other_sub/sub/file3.txt'))
             .writeAsString(content);
         var files = <File>[];
 
         var query = GetFilesOptions(
-            maxResults: 2, prefix: 'test/list_files/yes', autoPaginate: false);
+            maxResults: 2,
+            prefix: filePath('test/list_files/yes'),
+            autoPaginate: false);
         var response = await bucket.getFiles(query);
         // devPrint(response);
         files.addAll(response.files);
@@ -138,18 +155,20 @@ void runApp(App app,
 
         // Assume the directory was empty before
         expect(names, [
-          'test/list_files/yes/file1.txt',
-          'test/list_files/yes/other_sub/sub/file3.txt',
-          'test/list_files/yes/sub/file2.txt'
+          filePath('test/list_files/yes/file1.txt'),
+          filePath('test/list_files/yes/other_sub/sub/file3.txt'),
+          filePath('test/list_files/yes/sub/file2.txt')
         ]);
-        expect(names, contains('test/list_files/yes/file1.txt'));
-        expect(names, contains('test/list_files/yes/sub/file2.txt'));
-        expect(names, contains('test/list_files/yes/other_sub/sub/file3.txt'));
-        expect(names, isNot(contains('test/list_files/no/file0.txt')));
+        expect(names, contains(filePath('test/list_files/yes/file1.txt')));
+        expect(names, contains(filePath('test/list_files/yes/sub/file2.txt')));
+        expect(names,
+            contains(filePath('test/list_files/yes/other_sub/sub/file3.txt')));
+        expect(
+            names, isNot(contains(filePath('test/list_files/no/file0.txt'))));
 
         // Check meta
-        var file = files.firstWhere(
-            (element) => element.name == 'test/list_files/yes/file1.txt');
+        var file = files.firstWhere((element) =>
+            element.name == filePath('test/list_files/yes/file1.txt'));
         expect(file.metadata.dateUpdated.isBefore(now), isFalse);
         expect(file.metadata.md5Hash,
             isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
@@ -158,10 +177,12 @@ void runApp(App app,
 
       test('list_files_meta', () async {
         var content = 'storage_list_files_test';
-        await bucket.file('test/meta/file0.txt').writeAsString(content);
+        await bucket
+            .file(filePath('test/meta/file0.txt'))
+            .writeAsString(content);
 
         var query = GetFilesOptions(
-            maxResults: 2, prefix: 'test/meta/', autoPaginate: false);
+            maxResults: 2, prefix: filePath('test/meta/'), autoPaginate: false);
         var response = await bucket.getFiles(query);
         var file1 = response.files.first;
 
@@ -174,7 +195,7 @@ void runApp(App app,
       test('list_no_files', () async {
         var query = GetFilesOptions(
             maxResults: 2,
-            prefix: 'test/dummy_path_that_should_not_exists',
+            prefix: filePath('test/dummy_path_that_should_not_exists'),
             autoPaginate: false);
         var response = await bucket.getFiles(query);
         // devPrint(response);

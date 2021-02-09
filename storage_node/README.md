@@ -7,7 +7,7 @@ dependencies:
       url: git://github.com/tekartik/firebase_storage.dart
       path: storage_node
       ref: dart2
-    version: 0.4.0
+    version: '>=0.4.0'
 ```
 
 ## Test setup
