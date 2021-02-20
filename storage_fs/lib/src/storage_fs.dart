@@ -1,12 +1,19 @@
 import 'dart:async';
-import 'dart:io' as io;
-import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/fs_memory.dart' as fs;
+import 'dart:typed_data';
+
+import 'package:crypto/crypto.dart';
+import 'package:fs_shim/fs.dart' as fs_shim;
 import 'package:fs_shim/fs_io.dart' as fs;
+import 'package:fs_shim/fs_memory.dart' as fs;
+import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:path/path.dart';
+import 'package:tekartik_common_utils/date_time_utils.dart';
+import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
-import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
+import 'package:tekartik_firebase_storage/storage.dart';
+
+import 'import.dart';
 
 class StorageServiceFs implements StorageService {
   final fs.FileSystem fileSystem;
@@ -27,85 +34,232 @@ class StorageServiceFs implements StorageService {
 }
 
 StorageServiceFs _storageServiceMemory;
+
 StorageServiceFs get storageServiceFsMemory =>
     _storageServiceMemory ??= StorageServiceFs(fs.newFileSystemMemory());
 
+StorageServiceFs newStorageServiceFsMemory() =>
+    StorageServiceFs(fs.newFileSystemMemory());
+
 StorageServiceFs _storageServiceIo;
+
 StorageServiceFs get storageServiceFsIo =>
     _storageServiceIo ??= StorageServiceFs(fs.fileSystemIo);
 
-class FileFs implements File {
+class FileFs with FileMixin implements File {
+  @override
   final BucketFs bucket;
   final String path;
 
-  String get localPath => join(bucket.localPath, path);
+  String get dataPath => bucket.getFsFileDataPath(path);
 
-  io.File get fsFile => io.File(localPath);
+  String get metaPath => bucket.getFsFileMetaPath(path);
 
-  FileFs(this.bucket, this.path);
+  fs_shim.File get fsFile => bucket.fs.file(dataPath);
+
+  fs_shim.File get fsMetaFile => bucket.fs.file(metaPath);
+
+  FileFs({@required this.bucket, @required this.path, this.metadata});
 
   @override
+  final FileMetadataFs metadata;
+  @override
   Future save(content) async {
-    Future _write() async {
-      if (content is String) {
-        await fsFile.writeAsString(content);
-      } else {
-        await fsFile.writeAsBytes(content as List<int>);
-      }
+    if (content is String) {
+      await writeAsString(content);
+    } else {
+      await writeAsBytes(content as Uint8List);
+    }
+  }
+
+  Future<FileMetadataFs> writeFileMeta(Uint8List bytes) async {
+    Future<FileMetadataFs> _writeMeta() async {
+      var md5Hash = md5.convert(bytes).toString();
+      var size = bytes.length;
+      var dateUpdated = DateTime.now().toUtc();
+      var metadata = FileMetadataFs(
+          md5Hash: md5Hash, dateUpdated: dateUpdated, size: size);
+      // Write meta
+      await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
+      return metadata;
     }
 
     try {
-      await _write();
+      return await _writeMeta();
     } catch (_) {
       try {
-        await fsFile.parent.create(recursive: true);
+        await fsMetaFile.parent.create(recursive: true);
       } catch (_) {}
       // try again
-      await _write();
+      return await _writeMeta();
     }
   }
 
   @override
-  Future<List<int>> download() async {
+  Future<void> writeAsBytes(Uint8List bytes) async {
+    Future _writeData() async {
+      // Write data
+      await fsFile.writeAsBytes(bytes);
+    }
+
+    try {
+      await _writeData();
+    } catch (_) {
+      try {
+        await fsFile.parent.create(recursive: true);
+      } catch (_) {}
+      try {
+        await fsMetaFile.parent.create(recursive: true);
+      } catch (_) {}
+      // try again
+      await _writeData();
+    }
+
+    await writeFileMeta(bytes);
+  }
+
+  @override
+  Future<Uint8List> download() => readAsBytes();
+
+  @override
+  Future<Uint8List> readAsBytes() async {
     return await fsFile.readAsBytes();
   }
 
   @override
   Future<bool> exists() async {
-    return fsFile.existsSync();
+    return fsFile.exists();
   }
 
   @override
   Future delete() async {
     return await fsFile.delete();
   }
+
+  @override
+  String get name => path;
+
+  @override
+  String toString() => 'FileFs($name)';
 }
 
-class BucketFs implements Bucket {
+class BucketFs with BucketMixin implements Bucket {
   final StorageFs storage;
   @override
   final String name;
 
+  String get dataPath => join(localPath, 'data');
+
+  String get metaPath => join(localPath, 'meta');
   String localPath;
 
   BucketFs(this.storage, String name) : name = name ?? '_default' {
     if (storage.service.basePath != null) {
       localPath = join(storage.service.basePath, this.name);
     } else {
-      localPath = join(storage.ioApp.localPath, 'storage.${this.name}');
+      localPath = join(storage.ioApp.localPath, 'storage', this.name);
     }
   }
 
   @override
-  File file(String path) => FileFs(this, path);
+  FileFs file(String path) => FileFs(bucket: this, path: path);
 
   @override
   Future<bool> exists() async {
     return await storage.service.fileSystem.directory(localPath).exists();
   }
+
+  fs_shim.FileSystem get fs => storage.service.fileSystem;
+
+  String getFsFileDataPath(String name) =>
+      name == null ? dataPath : url.join(dataPath, name);
+
+  String getFsFileMetaPath(String name) =>
+      name == null ? metaPath : url.join(metaPath, '$name.json');
+
+  Future<FileMetadataFs> getOrGenerateMeta(String name) async {
+    // TODO handle directories
+    try {
+      return FileMetadataFs.fromMap(
+          jsonDecode(await fs.file(getFsFileMetaPath(name)).readAsString())
+              as Map);
+    } catch (e) {
+      print('Generating missing meta');
+      var file = this.file(name);
+      var bytes = await file.readAsBytes();
+      return await file.writeFileMeta(bytes);
+    }
+  }
+
+  @override
+  Future<GetFilesResponse> getFiles([GetFilesOptions options]) async {
+    var bucketDataPath = dataPath;
+    var parentDataPath = getFsFileDataPath(options?.prefix);
+    List<fs_shim.FileSystemEntity> files;
+    try {
+      files = await fs.directory(parentDataPath).list(recursive: true).toList();
+    } on fs_shim.FileSystemException catch (_) {
+      // Not found?
+      files = <fs_shim.FileSystemEntity>[];
+    }
+    // devPrint(files);
+
+    var paths = <String>[];
+    for (var file in files) {
+      if (await fs.isFile(file.path)) {
+        paths.add(file.path);
+      }
+    }
+    paths.sort();
+
+    String _toStoragePath(String path) =>
+        url.normalize(fs.path.relative(path, from: bucketDataPath));
+
+    // marker?
+    // TODO too slow for now
+    if (options?.pageToken != null) {
+      int startIndex;
+      for (var i = 0; i < paths.length; i++) {
+        if (options.pageToken.compareTo(_toStoragePath(paths[i])) <= 0) {
+          startIndex = i;
+        }
+      }
+      if (startIndex != null) {
+        paths = paths.sublist(startIndex);
+      }
+    }
+
+    // limit?
+    var maxResults = options?.maxResults ?? 1000;
+    String nextMarker;
+    if (paths.length > maxResults) {
+      // set next marker
+      nextMarker = _toStoragePath(paths[maxResults]);
+
+      paths = paths.sublist(0, maxResults);
+    }
+
+    // Convert
+    var storageFiles = <File>[];
+    for (var path in paths) {
+      var name = _toStoragePath(path);
+      var metadata = await getOrGenerateMeta(name);
+      storageFiles.add(FileFs(bucket: this, path: name, metadata: metadata));
+    }
+
+    return GetFilesResponseFs(
+        storageFiles,
+        nextMarker == null
+            ? null
+            : GetFilesOptions(
+                maxResults: options.maxResults,
+                prefix: options.prefix,
+                pageToken: nextMarker,
+                autoPaginate: options.autoPaginate));
+  }
 }
 
-class StorageFs implements Storage {
+class StorageFs with StorageMixin implements Storage {
   final StorageServiceFs service;
   final AppLocal ioApp;
 
@@ -114,5 +268,51 @@ class StorageFs implements Storage {
   @override
   Bucket bucket([String name]) {
     return BucketFs(this, name);
+  }
+}
+
+class GetFilesResponseFs implements GetFilesResponse {
+  @override
+  final List<File> files;
+
+  @override
+  final GetFilesOptions nextQuery;
+
+  GetFilesResponseFs(this.files, this.nextQuery);
+
+  @override
+  String toString() => {
+        'files': files,
+        if (nextQuery != null) 'nextQuery': nextQuery
+      }.toString();
+}
+
+class FileMetadataFs implements FileMetadata {
+  @override
+  final String md5Hash;
+
+  @override
+  final DateTime dateUpdated;
+
+  @override
+  final int size;
+
+  Map<String, dynamic> toMap() => {
+        'md5Hash': md5Hash,
+        'dateUpdated': dateUpdated.toUtc().toIso8601String(),
+        'size': size
+      };
+
+  FileMetadataFs(
+      {@required this.md5Hash,
+      @required this.dateUpdated,
+      @required this.size});
+
+  factory FileMetadataFs.fromMap(Map map) {
+    var md5Hash = mapStringValue(map, 'md5Hash');
+    var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'));
+    var size = mapIntValue(map, 'size');
+    return FileMetadataFs(
+        md5Hash: md5Hash, dateUpdated: dateUpdated, size: size);
   }
 }

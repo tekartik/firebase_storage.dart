@@ -1,8 +1,7 @@
 import 'package:googleapis/storage/v1.dart' as api;
 import 'package:tekartik_common_utils/json_utils.dart';
-import 'package:tekartik_firebase_storage_rest/storage_json.dart';
+import 'package:tekartik_firebase_storage_rest/src/import.dart';
 import 'package:test/test.dart';
-
 import 'test_setup.dart';
 
 // Future<List<String>> get
@@ -36,7 +35,9 @@ Future main() async {
       if (data.items.isNotEmpty) {
         var item = data.items.first;
         var meta = await storageApi.objects.get(item.bucket, item.name);
-        print(jsonPretty(meta.toJson()));
+        if (meta is api.Object) {
+          print(jsonPretty(meta.toJson()));
+        }
       }
     });
 

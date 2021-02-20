@@ -12,7 +12,10 @@ void main() {
   var firebase = FirebaseLocal();
 
   group('storage_fs_io', () {
-    run(firebase: firebase, storageService: storageServiceIo);
+    run(
+        firebase: firebase,
+        storageService: storageServiceIo,
+        storageOptions: TestStorageOptions(bucket: 'my_bucket'));
 
     var fileSystem = (storageServiceIo as StorageServiceFs).fileSystem;
     var app = firebase.initializeApp();
@@ -26,8 +29,8 @@ void main() {
       var bucketIo = storage.bucket() as BucketFs;
       expect(
           bucketIo.localPath,
-          join('.dart_tool', 'tekartik_firebase_local', '_default',
-              'storage._default'));
+          join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
+              '_default'));
     });
     test('create_no_tree', () async {
       var bucket = storage.bucket('test');

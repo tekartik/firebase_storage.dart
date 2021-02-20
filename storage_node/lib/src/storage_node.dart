@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:js/js_util.dart';
 import 'package:node_interop/util.dart';
 import 'package:tekartik_common_utils/common_utils_import.dart';
+import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
+import 'package:tekartik_firebase_node/impl/firebase_node.dart';
+import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_node/src/storage_bindings.dart'
     as native;
-import 'package:tekartik_firebase_storage/storage.dart';
-import 'package:tekartik_firebase_node/impl/firebase_node.dart';
 
 class StorageServiceNode implements StorageService {
   final _storages = <AppNode, StorageNode>{};
@@ -15,7 +18,7 @@ class StorageServiceNode implements StorageService {
 
   @override
   Storage storage(App app) {
-    assert(app is AppNode, 'invalid firebase app type');
+    assert(app is AppNode, 'invalid firebase app type ${app.runtimeType}');
     final appNode = app as AppNode;
     var storage = _storages[appNode];
     if (storage == null) {
@@ -29,10 +32,11 @@ class StorageServiceNode implements StorageService {
 }
 
 StorageServiceNode _storageServiceNode;
+
 StorageServiceNode get storageServiceNode =>
     _storageServiceNode ??= StorageServiceNode();
 
-class StorageNode implements Storage {
+class StorageNode with StorageMixin implements Storage {
   final native.Storage nativeInstance;
 
   StorageNode(this.nativeInstance);
@@ -49,7 +53,7 @@ class StorageNode implements Storage {
   }
 }
 
-class FileNode implements File {
+class FileNode with FileMixin implements File {
   final native.File nativeInstance;
 
   FileNode(this.nativeInstance);
@@ -66,15 +70,30 @@ class FileNode implements File {
   }
 
   @override
-  Future<List<int>> download() async {
+  Future<Uint8List> download() async {
     // Array with first item as the response
     var downloadResponse =
         (await promiseToFuture(nativeInstance.download())) as List;
-    return downloadResponse[0] as List<int>;
+    return downloadResponse[0] as Uint8List;
   }
 
   @override
   Future delete() => promiseToFuture(nativeInstance.delete());
+
+  @override
+  String toString() =>
+      'FileNode($name${metadata != null ? ', metadata: $metadata' : ''})';
+
+  @override
+  String get name => nativeInstance.name;
+
+  @override
+  Bucket get bucket => BucketNode(nativeInstance.bucket);
+
+  @override
+  FileMetadata get metadata => nativeInstance.metadata == null
+      ? null
+      : FileMetadataNode(nativeInstance.metadata);
 }
 
 class BucketNode implements Bucket {
@@ -91,6 +110,32 @@ class BucketNode implements Bucket {
 
   @override
   String get name => nativeInstance.name;
+
+  @override
+  Future<GetFilesResponse> getFiles([GetFilesOptions options]) async {
+    var nativeResponse = await native.bucketGetFiles(
+        nativeInstance, _unwrapGetFilesOptions(options));
+    return GetFilesResponseNode(nativeResponse);
+  }
+}
+
+class GetFilesResponseNode implements GetFilesResponse {
+  final native.GetFilesResponse nativeInstance;
+
+  GetFilesResponseNode(this.nativeInstance);
+
+  @override
+  List<File> get files => nativeInstance.files.map((e) => FileNode(e)).toList();
+
+  @override
+  GetFilesOptions get nextQuery =>
+      _wrapGetFilesOptions(nativeInstance.nextQuery);
+
+  @override
+  String toString() => {
+        'files': files,
+        if (nextQuery != null) 'nextQuery': nextQuery
+      }.toString();
 }
 
 BucketNode _wrapBucket(native.Bucket nativeInstance) =>
@@ -98,3 +143,51 @@ BucketNode _wrapBucket(native.Bucket nativeInstance) =>
 
 FileNode _wrapFile(native.File nativeInstance) =>
     nativeInstance != null ? FileNode(nativeInstance) : null;
+
+native.GetFilesOptions _unwrapGetFilesOptions(GetFilesOptions options) {
+  if (options == null) {
+    return null;
+  }
+  return native.GetFilesOptions(
+    maxResults: options.maxResults,
+    prefix: options.prefix,
+    autoPaginate: options.autoPaginate,
+    pageToken: options.pageToken,
+  );
+}
+
+GetFilesOptions _wrapGetFilesOptions(native.GetFilesOptions options) {
+  if (options == null) {
+    return null;
+  }
+  return GetFilesOptions(
+      maxResults: options.maxResults,
+      prefix: options.prefix,
+      autoPaginate: options.autoPaginate,
+      pageToken: options.pageToken);
+}
+
+class FileMetadataNode implements FileMetadata {
+  final native.FileMetadata nativeInstance;
+
+  FileMetadataNode(this.nativeInstance);
+
+  @override
+  String get md5Hash => nativeInstance.md5Hash == null
+      ? null
+      : base64.encode(nativeInstance.md5Hash.codeUnits);
+
+  @override
+  DateTime get dateUpdated => anyToDateTime(nativeInstance.updated);
+
+  @override
+  int get size =>
+      nativeInstance.size == null ? null : int.tryParse(nativeInstance.size);
+
+  @override
+  String toString() => {
+        'size': size,
+        'dateUpdated': dateUpdated?.toUtc()?.toIso8601String(),
+        'md5Hash': md5Hash
+      }.toString();
+}

@@ -20,7 +20,7 @@ class StorageServiceFlutter with StorageServiceMixin implements StorageService {
         return StorageFlutter(native.FirebaseStorage.instance);
       } else {
         return StorageFlutter(
-            native.FirebaseStorage(app: appFlutter.nativeInstance));
+            native.FirebaseStorage.instanceFor(app: appFlutter.nativeInstance));
       }
     });
   }
@@ -31,22 +31,22 @@ StorageServiceFlutter _storageServiceFlutter;
 StorageServiceFlutter get storageServiceFlutter =>
     _storageServiceFlutter ??= StorageServiceFlutter();
 
-Future<native.StorageReference> getReferenceFromName(
+Future<native.Reference> getReferenceFromName(
     BucketFlutter bucket, String name) async {
-  var ref =
-      await bucket.storage.firebaseStorage.getReferenceFromUrl(nameToUrl(name));
+  var ref = bucket.storage.firebaseStorage.refFromURL(nameToUrl(name));
   return ref;
 }
 
-class FileFlutter implements File {
+class FileFlutter with FileMixin implements File {
+  @override
   final BucketFlutter bucket;
   final String path;
-  native.StorageReference _ref;
+  native.Reference _ref;
 
   FileFlutter(this.bucket, this.path);
 
   /// init and assign, to use: `_ref ??= await _initRef();`
-  Future<native.StorageReference> _initRef() async {
+  Future<native.Reference> _initRef() async {
     return _ref = await getReferenceFromName(bucket, path);
   }
 
@@ -61,14 +61,14 @@ class FileFlutter implements File {
     } else if (content is String) {
       data = Uint8List.fromList(utf8.encode(content));
     }
-    await _ref.putData(data).onComplete;
+    await _ref.putData(data);
   }
 
   @override
-  Future<List<int>> download() async {
+  Future<Uint8List> download() async {
     _ref ??= await _initRef();
     var metaData = await _ref.getMetadata();
-    return await _ref.getData(metaData.sizeBytes);
+    return await _ref.getData(metaData.size);
   }
 
   @override
@@ -87,9 +87,12 @@ class FileFlutter implements File {
     _ref ??= await _initRef();
     await _ref.delete();
   }
+
+  @override
+  String get name => _ref.name;
 }
 
-class BucketFlutter implements Bucket {
+class BucketFlutter with BucketMixin implements Bucket {
   final StorageFlutter storage;
   @override
   final String name;
@@ -108,8 +111,7 @@ class BucketFlutter implements Bucket {
   @override
   Future<bool> exists() async {
     try {
-      await (await storage.firebaseStorage.getReferenceFromUrl(nameToUrl(name)))
-          .getMetadata();
+      await storage.firebaseStorage.ref(name).getMetadata();
       return true;
     } catch (_) {
       return false;
@@ -119,6 +121,15 @@ class BucketFlutter implements Bucket {
 
 String nameToUrl(String name) => 'gs://$name';
 
+class ReferenceFlutter with ReferenceMixin implements Reference {
+  final native.Reference nativeInstance;
+
+  ReferenceFlutter(this.nativeInstance);
+
+  @override
+  Future<String> getDownloadUrl() => nativeInstance.getDownloadURL();
+}
+
 class StorageFlutter implements Storage {
   final native.FirebaseStorage firebaseStorage;
 
@@ -127,6 +138,13 @@ class StorageFlutter implements Storage {
   @override
   Bucket bucket([String name]) {
     return BucketFlutter(this, name);
+  }
+
+  @override
+  Reference ref([String path]) {
+    path ??= '/';
+    path = path.isEmpty ? '/' : path;
+    return ReferenceFlutter(firebaseStorage.ref(path));
   }
 }
 
