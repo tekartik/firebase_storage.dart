@@ -88,8 +88,8 @@ class UnauthenticatedStorageApi {
   }
 
   Future<GsObjectInfo> getInfo(GsReference ref) async {
-    var text =
-        await httpClientRead(client, httpMethodGet, getFileUrl(ref.name));
+    var text = await httpClientRead(
+        client, httpMethodGet, Uri.parse(getFileUrl(ref.name)));
     var map = jsonDecode(text) as Map;
     // devPrint(map);
     return GsObjectInfo(

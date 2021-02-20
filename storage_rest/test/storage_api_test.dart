@@ -35,7 +35,9 @@ Future main() async {
       if (data.items.isNotEmpty) {
         var item = data.items.first;
         var meta = await storageApi.objects.get(item.bucket, item.name);
-        print(jsonPretty(meta.toJson()));
+        if (meta is api.Object) {
+          print(jsonPretty(meta.toJson()));
+        }
       }
     });
 
