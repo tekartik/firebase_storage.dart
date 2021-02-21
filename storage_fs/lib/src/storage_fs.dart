@@ -212,8 +212,9 @@ class BucketFs with BucketMixin implements Bucket {
     }
     paths.sort();
 
-    String _toStoragePath(String path) =>
-        url.normalize(fs.path.relative(path, from: bucketDataPath));
+    // Handle windows case to convert to url.
+    String _toStoragePath(String path) => url.normalize(
+        fs.path.relative(path, from: bucketDataPath).replaceAll('\\', '/'));
 
     // marker?
     // TODO too slow for now
