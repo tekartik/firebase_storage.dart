@@ -27,7 +27,7 @@ class GetFilesOptions {
 abstract class GetFilesResponse {
   List<File> get files;
 
-  GetFilesOptions get nextQuery;
+  GetFilesOptions? get nextQuery;
 }
 
 mixin StorageMixin implements Storage {
