@@ -18,23 +18,23 @@ Future main() async {
   // print(context);
   group('rest', () {
     test('basic_googleapis', () async {
-      var storageApi = api.StorageApi(context.authClient);
+      var storageApi = api.StorageApi(context!.authClient!);
 
       // curl "https://firestore.googleapis.com/v1beta1/projects/tekartik-free-dev/databases/(default)/documents/tests/data-types"
       // curl "https://firestore.googleapis.com/projects/tekartik-free-dev/databases/(default)/documents/tests/data-types"
       // ignore: unused_local_variable
-      var bucket = appOptionsGetStorageBucket(context.options);
+      var bucket = appOptionsGetStorageBucket(context.options!);
 
       print(jsonPretty('bucket: $bucket'));
       var data = await storageApi.objects.list(bucket);
       // print(jsonPretty(data.toJson()));
-      data.items.forEach((element) {
+      data.items!.forEach((element) {
         //  print('${element.kind}: ${element.name}');
       });
 
-      if (data.items.isNotEmpty) {
-        var item = data.items.first;
-        var meta = await storageApi.objects.get(item.bucket, item.name);
+      if (data.items!.isNotEmpty) {
+        var item = data.items!.first;
+        var meta = await storageApi.objects.get(item.bucket!, item.name!);
         if (meta is api.Object) {
           print(jsonPretty(meta.toJson()));
         }

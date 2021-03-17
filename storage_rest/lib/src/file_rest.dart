@@ -14,21 +14,22 @@ class FileMetadataRest implements FileMetadata {
   @override
   final int size;
 
-  FileMetadataRest({this.dateUpdated, this.md5Hash, this.size});
+  FileMetadataRest(
+      {required this.dateUpdated, required this.md5Hash, required this.size});
 }
 
 class FileRest with FileMixin implements File {
   final BucketRest bucketRest;
   @override
-  final FileMetadata metadata;
-  final String path;
+  final FileMetadata? metadata;
+  final String? path;
   @override
-  String get name => path;
+  String get name => path!;
   StorageRestImpl get impl => bucketRest.impl;
   FileRest(this.bucketRest, this.path, [this.metadata]);
 
   @override
-  Future<bool> exists() => impl.fileExists(bucketRest, path);
+  Future<bool> exists() => impl.fileExists(bucketRest, path!);
 
   @override
   Future<void> writeAsBytes(Uint8List bytes) async {
@@ -46,10 +47,10 @@ class FileRest with FileMixin implements File {
   }
 
   @override
-  Future<Uint8List> readAsBytes() => impl.readFile(bucketRest, path);
+  Future<Uint8List> readAsBytes() => impl.readFile(bucketRest, path!);
   @override
   Future<Uint8List> download() => readAsBytes();
 
   @override
-  Future<void> delete() => impl.deleteFile(bucketRest, path);
+  Future<void> delete() => impl.deleteFile(bucketRest, path!);
 }

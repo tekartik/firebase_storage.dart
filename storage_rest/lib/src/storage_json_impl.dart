@@ -1,6 +1,3 @@
-import 'package:meta/meta.dart';
-import 'package:tekartik_common_utils/common_utils_import.dart';
-
 // {name: xxxxx.webp,
 //bucket: xxxx.appspot.com,
 //generation: 1587734906120630,
@@ -17,11 +14,11 @@ import 'package:tekartik_common_utils/common_utils_import.dart';
 //      downloadTokens: d47b6cf4-a2ac-4a7d-a058-2e1260599ab4}
 
 class GsObjectInfo {
-  final String contentType;
-  final int size;
-  final String md5Hash;
+  final String? contentType;
+  final int? size;
+  final String? md5Hash;
 
-  GsObjectInfo({@required this.contentType, @required this.size, this.md5Hash});
+  GsObjectInfo({required this.contentType, required this.size, this.md5Hash});
 
   @override
   int get hashCode => size ?? 0;

@@ -12,8 +12,8 @@ Future main() async {
         ]
       };
       var response = GsReferenceListResponse()..fromMap(map);
-      expect(response.items[0].name, 'test.json');
-      expect(response.items[0].bucket, 'test.appspot.com');
+      expect(response.items![0].name, 'test.json');
+      expect(response.items![0].bucket, 'test.appspot.com');
     });
   });
 }

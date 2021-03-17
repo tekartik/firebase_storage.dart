@@ -18,12 +18,12 @@ import 'src/import.dart';
 //      "bucket": "bucket"
 //    },
 class GsReference {
-  String bucket;
-  String name;
+  String? bucket;
+  String? name;
 
   void fromMap(Map map) {
-    bucket = map['bucket'] as String;
-    name = map['name'] as String;
+    bucket = map['bucket'] as String?;
+    name = map['name'] as String?;
   }
 
   Map<String, dynamic> toDebugMap() => {'name': name};
@@ -33,7 +33,7 @@ class GsReference {
 }
 
 class GsReferenceListResponse {
-  List<GsReference> items;
+  List<GsReference>? items;
 
   void fromMap(Map map) {
     var rawItems = map['items'];
@@ -52,44 +52,43 @@ var _baseUrl = 'https://firebasestorage.googleapis.com/v0';
 
 class UnauthenticatedStorageApi {
   //final App app;
-  final AppOptions appOptions;
-  final Client client;
-  String _storageBucket;
+  final AppOptions? appOptions;
+  final Client? client;
+  String? _storageBucket;
 
   String get storageBucket =>
-      _storageBucket ??= appOptionsGetStorageBucket(appOptions);
+      _storageBucket ??= appOptionsGetStorageBucket(appOptions!);
 
-  String _getUrl(String bucket) =>
-      url.join(_baseUrl, 'b', bucket ?? storageBucket, 'o');
+  String _getUrl(String bucket) => url.join(_baseUrl, 'b', bucket, 'o');
 
   /// The base url to use
-  String _storageRoot(String bucket) => _getUrl(bucket ?? storageBucket);
+  String _storageRoot(String? bucket) => _getUrl(bucket ?? storageBucket);
 
   // https://firebasestorage.googleapis.com/v0/b/xxxx.appspot.com";
 
   UnauthenticatedStorageApi(
-      {String storageBucket, this.appOptions, @required this.client}) {
+      {String? storageBucket, this.appOptions, required this.client}) {
     _storageBucket = storageBucket;
   }
 
   // prefix: folder/
-  Future<GsReferenceListResponse> list({String bucket, String prefix}) async {
+  Future<GsReferenceListResponse> list({String? bucket, String? prefix}) async {
     var uri = Uri.parse(_storageRoot(bucket));
     if (prefix != null) {
       uri = uri.replace(queryParameters: {'prefix': prefix});
     }
-    var json = await httpClientRead(client, httpMethodGet, uri);
+    var json = await httpClientRead(client!, httpMethodGet, uri);
     // devPrint(json);
     return GsReferenceListResponse()..fromMap(jsonDecode(json) as Map);
   }
 
-  String getFileUrl(String name, {String bucket}) {
+  String getFileUrl(String name, {String? bucket}) {
     return url.join(_storageRoot(bucket), Uri.encodeComponent(name));
   }
 
   Future<GsObjectInfo> getInfo(GsReference ref) async {
     var text = await httpClientRead(
-        client, httpMethodGet, Uri.parse(getFileUrl(ref.name)));
+        client!, httpMethodGet, Uri.parse(getFileUrl(ref.name!)));
     var map = jsonDecode(text) as Map;
     // devPrint(map);
     return GsObjectInfo(
@@ -97,7 +96,7 @@ class UnauthenticatedStorageApi {
         size: parseInt(map['size']));
   }
 
-  String getMediaUrl(String name, {String bucket}) {
+  String getMediaUrl(String name, {String? bucket}) {
     return '${getFileUrl(name, bucket: bucket)}?alt=media';
   }
 }

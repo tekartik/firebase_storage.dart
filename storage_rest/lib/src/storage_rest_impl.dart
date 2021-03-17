@@ -32,15 +32,15 @@ class StorageServiceRestImpl
 class StorageRestImpl with StorageMixin implements StorageRest {
   final StorageServiceRest service;
   final AppRestImpl appImpl;
-  api.StorageApi _storageApi;
+  api.StorageApi? _storageApi;
 
   api.StorageApi get storageApi =>
-      _storageApi ??= api.StorageApi(appImpl.client);
+      _storageApi ??= api.StorageApi(appImpl.client!);
 
   StorageRestImpl(this.service, this.appImpl);
 
   @override
-  Bucket bucket([String name]) => BucketRest(this, name);
+  Bucket bucket([String? name]) => BucketRest(this, name!);
 
   Future<bool> fileExists(BucketRest bucket, String path) async {
     try {
@@ -60,7 +60,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
   }
 
   Future<void> writeFile(
-      BucketRest bucket, String path, Uint8List bytes) async {
+      BucketRest bucket, String? path, Uint8List bytes) async {
     var object = api.Object()
       ..name = path
       ..bucket = bucket.name;
@@ -78,7 +78,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
     // devPrint(objects.toJson());
     var items = objects.items ?? <api.Object>[];
     var pageToken = objects.nextPageToken;
-    GetFilesOptions nextQuery;
+    GetFilesOptions? nextQuery;
     if (items.isNotEmpty &&
         pageToken != null &&
         items.length != options.maxResults) {
@@ -87,7 +87,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
           prefix: options.prefix,
           autoPaginate: options.autoPaginate,
           maxResults: options.maxResults != null
-              ? options.maxResults - items.length
+              ? options.maxResults! - items.length
               : null,
           pageToken: pageToken);
     }
@@ -98,9 +98,9 @@ class StorageRestImpl with StorageMixin implements StorageRest {
             bucket,
             object.name,
             FileMetadataRest(
-                size: int.parse(object.size),
-                md5Hash: object.md5Hash,
-                dateUpdated: object.timeCreated));
+                size: int.parse(object.size!),
+                md5Hash: object.md5Hash!,
+                dateUpdated: object.timeCreated!));
       }).toList()
       ..nextQuery = nextQuery;
 
@@ -112,7 +112,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
 
   Future<Uint8List> readFile(BucketRest bucket, String path) async {
     var media = (await storageApi.objects.get(bucket.name, path,
-        downloadOptions: DownloadOptions.FullMedia)) as api.Media;
+        downloadOptions: DownloadOptions.fullMedia)) as api.Media;
     var listOfList = await media.stream.toList();
 
     return Uint8List.fromList(flatten(listOfList));
@@ -125,8 +125,8 @@ class StorageRestImpl with StorageMixin implements StorageRest {
 
 class GetFilesResponseRest implements GetFilesResponse {
   @override
-  List<File> files;
+  late List<File> files;
 
   @override
-  GetFilesOptions nextQuery;
+  GetFilesOptions? nextQuery;
 }
