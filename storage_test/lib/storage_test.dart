@@ -165,10 +165,10 @@ void runApp(App app,
         // Check meta
         var file = files.firstWhere((element) =>
             element.name == filePath('test/list_files/yes/file1.txt'));
-        expect(file.metadata.dateUpdated.isBefore(now), isFalse);
-        expect(file.metadata.md5Hash,
+        expect(file.metadata!.dateUpdated.isBefore(now), isFalse);
+        expect(file.metadata!.md5Hash,
             isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
-        expect(file.metadata.size, 23);
+        expect(file.metadata!.size, 23);
       });
 
       test('list_files_meta', () async {
@@ -184,9 +184,9 @@ void runApp(App app,
 
         response = await bucket.getFiles(query);
         var file2 = response.files.first;
-        expect(file1.metadata.size, file2.metadata.size);
-        expect(file1.metadata.dateUpdated, file2.metadata.dateUpdated);
-        expect(file1.metadata.md5Hash, file2.metadata.md5Hash);
+        expect(file1.metadata!.size, file2.metadata!.size);
+        expect(file1.metadata!.dateUpdated, file2.metadata!.dateUpdated);
+        expect(file1.metadata!.md5Hash, file2.metadata!.md5Hash);
       });
       test('list_no_files', () async {
         var query = GetFilesOptions(

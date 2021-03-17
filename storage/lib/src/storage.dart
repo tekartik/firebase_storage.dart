@@ -107,7 +107,7 @@ abstract class File {
   Bucket get bucket;
 
   /// Available when listed through getFiles
-  FileMetadata get metadata;
+  FileMetadata? get metadata;
 }
 
 abstract class FileMetadata {
@@ -156,7 +156,7 @@ mixin FileMixin implements File {
   }
 
   @override
-  FileMetadata get metadata => throw UnimplementedError('metadata');
+  FileMetadata? get metadata => throw UnimplementedError('metadata');
 
   @override
   String get name => throw UnimplementedError('name');

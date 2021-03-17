@@ -39,7 +39,7 @@ void main() {
       // delete a top folder to force creating the tree again
       try {
         await fileSystem
-            .directory(fileFs.bucket.localPath)
+            .directory(fileFs.bucket.localPath!)
             .delete(recursive: true);
       } catch (_) {}
       expect(await bucket.exists(), isFalse);
