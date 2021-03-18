@@ -9,11 +9,6 @@ environment:
 dev_dependencies:
   path:
   pub_semver:
-  tekartik_travis_ci_flutter:
-    git:
-      url: git://github.com/tekartik/travis_ci_flutter.dart
-      ref: null_safety
-    version: '>=0.1.0'
   test:
   dev_test:
   pedantic:

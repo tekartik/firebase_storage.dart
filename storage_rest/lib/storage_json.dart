@@ -26,7 +26,7 @@ class GsReference {
     name = map['name'] as String?;
   }
 
-  Map<String, dynamic> toDebugMap() => {'name': name};
+  Map<String, Object?> toDebugMap() => {'name': name};
 
   @override
   String toString() => toDebugMap().toString();
@@ -42,7 +42,7 @@ class GsReferenceListResponse {
     }
   }
 
-  Map<String, dynamic> toDebugMap() => {'items.length': items?.length};
+  Map<String, Object?> toDebugMap() => {'items.length': items?.length};
 
   @override
   String toString() => toDebugMap().toString();

@@ -298,7 +298,7 @@ class FileMetadataFs implements FileMetadata {
   @override
   final int size;
 
-  Map<String, dynamic> toMap() => {
+  Map<String, Object?> toMap() => {
         'md5Hash': md5Hash,
         'dateUpdated': dateUpdated.toUtc().toIso8601String(),
         'size': size
