@@ -18,7 +18,7 @@ import 'import.dart';
 class StorageServiceFs implements StorageService {
   final fs.FileSystem fileSystem;
   final _storages = <App, StorageFs>{};
-  final String basePath;
+  final String? basePath;
 
   StorageServiceFs(this.fileSystem, {this.basePath});
 
@@ -33,7 +33,7 @@ class StorageServiceFs implements StorageService {
   }
 }
 
-StorageServiceFs _storageServiceMemory;
+StorageServiceFs? _storageServiceMemory;
 
 StorageServiceFs get storageServiceFsMemory =>
     _storageServiceMemory ??= StorageServiceFs(fs.newFileSystemMemory());
@@ -41,7 +41,7 @@ StorageServiceFs get storageServiceFsMemory =>
 StorageServiceFs newStorageServiceFsMemory() =>
     StorageServiceFs(fs.newFileSystemMemory());
 
-StorageServiceFs _storageServiceIo;
+StorageServiceFs? _storageServiceIo;
 
 StorageServiceFs get storageServiceFsIo =>
     _storageServiceIo ??= StorageServiceFs(fs.fileSystemIo);
@@ -59,22 +59,22 @@ class FileFs with FileMixin implements File {
 
   fs_shim.File get fsMetaFile => bucket.fs.file(metaPath);
 
-  FileFs({@required this.bucket, @required this.path, this.metadata});
+  FileFs({required this.bucket, required this.path, this.metadata});
 
   @override
-  final FileMetadataFs metadata;
+  final FileMetadataFs? metadata;
   @override
   Future save(content) async {
     if (content is String) {
       await writeAsString(content);
     } else {
-      await writeAsBytes(content as Uint8List);
+      await writeAsBytes(content as Uint8List?);
     }
   }
 
-  Future<FileMetadataFs> writeFileMeta(Uint8List bytes) async {
+  Future<FileMetadataFs> writeFileMeta(Uint8List? bytes) async {
     Future<FileMetadataFs> _writeMeta() async {
-      var md5Hash = md5.convert(bytes).toString();
+      var md5Hash = md5.convert(bytes!).toString();
       var size = bytes.length;
       var dateUpdated = DateTime.now().toUtc();
       var metadata = FileMetadataFs(
@@ -96,10 +96,10 @@ class FileFs with FileMixin implements File {
   }
 
   @override
-  Future<void> writeAsBytes(Uint8List bytes) async {
+  Future<void> writeAsBytes(Uint8List? bytes) async {
     Future _writeData() async {
       // Write data
-      await fsFile.writeAsBytes(bytes);
+      await fsFile.writeAsBytes(bytes!);
     }
 
     try {
@@ -148,14 +148,14 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   final String name;
 
-  String get dataPath => join(localPath, 'data');
+  String get dataPath => join(localPath!, 'data');
 
-  String get metaPath => join(localPath, 'meta');
-  String localPath;
+  String get metaPath => join(localPath!, 'meta');
+  String? localPath;
 
-  BucketFs(this.storage, String name) : name = name ?? '_default' {
+  BucketFs(this.storage, String? name) : name = name ?? '_default' {
     if (storage.service.basePath != null) {
-      localPath = join(storage.service.basePath, this.name);
+      localPath = join(storage.service.basePath!, this.name);
     } else {
       localPath = join(storage.ioApp.localPath, 'storage', this.name);
     }
@@ -166,15 +166,15 @@ class BucketFs with BucketMixin implements Bucket {
 
   @override
   Future<bool> exists() async {
-    return await storage.service.fileSystem.directory(localPath).exists();
+    return await storage.service.fileSystem.directory(localPath!).exists();
   }
 
   fs_shim.FileSystem get fs => storage.service.fileSystem;
 
-  String getFsFileDataPath(String name) =>
+  String getFsFileDataPath(String? name) =>
       name == null ? dataPath : url.join(dataPath, name);
 
-  String getFsFileMetaPath(String name) =>
+  String getFsFileMetaPath(String? name) =>
       name == null ? metaPath : url.join(metaPath, '$name.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
@@ -192,7 +192,7 @@ class BucketFs with BucketMixin implements Bucket {
   }
 
   @override
-  Future<GetFilesResponse> getFiles([GetFilesOptions options]) async {
+  Future<GetFilesResponse> getFiles([GetFilesOptions? options]) async {
     var bucketDataPath = dataPath;
     var parentDataPath = getFsFileDataPath(options?.prefix);
     List<fs_shim.FileSystemEntity> files;
@@ -219,9 +219,9 @@ class BucketFs with BucketMixin implements Bucket {
     // marker?
     // TODO too slow for now
     if (options?.pageToken != null) {
-      int startIndex;
+      int? startIndex;
       for (var i = 0; i < paths.length; i++) {
-        if (options.pageToken.compareTo(_toStoragePath(paths[i])) <= 0) {
+        if (options!.pageToken!.compareTo(_toStoragePath(paths[i])) <= 0) {
           startIndex = i;
         }
       }
@@ -232,7 +232,7 @@ class BucketFs with BucketMixin implements Bucket {
 
     // limit?
     var maxResults = options?.maxResults ?? 1000;
-    String nextMarker;
+    String? nextMarker;
     if (paths.length > maxResults) {
       // set next marker
       nextMarker = _toStoragePath(paths[maxResults]);
@@ -253,7 +253,7 @@ class BucketFs with BucketMixin implements Bucket {
         nextMarker == null
             ? null
             : GetFilesOptions(
-                maxResults: options.maxResults,
+                maxResults: options!.maxResults,
                 prefix: options.prefix,
                 pageToken: nextMarker,
                 autoPaginate: options.autoPaginate));
@@ -267,7 +267,7 @@ class StorageFs with StorageMixin implements Storage {
   StorageFs(this.service, this.ioApp);
 
   @override
-  Bucket bucket([String name]) {
+  Bucket bucket([String? name]) {
     return BucketFs(this, name);
   }
 }
@@ -277,7 +277,7 @@ class GetFilesResponseFs implements GetFilesResponse {
   final List<File> files;
 
   @override
-  final GetFilesOptions nextQuery;
+  final GetFilesOptions? nextQuery;
 
   GetFilesResponseFs(this.files, this.nextQuery);
 
@@ -298,21 +298,19 @@ class FileMetadataFs implements FileMetadata {
   @override
   final int size;
 
-  Map<String, dynamic> toMap() => {
+  Map<String, Object?> toMap() => {
         'md5Hash': md5Hash,
         'dateUpdated': dateUpdated.toUtc().toIso8601String(),
         'size': size
       };
 
   FileMetadataFs(
-      {@required this.md5Hash,
-      @required this.dateUpdated,
-      @required this.size});
+      {required this.md5Hash, required this.dateUpdated, required this.size});
 
   factory FileMetadataFs.fromMap(Map map) {
-    var md5Hash = mapStringValue(map, 'md5Hash');
-    var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'));
-    var size = mapIntValue(map, 'size');
+    var md5Hash = mapStringValue(map, 'md5Hash')!;
+    var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'))!;
+    var size = mapIntValue(map, 'size')!;
     return FileMetadataFs(
         md5Hash: md5Hash, dateUpdated: dateUpdated, size: size);
   }

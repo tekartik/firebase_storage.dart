@@ -2,7 +2,7 @@ import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:process_run/shell.dart';
 
 var _env = shellEnvironment;
-TestStorageOptions _storageOptionsFromEnv;
+TestStorageOptions? _storageOptionsFromEnv;
 
 TestStorageOptions getStorageOptionsFromEnv(Map<String, String> env) {
   var storageBucket = env['firebaseStorageTestBucket'];

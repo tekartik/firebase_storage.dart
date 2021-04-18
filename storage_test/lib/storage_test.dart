@@ -1,17 +1,14 @@
-import 'dart:io';
-
-import 'package:meta/meta.dart';
+import 'package:path/path.dart';
+import 'package:tekartik_common_utils/common_utils_import.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_test/src/import.dart';
 import 'package:test/test.dart';
-import 'package:tekartik_common_utils/common_utils_import.dart';
-import 'package:path/path.dart';
 
 /// Storage option
 class TestStorageOptions {
-  final String bucket;
-  final String rootPath;
+  final String? bucket;
+  final String? rootPath;
 
   TestStorageOptions({this.bucket, this.rootPath});
 
@@ -20,10 +17,10 @@ class TestStorageOptions {
 }
 
 void run(
-    {@required Firebase firebase,
-    @required StorageService storageService,
-    AppOptions options,
-    TestStorageOptions storageOptions}) {
+    {required Firebase firebase,
+    required StorageService storageService,
+    AppOptions? options,
+    required TestStorageOptions storageOptions}) {
   var app = firebase.initializeApp(options: options);
   tearDownAll(() {
     return app.delete();
@@ -33,18 +30,19 @@ void run(
 }
 
 void runApp(App app,
-    {@required StorageService storageService,
-    TestStorageOptions storageOptions}) {
+    {required StorageService storageService,
+    required TestStorageOptions storageOptions}) {
   String filePath(String path) {
-    if (storageOptions?.rootPath != null) {
-      return url.join(storageOptions.rootPath, path);
+    if (storageOptions.rootPath != null) {
+      return url.join(storageOptions.rootPath!, path);
     }
     return path;
   }
 
   var storageBucket =
-      storageOptions.bucket ?? appOptionsGetStorageBucket(app.options);
+      storageOptions.bucket ?? appOptionsGetStorageBucket(app.options!);
   var storage = storageService.storage(app);
+
   group('storage', () {
     test('storage', () {
       expect(storage, isNotNull);
@@ -69,8 +67,7 @@ void runApp(App app,
     });
 
     group('file', () {
-      print('#: ${storageBucket?.runtimeType}');
-      print(storageBucket == null);
+      print('#: ${storageBucket.runtimeType}');
       var bucket = storage.bucket(storageBucket);
       test('exists', () async {
         var file = bucket.file(filePath('dummy-file-that-should-not-exists'));
@@ -88,25 +85,22 @@ void runApp(App app,
           await file.delete();
         },
       );
-    },
-        skip: storageBucket == null
-            ? 'No storage bucket define in FIREBASE_CONFIG'
-            : false);
+    });
 
     group('test bucket', () {
-      var bucket = storageOptions?.bucket == null
+      var bucket = storageOptions.bucket == null
           ? null
           : storage.bucket(storageOptions.bucket);
       //var rootPath = storageOptions?.rootPath;
       String getFullPath(String path) => filePath(path);
 
       test('exists', () async {
-        var file = bucket.file(filePath('dummy-file-that-should-not-exists'));
+        var file = bucket!.file(filePath('dummy-file-that-should-not-exists'));
         expect(await file.exists(), isFalse);
       });
 
       test('save_file', () async {
-        var file = bucket.file(getFullPath('simple_file.txt'));
+        var file = bucket!.file(getFullPath('simple_file.txt'));
         try {
           await file.delete();
         } catch (_) {}
@@ -117,7 +111,7 @@ void runApp(App app,
         // Last text
         var readContent = utf8.decode(await file.readAsBytes()).split(' ').last;
         // devPrint('read $readContent');
-        var readDateTime = DateTime.tryParse(readContent);
+        var readDateTime = DateTime.tryParse(readContent)!;
         // expect(String.fromCharCodes(await file.download()), content);
         expect(now.difference(readDateTime), lessThan(Duration(minutes: 65)));
       });
@@ -125,7 +119,7 @@ void runApp(App app,
       test('list_files', () async {
         var now = DateTime.now();
         var content = 'storage_list_files_test';
-        await bucket
+        await bucket!
             .file(filePath('test/list_files/no/file0.txt'))
             .writeAsString(content);
         await bucket
@@ -169,15 +163,15 @@ void runApp(App app,
         // Check meta
         var file = files.firstWhere((element) =>
             element.name == filePath('test/list_files/yes/file1.txt'));
-        expect(file.metadata.dateUpdated.isBefore(now), isFalse);
-        expect(file.metadata.md5Hash,
+        expect(file.metadata!.dateUpdated.isBefore(now), isFalse);
+        expect(file.metadata!.md5Hash,
             isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
-        expect(file.metadata.size, 23);
+        expect(file.metadata!.size, 23);
       });
 
       test('list_files_meta', () async {
         var content = 'storage_list_files_test';
-        await bucket
+        await bucket!
             .file(filePath('test/meta/file0.txt'))
             .writeAsString(content);
 
@@ -188,22 +182,19 @@ void runApp(App app,
 
         response = await bucket.getFiles(query);
         var file2 = response.files.first;
-        expect(file1.metadata.size, file2.metadata.size);
-        expect(file1.metadata.dateUpdated, file2.metadata.dateUpdated);
-        expect(file1.metadata.md5Hash, file2.metadata.md5Hash);
+        expect(file1.metadata!.size, file2.metadata!.size);
+        expect(file1.metadata!.dateUpdated, file2.metadata!.dateUpdated);
+        expect(file1.metadata!.md5Hash, file2.metadata!.md5Hash);
       });
       test('list_no_files', () async {
         var query = GetFilesOptions(
             maxResults: 2,
             prefix: filePath('test/dummy_path_that_should_not_exists'),
             autoPaginate: false);
-        var response = await bucket.getFiles(query);
+        var response = await bucket!.getFiles(query);
         // devPrint(response);
         expect(response.files, isEmpty);
       });
-    },
-        skip: storageOptions?.bucket == null
-            ? 'No firebaseStorageTestBucket defined'
-            : false);
+    });
   });
 }

@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'package:tekartik_firebase/firebase.dart';
-import 'package:tekartik_common_utils/byte_data_utils.dart';
 
 /// Query object for listing files.
 class GetFilesOptions {
-  final int maxResults;
-  final String prefix;
+  final int? maxResults;
+  final String? prefix;
   final bool autoPaginate;
-  final String pageToken;
+  final String? pageToken;
 
   GetFilesOptions(
       {this.maxResults, this.prefix, this.pageToken, this.autoPaginate = true});
@@ -26,42 +26,46 @@ class GetFilesOptions {
 /// GetFiles response
 abstract class GetFilesResponse {
   List<File> get files;
-  GetFilesOptions get nextQuery;
+
+  GetFilesOptions? get nextQuery;
 }
 
 mixin StorageMixin implements Storage {
   @override
-  Bucket bucket([String name]) {
+  Bucket bucket([String? name]) {
     throw UnimplementedError();
   }
 
   @override
-  Reference ref([String path]) {
+  Reference ref([String? path]) {
     throw UnimplementedError();
   }
 }
 
 /// The entrypoint for firebase [Storage].
 abstract class Storage {
-  Bucket bucket([String name]);
+  Bucket bucket([String? name]);
 
   /// Returns a new [Reference].
   ///
   /// If the [path] is empty, the reference will point to the root of the
   /// storage bucket.
-  Reference ref([String path]);
+  Reference ref([String? path]);
 }
 
 abstract class Bucket {
   String get name;
+
   File file(String path);
+
   Future<bool> exists();
-  Future<GetFilesResponse> getFiles([GetFilesOptions options]);
+
+  Future<GetFilesResponse> getFiles([GetFilesOptions? options]);
 }
 
 mixin BucketMixin implements Bucket {
   @override
-  Future<GetFilesResponse> getFiles([GetFilesOptions options]) {
+  Future<GetFilesResponse> getFiles([GetFilesOptions? options]) {
     throw UnimplementedError('getFiles');
   }
 
@@ -81,12 +85,19 @@ mixin BucketMixin implements Bucket {
 
 abstract class File {
   Future<void> writeAsBytes(Uint8List bytes);
+
   Future<void> writeAsString(String text);
+
   Future<void> save(/* String | List<int> */ dynamic content);
+
   Future<bool> exists();
+
   Future<Uint8List> download();
+
   Future<Uint8List> readAsBytes();
+
   Future<String> readAsString();
+
   Future<void> delete();
 
   /// Name of the remote file
@@ -96,23 +107,31 @@ abstract class File {
   Bucket get bucket;
 
   /// Available when listed through getFiles
-  FileMetadata get metadata;
+  FileMetadata? get metadata;
 }
 
 abstract class FileMetadata {
   int get size;
+
   DateTime get dateUpdated;
+
   String get md5Hash;
 }
 
 mixin FileMixin implements File {
+  Uint8List _asUint8List(List<int> data) =>
+      data is Uint8List ? data : Uint8List.fromList(data);
+
   @override
   Future<void> writeAsBytes(Uint8List bytes) => save(bytes);
+
   @override
   Future<void> writeAsString(String text) =>
-      writeAsBytes(asUint8List(utf8.encode(text)));
+      writeAsBytes(_asUint8List(utf8.encode(text)));
+
   @override
   Future<Uint8List> readAsBytes() => download();
+
   @override
   Future<String> readAsString() async => utf8.decode(await readAsBytes());
 
@@ -137,7 +156,7 @@ mixin FileMixin implements File {
   }
 
   @override
-  FileMetadata get metadata => throw UnimplementedError('metadata');
+  FileMetadata? get metadata => throw UnimplementedError('metadata');
 
   @override
   String get name => throw UnimplementedError('name');

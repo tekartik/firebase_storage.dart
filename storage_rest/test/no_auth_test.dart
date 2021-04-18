@@ -22,7 +22,7 @@ void main() {
       var storage = noAuthStorageRest(projectId: projectId);
       var bucket = storage.bucket(bucketName);
       // var response = await bucket.getFiles(GetFilesOptions(maxResults: 2));
-      var path = url.join(rootPath, 'simple_file.txt');
+      var path = url.join(rootPath!, 'simple_file.txt');
       var content = await bucket.file(path).readAsString();
       expect(content, isNotNull);
       //devPrint(content);

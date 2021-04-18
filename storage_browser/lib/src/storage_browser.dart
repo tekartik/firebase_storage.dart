@@ -14,7 +14,7 @@ class StorageServiceBrowser implements StorageService {
   }
 }
 
-StorageServiceBrowser _firebaseStorageServiceBrowser;
+StorageServiceBrowser? _firebaseStorageServiceBrowser;
 
 StorageService get storageService =>
     _firebaseStorageServiceBrowser ??= StorageServiceBrowser();
@@ -25,7 +25,8 @@ class StorageBrowser with StorageMixin implements Storage {
   StorageBrowser(this.nativeInstance);
 
   @override
-  Bucket bucket([String name]) {
-    return null;
+  Bucket bucket([String? name]) {
+    // TODO
+    return throw UnimplementedError();
   }
 }

@@ -5,5 +5,5 @@ import 'package:tekartik_firebase_storage/storage.dart';
 
 StorageService get storageServiceIo => impl.storageServiceFsIo;
 
-StorageService createStorageServiceIo({String basePath}) =>
+StorageService createStorageServiceIo({String? basePath}) =>
     impl.StorageServiceFs(fileSystemIo, basePath: basePath);
