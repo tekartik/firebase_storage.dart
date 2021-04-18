@@ -48,7 +48,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
       // devPrint(jsonPretty(meta.toJson()));
       return (meta.id != null);
     } on api.DetailedApiRequestError catch (e) {
-      // DetailedApiRequestError(status: 404, message: No such object: api-watch-dev.appspot.com/dummy-file-that-should-not-exists)
+      // DetailedApiRequestError(status: 404, message: No such object:xxxx.appspot.com/dummy-file-that-should-not-exists)
       if (e.status == httpStatusCodeNotFound) {
         return false;
       }

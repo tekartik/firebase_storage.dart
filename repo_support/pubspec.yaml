@@ -1,5 +1,5 @@
 name: firebase_storage_repo_support
-description: App flutter utils repo (tools)
+description: Firebase storage utils repo (tools)
 version: 0.2.0
 publish_to: none
 
