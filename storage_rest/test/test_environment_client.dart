@@ -1,5 +1,5 @@
-import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:process_run/shell.dart';
+import 'package:tekartik_firebase_storage_test/storage_test.dart';
 
 var _env = shellEnvironment;
 TestStorageOptions? _storageOptionsFromEnv;

@@ -63,6 +63,7 @@ class FileFs with FileMixin implements File {
 
   @override
   final FileMetadataFs? metadata;
+
   @override
   Future save(content) async {
     if (content is String) {
