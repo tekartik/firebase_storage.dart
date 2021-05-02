@@ -1,6 +1,5 @@
-import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart' as impl;
-
 import 'package:tekartik_firebase_storage/storage.dart';
+import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart' as impl;
 
 /// A global in memory service
 StorageService get storageServiceMemory => impl.storageServiceFsMemory;
