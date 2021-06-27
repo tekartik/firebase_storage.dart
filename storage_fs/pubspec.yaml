@@ -3,7 +3,7 @@ description: Firebase storage fs
 version: 0.4.2
 publish_to: none
 #homepage: https://www.example.com
-#author: alex <alex@tekartik.com>
+#
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
