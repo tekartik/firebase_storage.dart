@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:googleapis/bigquery/v2.dart';
 import 'package:googleapis/storage/v1.dart' as api;
+import 'package:http/http.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_rest/src/firebase_rest.dart'; // ignore: implementation_imports
 import 'package:tekartik_firebase_storage/storage.dart';
@@ -13,7 +14,17 @@ import 'import.dart';
 
 abstract class StorageServiceRest extends StorageService {}
 
-abstract class StorageRest extends Storage {}
+/// Storage rest helper.
+abstract class StorageRest extends Storage {
+  /// Build a storage rest client from an auth client.
+  factory StorageRest.fromAuthClient(
+      {
+      // StorageServiceRest? serviceRest,
+      required Client authClient}) {
+    return StorageRestImpl.fromAuthClient(
+        service: storageServiceRest, authClient: authClient);
+  }
+}
 
 StorageServiceRest storageServiceRest = StorageServiceRestImpl();
 
@@ -30,14 +41,22 @@ class StorageServiceRestImpl
 }
 
 class StorageRestImpl with StorageMixin implements StorageRest {
-  final StorageServiceRest service;
-  final AppRestImpl appImpl;
+  late final StorageServiceRest service;
+  late final AppRestImpl? appImpl;
+
+  Client get authClient => _authClient ??= appImpl!.client!;
+  Client? _authClient;
   api.StorageApi? _storageApi;
 
-  api.StorageApi get storageApi =>
-      _storageApi ??= api.StorageApi(appImpl.client!);
+  api.StorageApi get storageApi => _storageApi ??= api.StorageApi(authClient);
 
   StorageRestImpl(this.service, this.appImpl);
+  StorageRestImpl.fromAuthClient(
+      {required StorageServiceRest service, required Client authClient}) {
+    this.service = service;
+    _authClient = authClient;
+    appImpl = null;
+  }
 
   @override
   Bucket bucket([String? name]) => BucketRest(this, name!);
