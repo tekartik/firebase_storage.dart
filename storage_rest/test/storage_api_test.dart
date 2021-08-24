@@ -2,6 +2,7 @@ import 'package:googleapis/storage/v1.dart' as api;
 import 'package:tekartik_common_utils/json_utils.dart';
 import 'package:tekartik_firebase_storage_rest/src/import.dart';
 import 'package:test/test.dart';
+
 import 'test_setup.dart';
 
 // Future<List<String>> get
@@ -28,9 +29,11 @@ Future main() async {
       print(jsonPretty('bucket: $bucket'));
       var data = await storageApi.objects.list(bucket);
       // print(jsonPretty(data.toJson()));
-      data.items!.forEach((element) {
-        //  print('${element.kind}: ${element.name}');
-      });
+      // ignore: unused_local_variable
+      for (var item in data.items!) {}
+      //data.items!.forEach((element) {
+      //  print('${element.kind}: ${element.name}');
+      //});
 
       if (data.items!.isNotEmpty) {
         var item = data.items!.first;

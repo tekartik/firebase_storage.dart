@@ -52,8 +52,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
 
   StorageRestImpl(this.service, this.appImpl);
   StorageRestImpl.fromAuthClient(
-      {required StorageServiceRest service, required Client authClient}) {
-    this.service = service;
+      {required this.service, required Client authClient}) {
     _authClient = authClient;
     appImpl = null;
   }

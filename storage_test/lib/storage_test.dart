@@ -105,7 +105,7 @@ void runApp(App app,
           await file.delete();
         } catch (_) {}
         var now = DateTime.now().toUtc();
-        var content = '${now.toIso8601String()}';
+        var content = now.toIso8601String();
         await file.save(content);
         expect(await file.exists(), isTrue);
         // Last text
