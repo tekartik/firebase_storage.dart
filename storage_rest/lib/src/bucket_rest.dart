@@ -17,5 +17,5 @@ class BucketRest with BucketMixin implements Bucket {
 
   @override
   Future<GetFilesResponse> getFiles([GetFilesOptions? options]) =>
-      impl.getFiles(this, options!);
+      impl.getFiles(this, options ?? GetFilesOptions());
 }

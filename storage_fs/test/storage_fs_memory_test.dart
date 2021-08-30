@@ -37,5 +37,20 @@ void main() {
         expect(e, isNot(const TypeMatcher<TestFailure>()));
       }
     });
+    test('newStorage', () async {
+      var storage = newStorageMemory();
+      await storage.bucket('test').file('cut').writeAsString('the line');
+      expect(
+          await storage.bucket('test').file('cut').readAsString(), 'the line');
+      storage = newStorageMemory();
+      try {
+        await storage.bucket('test').file('cut').readAsString();
+        fail('should fail');
+      } catch (e) {
+        // print(e);
+        //print(e.runtimeType);
+        expect(e, isNot(const TypeMatcher<TestFailure>()));
+      }
+    });
   });
 }
