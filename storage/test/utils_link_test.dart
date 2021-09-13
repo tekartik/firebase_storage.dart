@@ -7,7 +7,7 @@ void main() {
       var uri = Uri.parse('gs://test.appspot.com/test/sub.jpg');
       var ref = StorageFileRef.fromLink(uri);
       expect(ref.bucket, 'test.appspot.com');
-      expect(ref.name, 'test/sub.jpg');
+      expect(ref.path, 'test/sub.jpg');
       expect(ref.toString(), uri.toString());
     });
   });

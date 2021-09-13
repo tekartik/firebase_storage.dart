@@ -2,19 +2,19 @@ import 'package:path/path.dart';
 
 class StorageFileRef {
   late final String bucket;
-  late final String name;
+  late final String path;
 
-  StorageFileRef(this.bucket, this.name);
+  StorageFileRef(this.bucket, this.path);
   StorageFileRef.fromLink(Uri uri) {
     var parts = url.split(uri.path);
     bucket = uri.host;
-    name = url.joinAll(parts.sublist(1));
+    path = url.joinAll(parts.sublist(1));
   }
 
-  String toLink() {
-    return url.join('gs://$bucket/$name');
+  Uri toLink() {
+    return Uri.parse(url.join('gs://$bucket/$path'));
   }
 
   @override
-  String toString() => toLink();
+  String toString() => toLink().toString();
 }
