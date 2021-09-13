@@ -30,7 +30,9 @@ Future main() async {
       var data = await storageApi.objects.list(bucket);
       // print(jsonPretty(data.toJson()));
       // ignore: unused_local_variable
-      for (var item in data.items!) {}
+      for (var item in data.items!) {
+        print('${item.kind}: ${item.name}');
+      }
       //data.items!.forEach((element) {
       //  print('${element.kind}: ${element.name}');
       //});
