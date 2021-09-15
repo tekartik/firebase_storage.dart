@@ -10,7 +10,8 @@ void main() {
     test('new', () async {
       var app = newFirebaseAppLocal();
       var fs = newFileSystemMemory();
-      var storageService = newStorageServiceFs(fs, basePath: 'base');
+      var storageService =
+          newStorageServiceFs(fileSystem: fs, basePath: 'base');
       var storage = storageService.storage(app);
       var file = storage.bucket().file('test');
       await file.writeAsString('text');
