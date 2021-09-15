@@ -40,7 +40,7 @@ void runApp(App app,
   }
 
   var storageBucket =
-      storageOptions.bucket ?? appOptionsGetStorageBucket(app.options!);
+      storageOptions.bucket ?? appOptionsGetStorageBucket(app.options);
   var storage = storageService.storage(app);
 
   group('storage', () {
