@@ -1,4 +1,3 @@
-@TestOn('vm')
 library tekartik_firebase_sembast.storage_fs_memory_test;
 
 import 'package:tekartik_firebase_local/firebase_local.dart';
@@ -9,7 +8,7 @@ import 'package:test/test.dart';
 void main() {
   var firebase = FirebaseLocal();
 
-  group('storage_fs', () {
+  group('storage_fs_memory', () {
     run(
         firebase: firebase,
         storageService: storageServiceMemory,

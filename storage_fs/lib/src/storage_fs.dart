@@ -172,11 +172,18 @@ class BucketFs with BucketMixin implements Bucket {
 
   fs_shim.FileSystem get fs => storage.service.fileSystem;
 
+  String _fixName(String name) {
+    if (name.startsWith('/')) {
+      name = name.substring(1);
+    }
+    return name;
+  }
+
   String getFsFileDataPath(String? name) =>
-      name == null ? dataPath : url.join(dataPath, name);
+      name == null ? dataPath : url.join(dataPath, _fixName(name));
 
   String getFsFileMetaPath(String? name) =>
-      name == null ? metaPath : url.join(metaPath, '$name.json');
+      name == null ? metaPath : url.join(metaPath, '${_fixName(name)}.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
     // TODO handle directories
