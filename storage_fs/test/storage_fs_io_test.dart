@@ -33,10 +33,15 @@ void main() {
           join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
               '_default'));
 
-      var ref = storage.ref('test') as ReferenceFs;
+      var ref =
+          storage.ref(StorageFileRef('_default', 'test').toLink().toString())
+              as ReferenceFs;
       var downloadUrl = Uri.parse(await ref.getDownloadUrl());
-      expect(downloadUrl.scheme, 'file:');
-      expect(downloadUrl.path, endsWith('_default/test'));
+      expect(downloadUrl.scheme, 'file');
+      expect(
+          downloadUrl.path,
+          endsWith(
+              '.dart_tool/tekartik_firebase_local/_default/storage/_default/data/test'));
       expect(
           downloadUrl.path, isNot(contains('\\'))); // no windows separator here
     });
