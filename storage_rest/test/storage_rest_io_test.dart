@@ -15,11 +15,13 @@ Future main() async {
     //context = null;
     if (context != null) {
       var firebase = firebaseRest;
-      run(
-          firebase: firebase,
-          storageService: storageServiceRest,
-          options: context.options,
-          storageOptions: storageOptionsFromEnv);
+      group('all', () {
+        run(
+            firebase: firebase,
+            storageService: storageServiceRest,
+            options: context.options,
+            storageOptions: storageOptionsFromEnv);
+      });
     }
   }, skip: context == null);
 }

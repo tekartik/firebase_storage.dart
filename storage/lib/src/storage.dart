@@ -50,6 +50,8 @@ abstract class Storage {
   ///
   /// If the [path] is empty, the reference will point to the root of the
   /// storage bucket.
+  ///
+  /// Not all implementation supports that.
   Reference ref([String? path]);
 }
 

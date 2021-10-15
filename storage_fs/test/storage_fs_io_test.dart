@@ -3,6 +3,7 @@ library tekartik_firebase_sembast.storage_io_test;
 
 import 'package:path/path.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
+import 'package:tekartik_firebase_storage/utils/link.dart';
 import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart';
 import 'package:tekartik_firebase_storage_fs/storage_fs_io.dart';
 import 'package:tekartik_firebase_storage_test/storage_test.dart';
@@ -31,9 +32,16 @@ void main() {
           bucketIo.localPath,
           join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
               '_default'));
+
+      var ref = storage.ref('test') as ReferenceFs;
+      var downloadUrl = Uri.parse(await ref.getDownloadUrl());
+      expect(downloadUrl.scheme, 'file:');
+      expect(downloadUrl.path, endsWith('_default/test'));
+      expect(
+          downloadUrl.path, isNot(contains('\\'))); // no windows separator here
     });
     test('create_no_tree', () async {
-      var bucket = storage.bucket('test');
+      var bucket = storage.bucket('bkt');
       var fileFs = bucket.file('test') as FileFs;
 
       // delete a top folder to force creating the tree again
@@ -44,9 +52,13 @@ void main() {
       } catch (_) {}
       expect(await bucket.exists(), isFalse);
       expect(await fileFs.exists(), isFalse);
-      await fileFs.save('test');
+      var ref = storage.ref(StorageFileRef('bkt', 'test').toLink().toString());
+      var path = normalize(Uri.parse(await ref.getDownloadUrl()).path);
+      expect((await fileSystem.file(path).exists()), isFalse);
+      await fileFs.save('test content');
       expect(await fileFs.exists(), isTrue);
       expect(await bucket.exists(), isTrue);
+      expect((await fileSystem.file(path).exists()), isTrue);
     });
 
     group('basePath', () {

@@ -11,6 +11,7 @@ import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
+import 'package:tekartik_firebase_storage/utils/link.dart';
 
 import 'import.dart';
 
@@ -157,7 +158,7 @@ class BucketFs with BucketMixin implements Bucket {
     if (storage.service.basePath != null) {
       localPath = join(storage.service.basePath!, this.name);
     } else {
-      localPath = join(storage.ioApp.localPath, 'storage', this.name);
+      localPath = join(storage.app.localPath, 'storage', this.name);
     }
   }
 
@@ -269,13 +270,33 @@ class BucketFs with BucketMixin implements Bucket {
 
 class StorageFs with StorageMixin implements Storage {
   final StorageServiceFs service;
-  final AppLocal ioApp;
+  final AppLocal app;
 
-  StorageFs(this.service, this.ioApp);
+  StorageFs(this.service, this.app);
 
   @override
-  Bucket bucket([String? name]) {
+  BucketFs bucket([String? name]) {
     return BucketFs(this, name);
+  }
+
+  @override
+  ReferenceFs ref([String? path]) {
+    return ReferenceFs(this, path);
+  }
+}
+
+class ReferenceFs with ReferenceMixin {
+  final StorageFs storage;
+  final String? path;
+
+  ReferenceFs(this.storage, this.path);
+
+  @override
+  Future<String> getDownloadUrl() async {
+    var refLink = StorageFileRef.fromLink(Uri.parse(path!));
+    var uri =
+        'file://${url.normalize(url.join(absolute(storage.bucket(refLink.bucket).dataPath), refLink.path))}';
+    return uri;
   }
 }
 

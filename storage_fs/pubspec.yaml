@@ -1,6 +1,6 @@
 name: tekartik_firebase_storage_fs
 description: Firebase storage fs
-version: 0.4.6
+version: 0.4.7
 publish_to: none
 #homepage: https://www.example.com
 #
@@ -31,6 +31,7 @@ dev_dependencies:
   build_test: ">=0.10.3"
   tekartik_firebase_storage_test:
     path: ../storage_test
+  http:
 
 dependency_overrides:
   tekartik_firebase_storage:

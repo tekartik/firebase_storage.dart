@@ -67,10 +67,11 @@ void runApp(App app,
     });
 
     group('file', () {
-      print('#: ${storageBucket.runtimeType}');
+      // print('#: ${storageBucket.runtimeType}');
       var bucket = storage.bucket(storageBucket);
       test('exists', () async {
         var file = bucket.file(filePath('dummy-file-that-should-not-exists'));
+
         expect(await file.exists(), isFalse);
       });
 
