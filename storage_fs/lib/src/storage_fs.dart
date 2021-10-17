@@ -150,16 +150,16 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   final String name;
 
-  String get dataPath => join(localPath!, 'data');
+  String get dataPath => fs.path.join(localPath!, 'data');
 
-  String get metaPath => join(localPath!, 'meta');
+  String get metaPath => fs.path.join(localPath!, 'meta');
   String? localPath;
 
   BucketFs(this.storage, String? name) : name = name ?? '_default' {
     if (storage.service.basePath != null) {
-      localPath = join(storage.service.basePath!, this.name);
+      localPath = fs.path.join(storage.service.basePath!, this.name);
     } else {
-      localPath = join(storage.app.localPath, 'storage', this.name);
+      localPath = fs.path.join(storage.app.localPath, 'storage', this.name);
     }
   }
 
