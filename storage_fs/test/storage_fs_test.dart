@@ -32,11 +32,11 @@ void main() {
           newStorageServiceFs(fileSystem: fs, basePath: 'base');
       var storage = storageService.storage(app);
       var bucket = storage.bucket() as BucketFs;
-      expect(bucket.localPath, 'base/_default');
+      expect(bucket.localPath, join('base', '_default'));
       var file = bucket.file('test');
-      expect(file.fsFile.path, 'base/_default/data/test');
+      expect(file.fsFile.path, join('base', '_default', 'data', 'test'));
       file = bucket.file('/test');
-      expect(file.fsFile.path, 'base/_default/data/test');
+      expect(file.fsFile.path, join('base', '_default', 'data', 'test'));
 
       app.delete();
     });
@@ -46,12 +46,14 @@ void main() {
       var storageService = newStorageServiceFs(fileSystem: fs);
       var storage = storageService.storage(app);
       var bucket = storage.bucket() as BucketFs;
-      expect(bucket.localPath,
-          '.dart_tool/tekartik_firebase_local/_default/storage/_default');
+      expect(
+          bucket.localPath,
+          join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
+              '_default'));
       var file = bucket.file('test');
-      expect(file.fsFile.path, url.join(bucket.localPath!, 'data/test'));
+      expect(file.fsFile.path, join(bucket.localPath!, 'data', 'test'));
       file = bucket.file('/test');
-      expect(file.fsFile.path, url.join(bucket.localPath!, 'data/test'));
+      expect(file.fsFile.path, join(bucket.localPath!, 'data', 'test'));
 
       app.delete();
     });
