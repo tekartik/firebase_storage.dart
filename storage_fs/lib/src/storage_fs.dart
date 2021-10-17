@@ -5,6 +5,7 @@ import 'package:fs_shim/fs.dart' as fs_shim;
 import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:fs_shim/fs_memory.dart' as fs;
 import 'package:fs_shim/fs_shim.dart' as fs;
+import 'package:fs_shim/utils/path.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
@@ -221,8 +222,8 @@ class BucketFs with BucketMixin implements Bucket {
     paths.sort();
 
     // Handle windows case to convert to url.
-    String _toStoragePath(String path) => url.normalize(
-        fs.path.relative(path, from: bucketDataPath).replaceAll('\\', '/'));
+    String _toStoragePath(String path) =>
+        toPosixPath(fs.path.relative(path, from: bucketDataPath));
 
     // marker?
     // TODO too slow for now
@@ -295,7 +296,7 @@ class ReferenceFs with ReferenceMixin {
   Future<String> getDownloadUrl() async {
     var refLink = StorageFileRef.fromLink(Uri.parse(path!));
     var uri =
-        'file://${url.normalize(url.join(absolute(storage.bucket(refLink.bucket).dataPath), refLink.path))}';
+        'file://${toPosixPath(url.join(absolute(storage.bucket(refLink.bucket).dataPath), refLink.path))}';
     return uri;
   }
 }
