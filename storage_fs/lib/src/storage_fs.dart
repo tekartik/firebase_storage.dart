@@ -143,6 +143,9 @@ class FileFs with FileMixin implements File {
 
   @override
   String toString() => 'FileFs($name)';
+
+  @override
+  Future<FileMetadata> getMetadata() => bucket.getOrGenerateMeta(name);
 }
 
 class BucketFs with BucketMixin implements Bucket {

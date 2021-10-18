@@ -110,6 +110,9 @@ abstract class File {
 
   /// Available when listed through getFiles
   FileMetadata? get metadata;
+
+  /// Read meatada
+  Future<FileMetadata> getMetadata();
 }
 
 abstract class FileMetadata {
@@ -118,6 +121,17 @@ abstract class FileMetadata {
   DateTime get dateUpdated;
 
   String get md5Hash;
+}
+
+mixin FileMetadataMixin implements FileMetadata {
+  @override
+  DateTime get dateUpdated => throw UnimplementedError();
+
+  @override
+  String get md5Hash => throw UnimplementedError();
+
+  @override
+  int get size => throw UnimplementedError();
 }
 
 mixin FileMixin implements File {
@@ -137,6 +151,9 @@ mixin FileMixin implements File {
   @override
   Future<String> readAsString() async => utf8.decode(await readAsBytes());
 
+  @override
+  Future<FileMetadata> getMetadata() async =>
+      throw UnimplementedError('getMetadata');
   // To implement
   @override
   Bucket get bucket => throw UnimplementedError('bucket');
@@ -186,4 +203,17 @@ mixin ReferenceMixin implements Reference {
   Future<String> getDownloadUrl() {
     throw UnimplementedError('getDownloadUrl');
   }
+}
+
+/// Storage exception type
+enum StorageExceptionType { notFound, other }
+
+/// Storage exception
+class StorageException implements Exception {
+  final StorageExceptionType type;
+  final String message;
+
+  StorageException(this.type, this.message);
+  @override
+  String toString() => 'StorageException($type) $message';
 }

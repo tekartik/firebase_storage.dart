@@ -187,6 +187,28 @@ void runApp(App app,
         expect(file1.metadata!.dateUpdated, file2.metadata!.dateUpdated);
         expect(file1.metadata!.md5Hash, file2.metadata!.md5Hash);
       });
+
+      test('file_get_meta', () async {
+        var content = 'storage_get_meta_test';
+        var file = bucket!.file(filePath('test/get_meta/file0.txt'));
+        if (await file.exists()) {
+          await file.delete();
+        }
+
+        try {
+          await file.getMetadata();
+          fail('should fail');
+        } catch (e) {
+          expect(e, isNot(const TypeMatcher<TestFailure>()));
+        }
+
+        await file.writeAsString(content);
+
+        var metadata = await file.getMetadata();
+        expect(metadata.size, greaterThanOrEqualTo(content.length));
+        expect(metadata.dateUpdated, isNotNull);
+        expect(metadata.md5Hash, isNotNull);
+      }, solo: true);
       test('list_no_files', () async {
         var query = GetFilesOptions(
             maxResults: 2,

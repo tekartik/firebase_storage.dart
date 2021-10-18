@@ -113,12 +113,7 @@ class StorageRestImpl with StorageMixin implements StorageRest {
       ..files = items.map((object) {
         // devPrint(object.toJson());
         return FileRest(
-            bucket,
-            object.name,
-            FileMetadataRest(
-                size: int.parse(object.size!),
-                md5Hash: object.md5Hash!,
-                dateUpdated: object.timeCreated!));
+            bucket, object.name, FileMetadataRest.fromObject(object));
       }).toList()
       ..nextQuery = nextQuery;
 
@@ -134,6 +129,12 @@ class StorageRestImpl with StorageMixin implements StorageRest {
     var listOfList = await media.stream.toList();
 
     return Uint8List.fromList(flatten(listOfList));
+  }
+
+  Future<FileMetadataRest> getMetadata(BucketRest bucket, String path) async {
+    var object = (await storageApi.objects.get(bucket.name, path,
+        downloadOptions: DownloadOptions.metadata)) as api.Object;
+    return FileMetadataRest.fromObject(object);
   }
 
   Future<void> deleteFile(BucketRest bucket, String path) async {
