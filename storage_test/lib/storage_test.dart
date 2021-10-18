@@ -208,7 +208,7 @@ void runApp(App app,
         expect(metadata.size, greaterThanOrEqualTo(content.length));
         expect(metadata.dateUpdated, isNotNull);
         expect(metadata.md5Hash, isNotNull);
-      }, solo: true);
+      });
       test('list_no_files', () async {
         var query = GetFilesOptions(
             maxResults: 2,
