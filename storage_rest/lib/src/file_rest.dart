@@ -1,10 +1,11 @@
 import 'dart:typed_data';
 
+import 'package:googleapis/storage/v1.dart' as api;
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_rest/src/bucket_rest.dart';
 import 'package:tekartik_firebase_storage_rest/src/storage_rest_impl.dart';
 
-class FileMetadataRest implements FileMetadata {
+class FileMetadataRest with FileMetadataMixin implements FileMetadata {
   @override
   final DateTime dateUpdated;
 
@@ -16,6 +17,11 @@ class FileMetadataRest implements FileMetadata {
 
   FileMetadataRest(
       {required this.dateUpdated, required this.md5Hash, required this.size});
+
+  factory FileMetadataRest.fromObject(api.Object object) => FileMetadataRest(
+      size: int.parse(object.size!),
+      md5Hash: object.md5Hash!,
+      dateUpdated: object.timeCreated!);
 }
 
 class FileRest with FileMixin implements File {
@@ -53,4 +59,7 @@ class FileRest with FileMixin implements File {
 
   @override
   Future<void> delete() => impl.deleteFile(bucketRest, path!);
+
+  @override
+  Future<FileMetadata> getMetadata() => impl.getMetadata(bucketRest, path!);
 }

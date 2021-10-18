@@ -1,4 +1,4 @@
-library tekartik_firebase_sembast.storage_fs_memory_test;
+library tekartik_firebase_sembast.storage_fs_test;
 
 import 'package:fs_shim/fs_memory.dart';
 import 'package:path/path.dart';

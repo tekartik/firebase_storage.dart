@@ -5,12 +5,13 @@ import 'package:fs_shim/fs.dart' as fs_shim;
 import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:fs_shim/fs_memory.dart' as fs;
 import 'package:fs_shim/fs_shim.dart' as fs;
-import 'package:path/path.dart';
+import 'package:fs_shim/utils/path.dart';
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
+import 'package:tekartik_firebase_storage/utils/link.dart';
 
 import 'import.dart';
 
@@ -133,7 +134,9 @@ class FileFs with FileMixin implements File {
 
   @override
   Future delete() async {
-    return await fsFile.delete();
+    // delete meta first
+    await fsMetaFile.delete();
+    await fsFile.delete();
   }
 
   @override
@@ -141,6 +144,9 @@ class FileFs with FileMixin implements File {
 
   @override
   String toString() => 'FileFs($name)';
+
+  @override
+  Future<FileMetadata> getMetadata() => bucket.getOrGenerateMeta(name);
 }
 
 class BucketFs with BucketMixin implements Bucket {
@@ -148,16 +154,17 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   final String name;
 
-  String get dataPath => join(localPath!, 'data');
+  String get dataPath => fs.path.join(localPath!, 'data');
 
-  String get metaPath => join(localPath!, 'meta');
+  String get metaPath => fs.path.join(localPath!, 'meta');
   String? localPath;
 
   BucketFs(this.storage, String? name) : name = name ?? '_default' {
     if (storage.service.basePath != null) {
-      localPath = join(storage.service.basePath!, this.name);
+      localPath = fs.path.join(storage.service.basePath!, this.name);
     } else {
-      localPath = join(storage.ioApp.localPath, 'storage', this.name);
+      localPath = fs.path.join(
+          toContextPath(fs.path, storage.app.localPath), 'storage', this.name);
     }
   }
 
@@ -171,18 +178,19 @@ class BucketFs with BucketMixin implements Bucket {
 
   fs_shim.FileSystem get fs => storage.service.fileSystem;
 
-  String _fixName(String name) {
+  String _fixFsName(String name) {
     if (name.startsWith('/')) {
       name = name.substring(1);
     }
-    return name;
+    return toContextPath(fs.path, name);
   }
 
   String getFsFileDataPath(String? name) =>
-      name == null ? dataPath : url.join(dataPath, _fixName(name));
+      name == null ? dataPath : fs.path.join(dataPath, _fixFsName(name));
 
-  String getFsFileMetaPath(String? name) =>
-      name == null ? metaPath : url.join(metaPath, '${_fixName(name)}.json');
+  String getFsFileMetaPath(String? name) => name == null
+      ? metaPath
+      : fs.path.join(metaPath, '${_fixFsName(name)}.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
     // TODO handle directories
@@ -220,8 +228,8 @@ class BucketFs with BucketMixin implements Bucket {
     paths.sort();
 
     // Handle windows case to convert to url.
-    String _toStoragePath(String path) => url.normalize(
-        fs.path.relative(path, from: bucketDataPath).replaceAll('\\', '/'));
+    String _toStoragePath(String path) =>
+        toPosixPath(fs.path.relative(path, from: bucketDataPath));
 
     // marker?
     // TODO too slow for now
@@ -269,13 +277,35 @@ class BucketFs with BucketMixin implements Bucket {
 
 class StorageFs with StorageMixin implements Storage {
   final StorageServiceFs service;
-  final AppLocal ioApp;
+  final AppLocal app;
 
-  StorageFs(this.service, this.ioApp);
+  StorageFs(this.service, this.app);
 
   @override
-  Bucket bucket([String? name]) {
+  BucketFs bucket([String? name]) {
     return BucketFs(this, name);
+  }
+
+  @override
+  ReferenceFs ref([String? path]) {
+    return ReferenceFs(this, path);
+  }
+}
+
+class ReferenceFs with ReferenceMixin {
+  final StorageFs storage;
+  final String? path;
+
+  ReferenceFs(this.storage, this.path);
+
+  @override
+  Future<String> getDownloadUrl() async {
+    var refLink = StorageFileRef.fromLink(Uri.parse(path!));
+    var context = storage.service.fileSystem.path;
+    var dataPath = context.absolute(storage.bucket(refLink.bucket).dataPath);
+    var filePath = context.join(dataPath, toContextPath(context, refLink.path));
+    var uri = 'file://${toPosixPath(filePath)}';
+    return uri;
   }
 }
 
