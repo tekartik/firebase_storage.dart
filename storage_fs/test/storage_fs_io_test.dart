@@ -1,6 +1,7 @@
 @TestOn('vm')
 library tekartik_firebase_sembast.storage_io_test;
 
+import 'package:fs_shim/utils/path.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/utils/link.dart';
@@ -58,7 +59,8 @@ void main() {
       expect(await bucket.exists(), isFalse);
       expect(await fileFs.exists(), isFalse);
       var ref = storage.ref(StorageFileRef('bkt', 'test').toLink().toString());
-      var path = normalize(Uri.parse(await ref.getDownloadUrl()).path);
+      var path = normalize(
+          toContextPath(context, Uri.parse(await ref.getDownloadUrl()).path));
       expect((await fileSystem.file(path).exists()), isFalse);
       await fileFs.save('test content');
       expect(await fileFs.exists(), isTrue);

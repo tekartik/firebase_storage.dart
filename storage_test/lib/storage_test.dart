@@ -194,6 +194,7 @@ void runApp(App app,
         if (await file.exists()) {
           await file.delete();
         }
+        expect(await file.exists(), isFalse);
 
         try {
           await file.getMetadata();

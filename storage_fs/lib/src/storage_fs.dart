@@ -6,7 +6,6 @@ import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:fs_shim/fs_memory.dart' as fs;
 import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:fs_shim/utils/path.dart';
-import 'package:path/path.dart';
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
@@ -135,7 +134,9 @@ class FileFs with FileMixin implements File {
 
   @override
   Future delete() async {
-    return await fsFile.delete();
+    // delete meta first
+    await fsMetaFile.delete();
+    await fsFile.delete();
   }
 
   @override
@@ -300,8 +301,10 @@ class ReferenceFs with ReferenceMixin {
   @override
   Future<String> getDownloadUrl() async {
     var refLink = StorageFileRef.fromLink(Uri.parse(path!));
-    var uri =
-        'file://${url.join(toPosixPath(storage.service.fileSystem.path.absolute(storage.bucket(refLink.bucket).dataPath)), refLink.path)}';
+    var context = storage.service.fileSystem.path;
+    var dataPath = context.absolute(storage.bucket(refLink.bucket).dataPath);
+    var filePath = context.join(dataPath, toContextPath(context, refLink.path));
+    var uri = 'file://${toPosixPath(filePath)}';
     return uri;
   }
 }
