@@ -159,7 +159,8 @@ class BucketFs with BucketMixin implements Bucket {
     if (storage.service.basePath != null) {
       localPath = fs.path.join(storage.service.basePath!, this.name);
     } else {
-      localPath = fs.path.join(storage.app.localPath, 'storage', this.name);
+      localPath = fs.path.join(
+          toContextPath(fs.path, storage.app.localPath), 'storage', this.name);
     }
   }
 
