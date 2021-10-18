@@ -63,7 +63,7 @@ void main() {
       await fileFs.save('test content');
       expect(await fileFs.exists(), isTrue);
       expect(await bucket.exists(), isTrue);
-      expect((await fileSystem.file(path).exists()), isTrue);
+      expect((await fileSystem.file(path).exists()), isTrue, reason: path);
     });
 
     group('basePath', () {

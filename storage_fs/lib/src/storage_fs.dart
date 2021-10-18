@@ -298,7 +298,7 @@ class ReferenceFs with ReferenceMixin {
   Future<String> getDownloadUrl() async {
     var refLink = StorageFileRef.fromLink(Uri.parse(path!));
     var uri =
-        'file://${toPosixPath(url.join(absolute(storage.bucket(refLink.bucket).dataPath), refLink.path))}';
+        'file://${url.join(toPosixPath(storage.service.fileSystem.path.absolute(storage.bucket(refLink.bucket).dataPath)), refLink.path)}';
     return uri;
   }
 }
