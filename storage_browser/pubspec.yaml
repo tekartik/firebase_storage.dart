@@ -9,21 +9,21 @@ environment:
 dependencies:
   tekartik_firebase_storage:
     git:
-      url: git://github.com/tekartik/firebase_storage.dart
+      url: https://github.com/tekartik/firebase_storage.dart
       path: storage
-      ref: null_safety
+      ref: dart2_3
       version: '>=0.4.0'
   tekartik_firebase_browser:
     git:
-      url: git://github.com/tekartik/firebase.dart
+      url: https://github.com/tekartik/firebase.dart
       path: firebase_browser
-      ref: null_safety
+      ref: dart2_3
     version: '>=0.4.0'
   firebase: '>=5.0.2'
   tekartik_browser_utils:
     git:
-      url: git://github.com/tekartik/browser_utils.dart
-      ref: null_safety
+      url: https://github.com/tekartik/browser_utils.dart
+      ref: dart2_3
 
 dev_dependencies:
   test: ">=0.12.37"
