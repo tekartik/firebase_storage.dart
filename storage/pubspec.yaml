@@ -10,9 +10,9 @@ environment:
 dependencies:
   tekartik_firebase:
     git:
-      url: git://github.com/tekartik/firebase.dart
+      url: https://github.com/tekartik/firebase.dart
       path: firebase
-      ref: null_safety
+      ref: dart2_3
     version: '>=0.4.0'
 
 dev_dependencies:
