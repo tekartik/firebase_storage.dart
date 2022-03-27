@@ -32,7 +32,7 @@ dependencies:
       ref: dart2_3
     version: '>=0.2.0+2'
   path:
-
+  http:
 dev_dependencies:
   tekartik_firebase_local:
     git:
