@@ -1,8 +1,7 @@
-import 'package:firebase/firebase.dart' as native;
+import 'package:firebase/firebase.dart' // ignore: deprecated_member_use
+    as native;
 import 'package:tekartik_firebase/firebase.dart';
-
-// ignore: implementation_imports
-import 'package:tekartik_firebase_browser/src/firebase_browser.dart';
+import 'package:tekartik_firebase_browser/src/firebase_browser.dart'; // ignore: implementation_imports
 import 'package:tekartik_firebase_storage/storage.dart';
 
 class StorageServiceBrowser implements StorageService {
