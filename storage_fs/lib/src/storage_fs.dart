@@ -74,7 +74,7 @@ class FileFs with FileMixin implements File {
   }
 
   Future<FileMetadataFs> writeFileMeta(Uint8List? bytes) async {
-    Future<FileMetadataFs> _writeMeta() async {
+    Future<FileMetadataFs> doWriteMeta() async {
       var md5Hash = md5.convert(bytes!).toString();
       var size = bytes.length;
       var dateUpdated = DateTime.now().toUtc();
@@ -86,25 +86,25 @@ class FileFs with FileMixin implements File {
     }
 
     try {
-      return await _writeMeta();
+      return await doWriteMeta();
     } catch (_) {
       try {
         await fsMetaFile.parent.create(recursive: true);
       } catch (_) {}
       // try again
-      return await _writeMeta();
+      return await doWriteMeta();
     }
   }
 
   @override
   Future<void> writeAsBytes(Uint8List? bytes) async {
-    Future _writeData() async {
+    Future doWriteData() async {
       // Write data
       await fsFile.writeAsBytes(bytes!);
     }
 
     try {
-      await _writeData();
+      await doWriteData();
     } catch (_) {
       try {
         await fsFile.parent.create(recursive: true);
@@ -113,7 +113,7 @@ class FileFs with FileMixin implements File {
         await fsMetaFile.parent.create(recursive: true);
       } catch (_) {}
       // try again
-      await _writeData();
+      await doWriteData();
     }
 
     await writeFileMeta(bytes);
@@ -228,7 +228,7 @@ class BucketFs with BucketMixin implements Bucket {
     paths.sort();
 
     // Handle windows case to convert to url.
-    String _toStoragePath(String path) =>
+    String toStoragePath(String path) =>
         toPosixPath(fs.path.relative(path, from: bucketDataPath));
 
     // marker?
@@ -236,7 +236,7 @@ class BucketFs with BucketMixin implements Bucket {
     if (options?.pageToken != null) {
       int? startIndex;
       for (var i = 0; i < paths.length; i++) {
-        if (options!.pageToken!.compareTo(_toStoragePath(paths[i])) <= 0) {
+        if (options!.pageToken!.compareTo(toStoragePath(paths[i])) <= 0) {
           startIndex = i;
         }
       }
@@ -250,7 +250,7 @@ class BucketFs with BucketMixin implements Bucket {
     String? nextMarker;
     if (paths.length > maxResults) {
       // set next marker
-      nextMarker = _toStoragePath(paths[maxResults]);
+      nextMarker = toStoragePath(paths[maxResults]);
 
       paths = paths.sublist(0, maxResults);
     }
@@ -258,7 +258,7 @@ class BucketFs with BucketMixin implements Bucket {
     // Convert
     var storageFiles = <File>[];
     for (var path in paths) {
-      var name = _toStoragePath(path);
+      var name = toStoragePath(path);
       var metadata = await getOrGenerateMeta(name);
       storageFiles.add(FileFs(bucket: this, path: name, metadata: metadata));
     }
