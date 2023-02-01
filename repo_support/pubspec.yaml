@@ -11,5 +11,5 @@ dev_dependencies:
   pub_semver:
   test:
   dev_test:
-  pedantic:
+
 
