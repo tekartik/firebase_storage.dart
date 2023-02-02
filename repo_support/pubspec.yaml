@@ -11,5 +11,7 @@ dev_dependencies:
   pub_semver:
   test:
   dev_test:
+  lints:
+  process_run:
 
 
