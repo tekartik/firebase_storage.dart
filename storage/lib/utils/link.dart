@@ -6,9 +6,9 @@ class StorageFileRef {
 
   StorageFileRef(this.bucket, this.path);
   StorageFileRef.fromLink(Uri uri) {
-    var parts = url.split(uri.path);
+    var parts = uri.pathSegments;
     bucket = uri.host;
-    path = url.joinAll(parts.sublist(1));
+    path = url.joinAll(parts);
   }
 
   Uri toLink() {
