@@ -6,7 +6,7 @@ Future main() async {
   group('json', () {
     test('list response', () {
       var map = {
-        'prefixes': [],
+        'prefixes': <Object?>[],
         'items': [
           {'name': 'test.json', 'bucket': 'test.appspot.com'}
         ]

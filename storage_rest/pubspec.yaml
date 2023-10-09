@@ -4,7 +4,7 @@ version: 0.8.0
 publish_to: none
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   fs_shim:
@@ -14,13 +14,13 @@ dependencies:
     git:
       url: https://github.com/tekartik/firebase_storage.dart
       path: storage
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.8.0'
   tekartik_firebase_rest:
     git:
       url: https://github.com/tekartik/firebase.dart
       path: firebase_rest
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.6.4'
   googleapis:
   googleapis_beta:
@@ -29,7 +29,7 @@ dependencies:
     git:
       url: https://github.com/tekartik/http.dart
       path: http
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.2.0+2'
   path:
   http:
@@ -38,7 +38,7 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/firebase.dart
       path: firebase_local
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.3.7'
   test: any
   build_runner: ">=0.9.1"
@@ -49,7 +49,7 @@ dev_dependencies:
   tekartik_app_http:
     git:
       url: https://github.com/tekartik/app_common_utils.dart
-      ref: dart2_3
+      ref: dart3a
       path: app_http
     version: '>=0.1.0'
 dependency_overrides:
