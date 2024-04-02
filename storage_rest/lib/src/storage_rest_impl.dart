@@ -58,7 +58,8 @@ class StorageRestImpl with StorageMixin implements StorageRest {
   }
 
   @override
-  Bucket bucket([String? name]) => BucketRest(this, name!);
+  Bucket bucket([String? name]) =>
+      BucketRest(this, name ?? appImpl!.options.storageBucket!);
 
   Future<bool> fileExists(BucketRest bucket, String path) async {
     try {
