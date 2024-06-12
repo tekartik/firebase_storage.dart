@@ -5,14 +5,21 @@ import 'package:tekartik_firebase_storage_fs/storage_fs.dart';
 import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:test/test.dart';
 
+var _bucketName = 'my_bucket';
 void main() {
   var firebase = FirebaseLocal();
 
   group('storage_fs_memory', () {
-    run(
-        firebase: firebase,
+    var app = firebase.initializeApp();
+
+    /// Need to create the bucket.
+    setUpAll(() async {
+      var storage = storageServiceMemory.storage(app);
+      await storage.bucket(_bucketName).create();
+    });
+    runApp(app,
         storageService: storageServiceMemory,
-        storageOptions: TestStorageOptions(bucket: 'my_bucket'));
+        storageOptions: TestStorageOptions(bucket: _bucketName));
 
     test('new', () async {
       var app = firebase.initializeApp();

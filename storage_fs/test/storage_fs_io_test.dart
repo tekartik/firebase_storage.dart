@@ -10,6 +10,7 @@ import 'package:tekartik_firebase_storage_fs/storage_fs_io.dart';
 import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:test/test.dart';
 
+var _bucketName = 'my_bucket';
 void main() {
   var firebase = FirebaseLocal();
 
@@ -17,12 +18,14 @@ void main() {
     run(
         firebase: firebase,
         storageService: storageServiceIo,
-        storageOptions: TestStorageOptions(bucket: 'my_bucket'));
+        storageOptions: TestStorageOptions(bucket: _bucketName));
 
     var fileSystem = (storageServiceIo as StorageServiceFs).fileSystem;
     var app = firebase.initializeApp();
     var storage = storageServiceIo.storage(app);
-    setUpAll(() {});
+    setUpAll(() async {
+      await storage.bucket(_bucketName).create();
+    });
     tearDownAll(() {
       return app.delete();
     });
@@ -53,7 +56,7 @@ void main() {
       // delete a top folder to force creating the tree again
       try {
         await fileSystem
-            .directory(fileFs.bucket.localPath!)
+            .directory(fileFs.bucket.localPath)
             .delete(recursive: true);
       } catch (_) {}
       expect(await bucket.exists(), isFalse);

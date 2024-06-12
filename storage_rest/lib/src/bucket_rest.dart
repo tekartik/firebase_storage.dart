@@ -13,6 +13,8 @@ class BucketRest with BucketMixin implements Bucket {
   StorageRestImpl get impl => storageRest as StorageRestImpl;
 
   @override
+  Future<bool> exists() => impl.bucketExists(this);
+  @override
   File file(String path) => FileRest(this, path);
 
   @override

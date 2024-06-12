@@ -12,6 +12,8 @@ import 'package:tekartik_http/http.dart';
 
 import 'import.dart';
 
+final storageGoogleApisReadWriteScope = api.StorageApi.devstorageReadWriteScope;
+
 abstract class StorageServiceRest extends StorageService {}
 
 /// Storage rest helper.
@@ -140,6 +142,19 @@ class StorageRestImpl with StorageMixin implements StorageRest {
 
   Future<void> deleteFile(BucketRest bucket, String path) async {
     await storageApi.objects.delete(bucket.name, path);
+  }
+
+  Future<bool> bucketExists(BucketRest bucketRest) async {
+    try {
+      await storageApi.buckets.get(bucketRest.name);
+      return true;
+    } on api.DetailedApiRequestError catch (e) {
+      // DetailedApiRequestError(status: 404, message: The specified bucket does not exist.)
+      if (e.status == httpStatusCodeNotFound) {
+        return false;
+      }
+      rethrow;
+    }
   }
 }
 

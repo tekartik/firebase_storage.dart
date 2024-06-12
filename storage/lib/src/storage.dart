@@ -62,6 +62,8 @@ abstract class Bucket {
 
   Future<bool> exists();
 
+  Future<void> create();
+
   Future<GetFilesResponse> getFiles([GetFilesOptions? options]);
 }
 
@@ -82,6 +84,11 @@ mixin BucketMixin implements Bucket {
   }
 
   @override
+  Future<void> create() {
+    throw UnimplementedError();
+  }
+
+  @override
   String get name => throw UnimplementedError('name');
 }
 
@@ -90,10 +97,12 @@ abstract class File {
 
   Future<void> writeAsString(String text);
 
+  @Deprecated('Use writeAsBytes or writeAsString')
   Future<void> save(/* String | List<int> */ dynamic content);
 
   Future<bool> exists();
 
+  @Deprecated('Use readAsBytes or readAsString')
   Future<Uint8List> download();
 
   Future<Uint8List> readAsBytes();
@@ -182,8 +191,14 @@ mixin FileMixin implements File {
 
   // To deprecate
   @override
-  Future<void> save(content) {
-    throw UnimplementedError('save');
+  Future<void> save(dynamic content) {
+    if (content is String) {
+      return writeAsString(content);
+    } else if (content is List<int>) {
+      return writeAsBytes(_asUint8List(content));
+    } else {
+      throw ArgumentError('content must be a String or a List<int>');
+    }
   }
 }
 
