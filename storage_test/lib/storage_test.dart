@@ -16,7 +16,19 @@ class TestStorageOptions {
   String toString() => {'bucket': bucket, 'rootPath': rootPath}.toString();
 }
 
+@Deprecated('Use runStorageTests')
 void run(
+        {required Firebase firebase,
+        required StorageService storageService,
+        AppOptions? options,
+        required TestStorageOptions storageOptions}) =>
+    runStorageTests(
+        firebase: firebase,
+        storageService: storageService,
+        options: options,
+        storageOptions: storageOptions);
+
+void runStorageTests(
     {required Firebase firebase,
     required StorageService storageService,
     AppOptions? options,
@@ -26,10 +38,18 @@ void run(
     return app.delete();
   });
 
-  runApp(app, storageService: storageService, storageOptions: storageOptions);
+  runStorageAppTests(app,
+      storageService: storageService, storageOptions: storageOptions);
 }
 
+@Deprecated('Use runStorageAppTests')
 void runApp(App app,
+        {required StorageService storageService,
+        required TestStorageOptions storageOptions}) =>
+    runStorageAppTests(app,
+        storageService: storageService, storageOptions: storageOptions);
+
+void runStorageAppTests(App app,
     {required StorageService storageService,
     required TestStorageOptions storageOptions}) {
   String filePath(String path) {
@@ -140,17 +160,23 @@ void runApp(App app,
         await bucket
             .file(filePath('test/list_files/yes/other_sub/sub/file3.txt'))
             .writeAsString(content);
+
         var files = <File>[];
+        var listFilePath = filePath('test/list_files/yes');
 
         var query = GetFilesOptions(
-            maxResults: 2,
-            prefix: filePath('test/list_files/yes'),
-            autoPaginate: false);
+            maxResults: 2, prefix: listFilePath, autoPaginate: false);
         var response = await bucket.getFiles(query);
         files.addAll(response.files);
 
+        String? lastFirstPath;
         while (response.nextQuery != null) {
           response = await bucket.getFiles(response.nextQuery);
+          var firstPath = response.files.firstOrNull?.name;
+          if (firstPath != null) {
+            expect(firstPath, isNot(lastFirstPath));
+          }
+          lastFirstPath = firstPath;
           files.addAll(response.files);
         }
         var names = files.map((e) => e.name).toList()..sort();
@@ -169,10 +195,13 @@ void runApp(App app,
         // Check meta
         var file = files.firstWhere((element) =>
             element.name == filePath('test/list_files/yes/file1.txt'));
-        expect(file.metadata!.dateUpdated.isBefore(now), isFalse);
-        expect(file.metadata!.md5Hash,
-            isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
-        expect(file.metadata!.size, 23);
+        // This happens on flutter.
+        if (file.metadata != null) {
+          expect(file.metadata!.dateUpdated.isBefore(now), isFalse);
+          expect(file.metadata!.md5Hash,
+              isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
+          expect(file.metadata!.size, 23);
+        }
       });
 
       test('list_files_meta', () async {
@@ -188,9 +217,12 @@ void runApp(App app,
 
         response = await bucket.getFiles(query);
         var file2 = response.files.first;
-        expect(file1.metadata!.size, file2.metadata!.size);
-        expect(file1.metadata!.dateUpdated, file2.metadata!.dateUpdated);
-        expect(file1.metadata!.md5Hash, file2.metadata!.md5Hash);
+        // This happens on flutter.
+        if (file1.metadata != null) {
+          expect(file1.metadata!.size, file2.metadata!.size);
+          expect(file1.metadata!.dateUpdated, file2.metadata!.dateUpdated);
+          expect(file1.metadata!.md5Hash, file2.metadata!.md5Hash);
+        }
       });
 
       test('file_get_meta', () async {

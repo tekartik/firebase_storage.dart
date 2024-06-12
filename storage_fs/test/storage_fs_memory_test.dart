@@ -17,7 +17,7 @@ void main() {
       var storage = storageServiceMemory.storage(app);
       await storage.bucket(_bucketName).create();
     });
-    runApp(app,
+    runStorageAppTests(app,
         storageService: storageServiceMemory,
         storageOptions: TestStorageOptions(bucket: _bucketName));
 

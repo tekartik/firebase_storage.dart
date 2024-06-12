@@ -15,7 +15,7 @@ void main() {
   var firebase = FirebaseLocal();
 
   group('storage_fs_io', () {
-    run(
+    runStorageTests(
         firebase: firebase,
         storageService: storageServiceIo,
         storageOptions: TestStorageOptions(bucket: _bucketName));

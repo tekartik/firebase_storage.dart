@@ -21,6 +21,21 @@ class GetFilesOptions {
         'autoPaginate': autoPaginate,
         if (pageToken != null) 'pageToken': pageToken
       }.toString();
+
+  // Copy options
+  GetFilesOptions copyWith({
+    int? maxResults,
+    String? prefix,
+    bool? autoPaginate,
+    String? pageToken,
+  }) {
+    return GetFilesOptions(
+      maxResults: maxResults ?? this.maxResults,
+      prefix: prefix ?? this.prefix,
+      autoPaginate: autoPaginate ?? this.autoPaginate,
+      pageToken: pageToken ?? this.pageToken,
+    );
+  }
 }
 
 /// GetFiles response
@@ -28,6 +43,28 @@ abstract class GetFilesResponse {
   List<File> get files;
 
   GetFilesOptions? get nextQuery;
+
+  /// Default implementation
+  factory GetFilesResponse(
+      {required List<File> files, GetFilesOptions? nextQuery}) {
+    return _GetFilesResponse(files: files, nextQuery: nextQuery);
+  }
+}
+
+class _GetFilesResponse implements GetFilesResponse {
+  @override
+  final List<File> files;
+
+  @override
+  final GetFilesOptions? nextQuery;
+
+  _GetFilesResponse({required this.files, required this.nextQuery});
+
+  @override
+  String toString() => {
+        'files': files.length,
+        if (nextQuery != null) 'nextQuery': nextQuery
+      }.toString();
 }
 
 mixin StorageMixin implements Storage {
@@ -117,7 +154,7 @@ abstract class File {
   /// The bucket instance the is attached to.
   Bucket get bucket;
 
-  /// Available when listed through getFiles
+  /// Available when listed through getFiles (not on flutter though...)
   FileMetadata? get metadata;
 
   /// Read meatada
