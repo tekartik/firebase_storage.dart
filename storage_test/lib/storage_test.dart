@@ -106,7 +106,8 @@ void runApp(App app,
         try {
           await file.delete();
         } catch (_) {}
-        var now = DateTime.now().toUtc();
+
+        final now = DateTime.now().toUtc();
         var content = now.toIso8601String();
         await file.writeAsString(content);
         expect(await file.exists(), isTrue);
@@ -114,12 +115,14 @@ void runApp(App app,
         var readContent = await file.readAsString();
         var readDateTime = DateTime.tryParse(readContent)!;
         // expect(String.fromCharCodes(await file.download()), content);
-        expect(now, readDateTime);
+        // There is a one hour cache
+        expect(now.difference(readDateTime), lessThan(Duration(minutes: 65)));
 
         readContent = utf8.decode(await file.readAsBytes());
         readDateTime = DateTime.tryParse(readContent)!;
         // expect(String.fromCharCodes(await file.download()), content);
-        expect(now, readDateTime);
+        // There is a one hour cache
+        expect(now.difference(readDateTime), lessThan(Duration(minutes: 65)));
       });
 
       test('list_files', () async {
