@@ -6,7 +6,6 @@ import 'package:tekartik_firebase_storage_rest/storage_rest.dart';
 import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:test/test.dart';
 
-import 'test_environment_client.dart';
 import 'test_setup.dart';
 
 Future main() async {
