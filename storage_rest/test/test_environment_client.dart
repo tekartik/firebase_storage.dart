@@ -6,7 +6,8 @@ TestStorageOptions? _storageOptionsFromEnv;
 
 TestStorageOptions getStorageOptionsFromEnv(Map<String, String> env) {
   var storageBucket = env['firebaseStorageTestBucket'];
-  var rootPath = env['firebaseStorageTestRootPath'];
+  var rootPath = env['TEKARTIK_FIREBASE_STORAGE_REST_TEST_ROOT_PATH'] ??
+      env['firebaseStorageTestRootPath'];
   return TestStorageOptions(bucket: storageBucket, rootPath: rootPath);
 }
 

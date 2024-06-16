@@ -10,6 +10,6 @@ const _firebaseStorageScopes = [
   firebaseGoogleApisUserEmailScope,
 ];
 
-Future<Context?> setup() async {
-  return await firebase.setup(scopes: _firebaseStorageScopes);
+Future<FirebaseRestTestContext?> setup({bool? useEnv}) async {
+  return await firebase.setup(scopes: _firebaseStorageScopes, useEnv: useEnv);
 }
