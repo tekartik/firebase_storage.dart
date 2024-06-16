@@ -31,7 +31,8 @@ Future main() async {
             firebase: firebase,
             storageService: storageServiceRest,
             options: context.options,
-            storageOptions: storageOptionsFromEnv);
+            storageOptions:
+                TestStorageOptions(bucket: context.options!.storageBucket));
       });
     });
   }
