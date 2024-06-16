@@ -154,10 +154,10 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   final String name;
 
-  String get dataPath => fs.path.join(localPath!, 'data');
+  String get dataPath => fs.path.join(localPath, 'data');
 
-  String get metaPath => fs.path.join(localPath!, 'meta');
-  String? localPath;
+  String get metaPath => fs.path.join(localPath, 'meta');
+  late String localPath;
 
   BucketFs(this.storage, String? name) : name = name ?? '_default' {
     if (storage.service.basePath != null) {
@@ -173,7 +173,14 @@ class BucketFs with BucketMixin implements Bucket {
 
   @override
   Future<bool> exists() async {
-    return await storage.service.fileSystem.directory(localPath!).exists();
+    return await storage.service.fileSystem.directory(localPath).exists();
+  }
+
+  @override
+  Future<void> create() async {
+    await storage.service.fileSystem
+        .directory(localPath)
+        .create(recursive: true);
   }
 
   fs_shim.FileSystem get fs => storage.service.fileSystem;

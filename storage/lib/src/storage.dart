@@ -21,6 +21,21 @@ class GetFilesOptions {
         'autoPaginate': autoPaginate,
         if (pageToken != null) 'pageToken': pageToken
       }.toString();
+
+  // Copy options
+  GetFilesOptions copyWith({
+    int? maxResults,
+    String? prefix,
+    bool? autoPaginate,
+    String? pageToken,
+  }) {
+    return GetFilesOptions(
+      maxResults: maxResults ?? this.maxResults,
+      prefix: prefix ?? this.prefix,
+      autoPaginate: autoPaginate ?? this.autoPaginate,
+      pageToken: pageToken ?? this.pageToken,
+    );
+  }
 }
 
 /// GetFiles response
@@ -28,6 +43,28 @@ abstract class GetFilesResponse {
   List<File> get files;
 
   GetFilesOptions? get nextQuery;
+
+  /// Default implementation
+  factory GetFilesResponse(
+      {required List<File> files, GetFilesOptions? nextQuery}) {
+    return _GetFilesResponse(files: files, nextQuery: nextQuery);
+  }
+}
+
+class _GetFilesResponse implements GetFilesResponse {
+  @override
+  final List<File> files;
+
+  @override
+  final GetFilesOptions? nextQuery;
+
+  _GetFilesResponse({required this.files, required this.nextQuery});
+
+  @override
+  String toString() => {
+        'files': files.length,
+        if (nextQuery != null) 'nextQuery': nextQuery
+      }.toString();
 }
 
 mixin StorageMixin implements Storage {
@@ -62,6 +99,8 @@ abstract class Bucket {
 
   Future<bool> exists();
 
+  Future<void> create();
+
   Future<GetFilesResponse> getFiles([GetFilesOptions? options]);
 }
 
@@ -82,6 +121,11 @@ mixin BucketMixin implements Bucket {
   }
 
   @override
+  Future<void> create() {
+    throw UnimplementedError();
+  }
+
+  @override
   String get name => throw UnimplementedError('name');
 }
 
@@ -90,10 +134,12 @@ abstract class File {
 
   Future<void> writeAsString(String text);
 
+  @Deprecated('Use writeAsBytes or writeAsString')
   Future<void> save(/* String | List<int> */ dynamic content);
 
   Future<bool> exists();
 
+  @Deprecated('Use readAsBytes or readAsString')
   Future<Uint8List> download();
 
   Future<Uint8List> readAsBytes();
@@ -108,7 +154,7 @@ abstract class File {
   /// The bucket instance the is attached to.
   Bucket get bucket;
 
-  /// Available when listed through getFiles
+  /// Available when listed through getFiles (not on flutter though...)
   FileMetadata? get metadata;
 
   /// Read meatada
@@ -182,8 +228,14 @@ mixin FileMixin implements File {
 
   // To deprecate
   @override
-  Future<void> save(content) {
-    throw UnimplementedError('save');
+  Future<void> save(dynamic content) {
+    if (content is String) {
+      return writeAsString(content);
+    } else if (content is List<int>) {
+      return writeAsBytes(_asUint8List(content));
+    } else {
+      throw ArgumentError('content must be a String or a List<int>');
+    }
   }
 }
 

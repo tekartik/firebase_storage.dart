@@ -16,7 +16,7 @@ Future main() async {
     if (context != null) {
       var firebase = firebaseRest;
       group('all', () {
-        run(
+        runStorageTests(
             firebase: firebase,
             storageService: storageServiceRest,
             options: context.options,

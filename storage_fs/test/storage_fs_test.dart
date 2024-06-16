@@ -49,9 +49,9 @@ void main() {
       expect(bucket.localPath,
           '.dart_tool/tekartik_firebase_local/_default/storage/_default');
       var file = bucket.file('test');
-      expect(file.fsFile.path, url.join(bucket.localPath!, 'data/test'));
+      expect(file.fsFile.path, url.join(bucket.localPath, 'data/test'));
       file = bucket.file('/test');
-      expect(file.fsFile.path, url.join(bucket.localPath!, 'data/test'));
+      expect(file.fsFile.path, url.join(bucket.localPath, 'data/test'));
 
       app.delete();
     });
