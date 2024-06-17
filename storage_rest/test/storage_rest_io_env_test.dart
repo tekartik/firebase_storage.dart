@@ -10,11 +10,10 @@ import 'test_setup.dart';
 
 Future main() async {
   var context = await setup(useEnv: true);
-  var testRootCollectionPath =
+  var testRootPath =
       shellEnvironment['TEKARTIK_FIREBASE_STORAGE_REST_TEST_ROOT_PATH'];
   test('env', () {
-    print(
-        'TEKARTIK_FIREBASE_STORAGE_REST_TEST_ROOT_PATH: $testRootCollectionPath');
+    print('TEKARTIK_FIREBASE_STORAGE_REST_TEST_ROOT_PATH: $testRootPath');
   });
   if (context != null) {
     group('rest_io', () {
