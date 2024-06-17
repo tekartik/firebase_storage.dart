@@ -1,6 +1,9 @@
-# tekartik analysis_options extension
+analyzer:
+  errors:
+    deprecated_member_use_from_same_package: ignore
 include: package:tekartik_lints/strict.yaml
 
 linter:
   rules:
     depend_on_referenced_packages: false
+    deprecated_member_use_from_same_package: false
