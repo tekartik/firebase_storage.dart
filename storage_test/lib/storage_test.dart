@@ -64,7 +64,7 @@ void runStorageAppTests(App app,
   var storage = storageService.storage(app);
 
   group('storage', () {
-    var bucket = storage.bucket(storageOptions.bucket);
+    var bucket = storage.bucket(storageBucket);
     test('storage', () {
       expect(storage, isNotNull);
     });
