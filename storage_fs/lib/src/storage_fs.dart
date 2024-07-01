@@ -15,21 +15,23 @@ import 'package:tekartik_firebase_storage/utils/link.dart';
 
 import 'import.dart';
 
-class StorageServiceFs implements StorageService {
+class StorageServiceFs
+    with FirebaseProductServiceMixin<Storage>
+    implements StorageService {
   final fs.FileSystem fileSystem;
-  final _storages = <App, StorageFs>{};
   final String? basePath;
 
   StorageServiceFs(this.fileSystem, {this.basePath});
 
   @override
   Storage storage(App app) {
-    var storage = _storages[app];
-    if (storage == null) {
-      storage = StorageFs(this, app as AppLocal);
-      _storages[app] = storage;
-    }
-    return storage;
+    return getInstance(app, () {
+      if (app is! AppLocal) {
+        throw StateError('App must be of type AppLocal');
+      }
+      var storage = StorageFs(this, app);
+      return storage;
+    });
   }
 }
 
