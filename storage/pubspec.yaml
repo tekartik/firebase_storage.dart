@@ -18,7 +18,7 @@ dependencies:
 dev_dependencies:
   test: '>=1.0.0'
   process_run: '>=0.10.2'
-  dev_test:
+  dev_build:
 
 dependency_overrides:
 #  tekartik_firebase:
