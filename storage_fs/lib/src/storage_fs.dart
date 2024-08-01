@@ -9,6 +9,7 @@ import 'package:fs_shim/utils/path.dart';
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase.dart';
+import 'package:tekartik_firebase/firebase_mixin.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage/utils/link.dart';
@@ -16,7 +17,7 @@ import 'package:tekartik_firebase_storage/utils/link.dart';
 import 'import.dart';
 
 class StorageServiceFs
-    with FirebaseProductServiceMixin<Storage>
+    with FirebaseProductServiceMixin<FirebaseStorage>
     implements StorageService {
   final fs.FileSystem fileSystem;
   final String? basePath;
@@ -284,7 +285,9 @@ class BucketFs with BucketMixin implements Bucket {
   }
 }
 
-class StorageFs with StorageMixin implements Storage {
+class StorageFs
+    with FirebaseAppProductMixin<FirebaseStorage>, StorageMixin
+    implements Storage {
   final StorageServiceFs service;
   final AppLocal app;
 
