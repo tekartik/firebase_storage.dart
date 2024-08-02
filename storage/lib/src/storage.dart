@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:tekartik_firebase/firebase.dart';
+import 'package:tekartik_firebase/firebase_mixin.dart';
 
 /// Query object for listing files.
 class GetFilesOptions {
@@ -108,6 +109,10 @@ abstract class FirebaseStorage {
   ///
   /// Not all implementation supports that.
   Reference ref([String? path]);
+
+  /// Default Firebase storage instance.
+  static FirebaseStorage get instance =>
+      (FirebaseApp.instance as FirebaseAppMixin).getProduct<FirebaseStorage>()!;
 }
 
 /// Represents a reference to a Google Cloud Storage object.
