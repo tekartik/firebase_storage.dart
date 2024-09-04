@@ -32,7 +32,12 @@ class StorageBrowser
 
   @override
   Bucket bucket([String? name]) {
-    // TODO
     return throw UnimplementedError();
   }
+
+  @override
+  FirebaseApp get app => throw UnimplementedError();
+
+  @override
+  FirebaseStorageService get service => throw UnimplementedError();
 }

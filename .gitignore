@@ -13,3 +13,4 @@ build/
 
 # Local
 .local/
+pubspec_overrides.yaml

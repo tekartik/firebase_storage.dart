@@ -288,7 +288,9 @@ class BucketFs with BucketMixin implements Bucket {
 class StorageFs
     with FirebaseAppProductMixin<FirebaseStorage>, StorageMixin
     implements Storage {
+  @override
   final StorageServiceFs service;
+  @override
   final AppLocal app;
 
   StorageFs(this.service, this.app);
