@@ -34,6 +34,7 @@ void runStorageTests(
     AppOptions? options,
     required TestStorageOptions storageOptions}) {
   var app = firebase.initializeApp(options: options);
+
   tearDownAll(() {
     return app.delete();
   });
@@ -62,7 +63,10 @@ void runStorageAppTests(App app,
   var storageBucket =
       storageOptions.bucket ?? appOptionsGetStorageBucket(app.options);
   var storage = storageService.storage(app);
-
+  test('app', () {
+    expect(storage.app, app);
+    expect(storage.service, storageService);
+  });
   group('storage', () {
     var bucket = storage.bucket(storageBucket);
     test('storage', () {

@@ -98,7 +98,7 @@ mixin FirebaseStorageMixin implements Storage {
 typedef Storage = FirebaseStorage;
 
 /// The entrypoint for firebase [Storage].
-abstract class FirebaseStorage {
+abstract class FirebaseStorage implements FirebaseAppProduct<FirebaseStorage> {
   /// Returns the [Bucket] with the given name.
   Bucket bucket([String? name]);
 
@@ -113,6 +113,9 @@ abstract class FirebaseStorage {
   /// Default Firebase storage instance.
   static FirebaseStorage get instance =>
       (FirebaseApp.instance as FirebaseAppMixin).getProduct<FirebaseStorage>()!;
+
+  /// Service access
+  FirebaseStorageService get service;
 }
 
 /// Represents a reference to a Google Cloud Storage object.
