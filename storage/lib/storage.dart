@@ -1,3 +1,4 @@
+export 'package:tekartik_firebase/firebase.dart';
 export 'package:tekartik_firebase_storage/src/storage.dart'
     show
         FirebaseStorage,

@@ -8,7 +8,6 @@ import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:fs_shim/utils/path.dart';
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
-import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase/firebase_mixin.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';

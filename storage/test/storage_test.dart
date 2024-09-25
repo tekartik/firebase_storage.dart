@@ -1,6 +1,5 @@
 library tekartik_firebase_storage.storage__test;
 
-import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase/firebase_mixin.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:test/test.dart';

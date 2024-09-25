@@ -1,6 +1,7 @@
 import 'package:fs_shim/fs_io.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart' as impl;
+export 'storage_fs.dart';
 
 StorageService get storageServiceIo => impl.storageServiceFsIo;
 

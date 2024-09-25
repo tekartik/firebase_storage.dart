@@ -2,6 +2,7 @@ import 'package:fs_shim/fs.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart' as impl;
+export 'package:tekartik_firebase_storage/storage.dart';
 
 /// A global in memory service
 StorageService get storageServiceMemory => impl.storageServiceFsMemory;

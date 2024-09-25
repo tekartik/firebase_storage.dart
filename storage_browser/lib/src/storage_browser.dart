@@ -1,6 +1,5 @@
 import 'package:firebase/firebase.dart' // ignore: deprecated_member_use
     as native;
-import 'package:tekartik_firebase/firebase.dart';
 import 'package:tekartik_firebase/firebase_mixin.dart'; // ignore: implementation_imports
 import 'package:tekartik_firebase_browser/src/firebase_browser.dart'; // ignore: implementation_imports
 import 'package:tekartik_firebase_storage/storage.dart';
