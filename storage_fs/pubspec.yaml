@@ -26,6 +26,15 @@ dependencies:
   process_run: '>=0.10.2'
   crypto:
   path:
+  tekartik_common_utils:
+    git:
+      url: https://github.com/tekartik/common_utils.dart
+      ref: dart3a
+  tekartik_firebase:
+    git:
+      url: https://github.com/tekartik/firebase.dart
+      ref: dart3a
+      path: firebase
 dev_dependencies:
   test: any
   build_runner: ">=0.9.1"

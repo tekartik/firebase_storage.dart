@@ -1,5 +1,5 @@
 @TestOn('vm')
-library tekartik_firebase_sembast.storage_io_test;
+library;
 
 import 'package:fs_shim/utils/path.dart';
 import 'package:path/path.dart';
