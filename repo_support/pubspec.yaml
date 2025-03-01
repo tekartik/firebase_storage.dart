@@ -4,7 +4,7 @@ version: 0.2.0
 publish_to: none
 
 environment:
-  sdk: ^3.5.0
+  sdk: ^3.6.0
 
 dev_dependencies:
   path:
@@ -13,5 +13,6 @@ dev_dependencies:
   dev_build:
   lints: '>=2.0.0'
   process_run:
+resolution: workspace
 
 
