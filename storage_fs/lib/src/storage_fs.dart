@@ -81,7 +81,10 @@ class FileFs with FileMixin implements File {
       var size = bytes.length;
       var dateUpdated = DateTime.now().toUtc();
       var metadata = FileMetadataFs(
-          md5Hash: md5Hash, dateUpdated: dateUpdated, size: size);
+        md5Hash: md5Hash,
+        dateUpdated: dateUpdated,
+        size: size,
+      );
       // Write meta
       await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
       return metadata;
@@ -166,7 +169,10 @@ class BucketFs with BucketMixin implements Bucket {
       localPath = fs.path.join(storage.service.basePath!, this.name);
     } else {
       localPath = fs.path.join(
-          toContextPath(fs.path, storage.app.localPath), 'storage', this.name);
+        toContextPath(fs.path, storage.app.localPath),
+        'storage',
+        this.name,
+      );
     }
   }
 
@@ -197,16 +203,18 @@ class BucketFs with BucketMixin implements Bucket {
   String getFsFileDataPath(String? name) =>
       name == null ? dataPath : fs.path.join(dataPath, _fixFsName(name));
 
-  String getFsFileMetaPath(String? name) => name == null
-      ? metaPath
-      : fs.path.join(metaPath, '${_fixFsName(name)}.json');
+  String getFsFileMetaPath(String? name) =>
+      name == null
+          ? metaPath
+          : fs.path.join(metaPath, '${_fixFsName(name)}.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
     // TODO handle directories
     try {
       return FileMetadataFs.fromMap(
-          jsonDecode(await fs.file(getFsFileMetaPath(name)).readAsString())
-              as Map);
+        jsonDecode(await fs.file(getFsFileMetaPath(name)).readAsString())
+            as Map,
+      );
     } catch (e) {
       print('Generating missing meta');
       var file = this.file(name);
@@ -273,14 +281,16 @@ class BucketFs with BucketMixin implements Bucket {
     }
 
     return GetFilesResponseFs(
-        storageFiles,
-        nextMarker == null
-            ? null
-            : GetFilesOptions(
-                maxResults: options!.maxResults,
-                prefix: options.prefix,
-                pageToken: nextMarker,
-                autoPaginate: options.autoPaginate));
+      storageFiles,
+      nextMarker == null
+          ? null
+          : GetFilesOptions(
+            maxResults: options!.maxResults,
+            prefix: options.prefix,
+            pageToken: nextMarker,
+            autoPaginate: options.autoPaginate,
+          ),
+    );
   }
 }
 
@@ -332,9 +342,10 @@ class GetFilesResponseFs implements GetFilesResponse {
   GetFilesResponseFs(this.files, this.nextQuery);
 
   @override
-  String toString() => {
+  String toString() =>
+      {
         'files': files,
-        if (nextQuery != null) 'nextQuery': nextQuery
+        if (nextQuery != null) 'nextQuery': nextQuery,
       }.toString();
 }
 
@@ -349,19 +360,25 @@ class FileMetadataFs implements FileMetadata {
   final int size;
 
   Map<String, Object?> toMap() => {
-        'md5Hash': md5Hash,
-        'dateUpdated': dateUpdated.toUtc().toIso8601String(),
-        'size': size
-      };
+    'md5Hash': md5Hash,
+    'dateUpdated': dateUpdated.toUtc().toIso8601String(),
+    'size': size,
+  };
 
-  FileMetadataFs(
-      {required this.md5Hash, required this.dateUpdated, required this.size});
+  FileMetadataFs({
+    required this.md5Hash,
+    required this.dateUpdated,
+    required this.size,
+  });
 
   factory FileMetadataFs.fromMap(Map map) {
     var md5Hash = mapStringValue(map, 'md5Hash')!;
     var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'))!;
     var size = mapIntValue(map, 'size')!;
     return FileMetadataFs(
-        md5Hash: md5Hash, dateUpdated: dateUpdated, size: size);
+      md5Hash: md5Hash,
+      dateUpdated: dateUpdated,
+      size: size,
+    );
   }
 }

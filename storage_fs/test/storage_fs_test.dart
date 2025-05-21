@@ -12,8 +12,10 @@ void main() {
     test('new', () async {
       var app = newFirebaseAppLocal();
       var fs = newFileSystemMemory();
-      var storageService =
-          newStorageServiceFs(fileSystem: fs, basePath: 'base');
+      var storageService = newStorageServiceFs(
+        fileSystem: fs,
+        basePath: 'base',
+      );
       var storage = storageService.storage(app);
       var file = storage.bucket().file('test');
       await file.writeAsString('text');
@@ -28,8 +30,10 @@ void main() {
     test('bucket localPath with basePath', () {
       var app = newFirebaseAppLocal();
       var fs = newFileSystemMemory();
-      var storageService =
-          newStorageServiceFs(fileSystem: fs, basePath: 'base');
+      var storageService = newStorageServiceFs(
+        fileSystem: fs,
+        basePath: 'base',
+      );
       var storage = storageService.storage(app);
       var bucket = storage.bucket() as BucketFs;
       expect(bucket.localPath, 'base/_default');
@@ -46,8 +50,10 @@ void main() {
       var storageService = newStorageServiceFs(fileSystem: fs);
       var storage = storageService.storage(app);
       var bucket = storage.bucket() as BucketFs;
-      expect(bucket.localPath,
-          '.dart_tool/tekartik_firebase_local/_default/storage/_default');
+      expect(
+        bucket.localPath,
+        '.dart_tool/tekartik_firebase_local/_default/storage/_default',
+      );
       var file = bucket.file('test');
       expect(file.fsFile.path, url.join(bucket.localPath, 'data/test'));
       file = bucket.file('/test');

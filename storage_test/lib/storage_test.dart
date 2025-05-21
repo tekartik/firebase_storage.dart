@@ -18,42 +18,53 @@ class TestStorageOptions {
 }
 
 @Deprecated('Use runStorageTests')
-void run(
-        {required Firebase firebase,
-        required StorageService storageService,
-        AppOptions? options,
-        required TestStorageOptions storageOptions}) =>
-    runStorageTests(
-        firebase: firebase,
-        storageService: storageService,
-        options: options,
-        storageOptions: storageOptions);
+void run({
+  required Firebase firebase,
+  required StorageService storageService,
+  AppOptions? options,
+  required TestStorageOptions storageOptions,
+}) => runStorageTests(
+  firebase: firebase,
+  storageService: storageService,
+  options: options,
+  storageOptions: storageOptions,
+);
 
-void runStorageTests(
-    {required Firebase firebase,
-    required StorageService storageService,
-    AppOptions? options,
-    required TestStorageOptions storageOptions}) {
+void runStorageTests({
+  required Firebase firebase,
+  required StorageService storageService,
+  AppOptions? options,
+  required TestStorageOptions storageOptions,
+}) {
   var app = firebase.initializeApp(options: options);
 
   tearDownAll(() {
     return app.delete();
   });
 
-  runStorageAppTests(app,
-      storageService: storageService, storageOptions: storageOptions);
+  runStorageAppTests(
+    app,
+    storageService: storageService,
+    storageOptions: storageOptions,
+  );
 }
 
 @Deprecated('Use runStorageAppTests')
-void runApp(App app,
-        {required StorageService storageService,
-        required TestStorageOptions storageOptions}) =>
-    runStorageAppTests(app,
-        storageService: storageService, storageOptions: storageOptions);
+void runApp(
+  App app, {
+  required StorageService storageService,
+  required TestStorageOptions storageOptions,
+}) => runStorageAppTests(
+  app,
+  storageService: storageService,
+  storageOptions: storageOptions,
+);
 
-void runStorageAppTests(App app,
-    {required StorageService storageService,
-    required TestStorageOptions storageOptions}) {
+void runStorageAppTests(
+  App app, {
+  required StorageService storageService,
+  required TestStorageOptions storageOptions,
+}) {
   String filePath(String path) {
     if (storageOptions.rootPath != null) {
       return url.join(storageOptions.rootPath!, path);
@@ -93,10 +104,9 @@ void runStorageAppTests(App app,
       test('exists', () async {
         expect(await bucket.exists(), isTrue);
         expect(
-            await storage
-                .bucket('dummy-azeiourieozuoe-dev.appspot.com')
-                .exists(),
-            isFalse);
+          await storage.bucket('dummy-azeiourieozuoe-dev.appspot.com').exists(),
+          isFalse,
+        );
       });
     });
 
@@ -109,18 +119,15 @@ void runStorageAppTests(App app,
 
         expect(await file.exists(), isFalse);
       });
-      test(
-        'save_download_delete',
-        () async {
-          var file = bucket.file(filePath('file.to_delete.txt'));
-          await file.exists();
-          await file.writeAsString('simple content');
-          expect(await file.exists(), isTrue);
-          expect(await file.readAsString(), 'simple content');
-          await file.delete();
-          expect(await file.exists(), isFalse);
-        },
-      );
+      test('save_download_delete', () async {
+        var file = bucket.file(filePath('file.to_delete.txt'));
+        await file.exists();
+        await file.writeAsString('simple content');
+        expect(await file.exists(), isTrue);
+        expect(await file.readAsString(), 'simple content');
+        await file.delete();
+        expect(await file.exists(), isFalse);
+      });
     });
 
     group('test bucket', () {
@@ -170,7 +177,10 @@ void runStorageAppTests(App app,
         var listFilePath = filePath('test/list_files/yes');
 
         var query = GetFilesOptions(
-            maxResults: 2, prefix: listFilePath, autoPaginate: false);
+          maxResults: 2,
+          prefix: listFilePath,
+          autoPaginate: false,
+        );
         var response = await bucket.getFiles(query);
         files.addAll(response.files);
 
@@ -189,22 +199,30 @@ void runStorageAppTests(App app,
         expect(names, [
           filePath('test/list_files/yes/file1.txt'),
           filePath('test/list_files/yes/other_sub/sub/file3.txt'),
-          filePath('test/list_files/yes/sub/file2.txt')
+          filePath('test/list_files/yes/sub/file2.txt'),
         ]);
         expect(names, contains(filePath('test/list_files/yes/file1.txt')));
         expect(names, contains(filePath('test/list_files/yes/sub/file2.txt')));
-        expect(names,
-            contains(filePath('test/list_files/yes/other_sub/sub/file3.txt')));
         expect(
-            names, isNot(contains(filePath('test/list_files/no/file0.txt'))));
+          names,
+          contains(filePath('test/list_files/yes/other_sub/sub/file3.txt')),
+        );
+        expect(
+          names,
+          isNot(contains(filePath('test/list_files/no/file0.txt'))),
+        );
         // Check meta
-        var file = files.firstWhere((element) =>
-            element.name == filePath('test/list_files/yes/file1.txt'));
+        var file = files.firstWhere(
+          (element) =>
+              element.name == filePath('test/list_files/yes/file1.txt'),
+        );
         // This happens on flutter.
         if (file.metadata != null) {
           expect(file.metadata!.dateUpdated.isBefore(now), isFalse);
-          expect(file.metadata!.md5Hash,
-              isNotEmpty); // 'abd848eb171be7fa03d8e29223fcbe78');
+          expect(
+            file.metadata!.md5Hash,
+            isNotEmpty,
+          ); // 'abd848eb171be7fa03d8e29223fcbe78');
           expect(file.metadata!.size, 23);
         }
       });
@@ -216,7 +234,10 @@ void runStorageAppTests(App app,
             .writeAsString(content);
 
         var query = GetFilesOptions(
-            maxResults: 2, prefix: filePath('test/meta/'), autoPaginate: false);
+          maxResults: 2,
+          prefix: filePath('test/meta/'),
+          autoPaginate: false,
+        );
         var response = await bucket.getFiles(query);
         var file1 = response.files.first;
 
@@ -254,9 +275,10 @@ void runStorageAppTests(App app,
       });
       test('list_no_files', () async {
         var query = GetFilesOptions(
-            maxResults: 2,
-            prefix: filePath('test/dummy_path_that_should_not_exists'),
-            autoPaginate: false);
+          maxResults: 2,
+          prefix: filePath('test/dummy_path_that_should_not_exists'),
+          autoPaginate: false,
+        );
         var response = await bucket.getFiles(query);
         // devPrint(response);
         expect(response.files, isEmpty);

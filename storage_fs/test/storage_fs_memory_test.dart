@@ -17,9 +17,11 @@ void main() {
       var storage = storageServiceMemory.storage(app);
       await storage.bucket(_bucketName).create();
     });
-    runStorageAppTests(app,
-        storageService: storageServiceMemory,
-        storageOptions: TestStorageOptions(bucket: _bucketName));
+    runStorageAppTests(
+      app,
+      storageService: storageServiceMemory,
+      storageOptions: TestStorageOptions(bucket: _bucketName),
+    );
 
     test('new', () async {
       var app = firebase.initializeApp();
@@ -47,7 +49,9 @@ void main() {
       var storage = newStorageMemory();
       await storage.bucket('test').file('cut').writeAsString('the line');
       expect(
-          await storage.bucket('test').file('cut').readAsString(), 'the line');
+        await storage.bucket('test').file('cut').readAsString(),
+        'the line',
+      );
       storage = newStorageMemory();
       try {
         await storage.bucket('test').file('cut').readAsString();

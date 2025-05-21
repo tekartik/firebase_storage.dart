@@ -15,6 +15,7 @@ Storage newStorageMemory() =>
     newStorageServiceMemory().storage(FirebaseLocal().app());
 
 /// New storage service on a file system
-StorageService newStorageServiceFs(
-        {required FileSystem fileSystem, String? basePath}) =>
-    impl.StorageServiceFs(fileSystem, basePath: basePath);
+StorageService newStorageServiceFs({
+  required FileSystem fileSystem,
+  String? basePath,
+}) => impl.StorageServiceFs(fileSystem, basePath: basePath);

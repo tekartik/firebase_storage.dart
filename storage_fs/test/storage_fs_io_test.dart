@@ -16,9 +16,10 @@ void main() {
 
   group('storage_fs_io', () {
     runStorageTests(
-        firebase: firebase,
-        storageService: storageServiceIo,
-        storageOptions: TestStorageOptions(bucket: _bucketName));
+      firebase: firebase,
+      storageService: storageServiceIo,
+      storageOptions: TestStorageOptions(bucket: _bucketName),
+    );
 
     var fileSystem = (storageServiceIo as StorageServiceFs).fileSystem;
     var app = firebase.initializeApp();
@@ -33,9 +34,15 @@ void main() {
     test('bucket_no_name', () async {
       var bucketIo = storage.bucket() as BucketFs;
       expect(
-          bucketIo.localPath,
-          join('.dart_tool', 'tekartik_firebase_local', '_default', 'storage',
-              '_default'));
+        bucketIo.localPath,
+        join(
+          '.dart_tool',
+          'tekartik_firebase_local',
+          '_default',
+          'storage',
+          '_default',
+        ),
+      );
 
       var ref =
           storage.ref(StorageFileRef('_default', 'test').toLink().toString())
@@ -43,11 +50,15 @@ void main() {
       var downloadUrl = Uri.parse(await ref.getDownloadUrl());
       expect(downloadUrl.scheme, 'file');
       expect(
-          downloadUrl.path,
-          endsWith(
-              '.dart_tool/tekartik_firebase_local/_default/storage/_default/data/test'));
+        downloadUrl.path,
+        endsWith(
+          '.dart_tool/tekartik_firebase_local/_default/storage/_default/data/test',
+        ),
+      );
       expect(
-          downloadUrl.path, isNot(contains('\\'))); // no windows separator here
+        downloadUrl.path,
+        isNot(contains('\\')),
+      ); // no windows separator here
     });
     test('create_no_tree', () async {
       var bucket = storage.bucket('bkt');
@@ -63,7 +74,8 @@ void main() {
       expect(await fileFs.exists(), isFalse);
       var ref = storage.ref(StorageFileRef('bkt', 'test').toLink().toString());
       var path = normalize(
-          toContextPath(context, Uri.parse(await ref.getDownloadUrl()).path));
+        toContextPath(context, Uri.parse(await ref.getDownloadUrl()).path),
+      );
       expect((await fileSystem.file(path).exists()), isFalse);
       await fileFs.save('test content');
       expect(await fileFs.exists(), isTrue);
@@ -73,13 +85,16 @@ void main() {
 
     group('basePath', () {
       var storageService = createStorageServiceIo(
-          basePath: join('.dart_tool', 'firebase_storage_fs', 'base_path'));
+        basePath: join('.dart_tool', 'firebase_storage_fs', 'base_path'),
+      );
       test('override', () async {
         var storage = storageService.storage(app);
 
         var bucketIo = storage.bucket() as BucketFs;
-        expect(bucketIo.localPath,
-            join('.dart_tool', 'firebase_storage_fs', 'base_path', '_default'));
+        expect(
+          bucketIo.localPath,
+          join('.dart_tool', 'firebase_storage_fs', 'base_path', '_default'),
+        );
       });
     });
   });

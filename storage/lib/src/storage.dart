@@ -20,15 +20,20 @@ class GetFilesOptions {
   final String? pageToken;
 
   /// Default implementation
-  GetFilesOptions(
-      {this.maxResults, this.prefix, this.pageToken, this.autoPaginate = true});
+  GetFilesOptions({
+    this.maxResults,
+    this.prefix,
+    this.pageToken,
+    this.autoPaginate = true,
+  });
 
   @override
-  String toString() => {
+  String toString() =>
+      {
         if (maxResults != null) 'maxResults': maxResults,
         if (prefix != null) 'prefix': prefix,
         'autoPaginate': autoPaginate,
-        if (pageToken != null) 'pageToken': pageToken
+        if (pageToken != null) 'pageToken': pageToken,
       }.toString();
 
   /// Copy options
@@ -56,8 +61,10 @@ abstract class GetFilesResponse {
   GetFilesOptions? get nextQuery;
 
   /// Default implementation
-  factory GetFilesResponse(
-      {required List<File> files, GetFilesOptions? nextQuery}) {
+  factory GetFilesResponse({
+    required List<File> files,
+    GetFilesOptions? nextQuery,
+  }) {
     return _GetFilesResponse(files: files, nextQuery: nextQuery);
   }
 }
@@ -72,9 +79,10 @@ class _GetFilesResponse implements GetFilesResponse {
   _GetFilesResponse({required this.files, required this.nextQuery});
 
   @override
-  String toString() => {
+  String toString() =>
+      {
         'files': files.length,
-        if (nextQuery != null) 'nextQuery': nextQuery
+        if (nextQuery != null) 'nextQuery': nextQuery,
       }.toString();
 }
 
@@ -171,7 +179,6 @@ abstract class File {
   Future<void> writeAsString(String text);
 
   @Deprecated('Use writeAsBytes or writeAsString')
-
   /// Save content to the file
   Future<void> save(/* String | List<int> */ dynamic content);
 
@@ -179,7 +186,6 @@ abstract class File {
   Future<bool> exists();
 
   @Deprecated('Use readAsBytes or readAsString')
-
   /// Download the file
   Future<Uint8List> download();
 
@@ -319,7 +325,7 @@ enum StorageExceptionType {
   notFound,
 
   /// Any other exception
-  other
+  other,
 }
 
 /// Storage exception
