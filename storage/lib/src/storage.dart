@@ -28,13 +28,12 @@ class GetFilesOptions {
   });
 
   @override
-  String toString() =>
-      {
-        if (maxResults != null) 'maxResults': maxResults,
-        if (prefix != null) 'prefix': prefix,
-        'autoPaginate': autoPaginate,
-        if (pageToken != null) 'pageToken': pageToken,
-      }.toString();
+  String toString() => {
+    if (maxResults != null) 'maxResults': maxResults,
+    if (prefix != null) 'prefix': prefix,
+    'autoPaginate': autoPaginate,
+    if (pageToken != null) 'pageToken': pageToken,
+  }.toString();
 
   /// Copy options
   GetFilesOptions copyWith({
@@ -79,11 +78,10 @@ class _GetFilesResponse implements GetFilesResponse {
   _GetFilesResponse({required this.files, required this.nextQuery});
 
   @override
-  String toString() =>
-      {
-        'files': files.length,
-        if (nextQuery != null) 'nextQuery': nextQuery,
-      }.toString();
+  String toString() => {
+    'files': files.length,
+    if (nextQuery != null) 'nextQuery': nextQuery,
+  }.toString();
 }
 
 /// Compat

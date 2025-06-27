@@ -203,10 +203,9 @@ class BucketFs with BucketMixin implements Bucket {
   String getFsFileDataPath(String? name) =>
       name == null ? dataPath : fs.path.join(dataPath, _fixFsName(name));
 
-  String getFsFileMetaPath(String? name) =>
-      name == null
-          ? metaPath
-          : fs.path.join(metaPath, '${_fixFsName(name)}.json');
+  String getFsFileMetaPath(String? name) => name == null
+      ? metaPath
+      : fs.path.join(metaPath, '${_fixFsName(name)}.json');
 
   Future<FileMetadataFs> getOrGenerateMeta(String name) async {
     // TODO handle directories
@@ -285,11 +284,11 @@ class BucketFs with BucketMixin implements Bucket {
       nextMarker == null
           ? null
           : GetFilesOptions(
-            maxResults: options!.maxResults,
-            prefix: options.prefix,
-            pageToken: nextMarker,
-            autoPaginate: options.autoPaginate,
-          ),
+              maxResults: options!.maxResults,
+              prefix: options.prefix,
+              pageToken: nextMarker,
+              autoPaginate: options.autoPaginate,
+            ),
     );
   }
 }
@@ -342,11 +341,10 @@ class GetFilesResponseFs implements GetFilesResponse {
   GetFilesResponseFs(this.files, this.nextQuery);
 
   @override
-  String toString() =>
-      {
-        'files': files,
-        if (nextQuery != null) 'nextQuery': nextQuery,
-      }.toString();
+  String toString() => {
+    'files': files,
+    if (nextQuery != null) 'nextQuery': nextQuery,
+  }.toString();
 }
 
 class FileMetadataFs implements FileMetadata {
