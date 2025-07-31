@@ -14,10 +14,6 @@ updates:
     schedule:
       interval: "monthly"
   - package-ecosystem: "pub"
-    directory: "storage_browser"
-    schedule:
-      interval: "monthly"
-  - package-ecosystem: "pub"
     directory: "storage_fs"
     schedule:
       interval: "monthly"

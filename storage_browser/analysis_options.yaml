@@ -1,6 +1,0 @@
-# tekartik analysis_options extension
-include: package:tekartik_lints/strict.yaml
-
-linter:
-  rules:
-    depend_on_referenced_packages: false
