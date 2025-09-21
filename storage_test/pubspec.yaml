@@ -14,7 +14,6 @@ dependencies:
     git:
       url: https://github.com/tekartik/firebase_storage.dart
       path: storage
-      ref: dart3a
     version: '>=0.4.1'
   dev_test: ">=1.0.0+4"
   path: ">=1.9.0"
