@@ -103,6 +103,15 @@ mixin FirebaseStorageMixin implements Storage {
 /// Compat
 typedef Storage = FirebaseStorage;
 
+/// Options for uploading a file to storage
+class StorageUploadFileOptions {
+  /// Content type
+  final String? contentType;
+
+  /// Default constructor
+  StorageUploadFileOptions({this.contentType});
+}
+
 /// The entrypoint for firebase [Storage].
 abstract class FirebaseStorage implements FirebaseAppProduct<FirebaseStorage> {
   /// Returns the [Bucket] with the given name.
@@ -171,6 +180,9 @@ mixin BucketMixin implements Bucket {
 /// Represents a reference to a Google Cloud Storage object.
 abstract class File {
   /// Write bytes to the file
+  Future<void> upload(Uint8List bytes, {StorageUploadFileOptions? options});
+
+  /// Write bytes to the file
   Future<void> writeAsBytes(Uint8List bytes);
 
   /// Write text to the file
@@ -219,6 +231,9 @@ abstract class FileMetadata {
 
   /// MD5 hash of the file
   String get md5Hash;
+
+  /// Content type of the file
+  String? get contentType;
 }
 
 /// File metadata mixin
@@ -231,10 +246,18 @@ mixin FileMetadataMixin implements FileMetadata {
 
   @override
   int get size => throw UnimplementedError();
+
+  @override
+  String? get contentType => throw UnimplementedError();
 }
 
 /// File mixin
 mixin FileMixin implements File {
+  @override
+  Future<void> upload(Uint8List bytes, {StorageUploadFileOptions? options}) {
+    throw UnimplementedError('upload');
+  }
+
   Uint8List _asUint8List(List<int> data) =>
       data is Uint8List ? data : Uint8List.fromList(data);
 

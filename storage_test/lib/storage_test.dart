@@ -273,6 +273,33 @@ void runStorageAppTests(
         expect(metadata.dateUpdated, isNotNull);
         expect(metadata.md5Hash, isNotNull);
       });
+
+      test('file_with_meta', () async {
+        var content = 'storage_with_meta_test';
+        var file = bucket.file(filePath('test/with_meta/file0.txt'));
+        if (await file.exists()) {
+          await file.delete();
+        }
+        expect(await file.exists(), isFalse);
+
+        try {
+          await file.getMetadata();
+          fail('should fail');
+        } catch (e) {
+          expect(e, isNot(const TypeMatcher<TestFailure>()));
+        }
+
+        await file.upload(
+          utf8.encode(content),
+          options: StorageUploadFileOptions(contentType: 'text/plain'),
+        );
+
+        var metadata = await file.getMetadata();
+        expect(metadata.size, greaterThanOrEqualTo(content.length));
+        expect(metadata.dateUpdated, isNotNull);
+        expect(metadata.md5Hash, isNotNull);
+        expect(metadata.contentType, 'text/plain');
+      });
       test('list_no_files', () async {
         var query = GetFilesOptions(
           maxResults: 2,

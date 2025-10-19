@@ -75,7 +75,10 @@ class FileFs with FileMixin implements File {
     }
   }
 
-  Future<FileMetadataFs> writeFileMeta(Uint8List? bytes) async {
+  Future<FileMetadataFs> writeFileMeta(
+    Uint8List? bytes,
+    StorageUploadFileOptions? options,
+  ) async {
     Future<FileMetadataFs> doWriteMeta() async {
       var md5Hash = md5.convert(bytes!).toString();
       var size = bytes.length;
@@ -84,6 +87,7 @@ class FileFs with FileMixin implements File {
         md5Hash: md5Hash,
         dateUpdated: dateUpdated,
         size: size,
+        contentType: options?.contentType,
       );
       // Write meta
       await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
@@ -103,6 +107,14 @@ class FileFs with FileMixin implements File {
 
   @override
   Future<void> writeAsBytes(Uint8List? bytes) async {
+    return await upload(bytes);
+  }
+
+  @override
+  Future<void> upload(
+    Uint8List? bytes, {
+    StorageUploadFileOptions? options,
+  }) async {
     Future doWriteData() async {
       // Write data
       await fsFile.writeAsBytes(bytes!);
@@ -121,7 +133,7 @@ class FileFs with FileMixin implements File {
       await doWriteData();
     }
 
-    await writeFileMeta(bytes);
+    await writeFileMeta(bytes, options);
   }
 
   @override
@@ -218,7 +230,7 @@ class BucketFs with BucketMixin implements Bucket {
       print('Generating missing meta');
       var file = this.file(name);
       var bytes = await file.readAsBytes();
-      return await file.writeFileMeta(bytes);
+      return await file.writeFileMeta(bytes, null);
     }
   }
 
@@ -357,26 +369,34 @@ class FileMetadataFs implements FileMetadata {
   @override
   final int size;
 
+  /// Mime type
+  @override
+  final String? contentType;
+
   Map<String, Object?> toMap() => {
     'md5Hash': md5Hash,
     'dateUpdated': dateUpdated.toUtc().toIso8601String(),
     'size': size,
+    if (contentType != null) 'contentType': contentType,
   };
 
   FileMetadataFs({
     required this.md5Hash,
     required this.dateUpdated,
     required this.size,
+    required this.contentType,
   });
 
   factory FileMetadataFs.fromMap(Map map) {
     var md5Hash = mapStringValue(map, 'md5Hash')!;
     var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'))!;
     var size = mapIntValue(map, 'size')!;
+    var contentType = mapStringValue(map, 'contentType');
     return FileMetadataFs(
       md5Hash: md5Hash,
       dateUpdated: dateUpdated,
       size: size,
+      contentType: contentType,
     );
   }
 }
