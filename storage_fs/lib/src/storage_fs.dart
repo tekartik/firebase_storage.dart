@@ -86,7 +86,8 @@ class FileFs with FileMixin implements File {
       var dateUpdated = DateTime.now().toUtc();
       var contentType =
           options?.contentType ??
-          firebaseStorageContentTypeFromFilename(filename);
+          firebaseStorageContentTypeFromFilename(filename) ??
+          firebaseStorageDefaultContentType;
       var metadata = FileMetadataFs(
         md5Hash: md5Hash,
         dateUpdated: dateUpdated,
