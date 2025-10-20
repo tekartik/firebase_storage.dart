@@ -300,6 +300,53 @@ void runStorageAppTests(
         expect(metadata.md5Hash, isNotNull);
         expect(metadata.contentType, 'text/plain');
       });
+      test('file_with_detected_meta', () async {
+        var content = 'storage_with_meta_detected_test';
+        var file = bucket.file(filePath('test/with_detected_meta/file0.txt'));
+        if (await file.exists()) {
+          await file.delete();
+        }
+        expect(await file.exists(), isFalse);
+
+        try {
+          await file.getMetadata();
+          fail('should fail');
+        } catch (e) {
+          expect(e, isNot(const TypeMatcher<TestFailure>()));
+        }
+
+        await file.upload(utf8.encode(content));
+
+        var metadata = await file.getMetadata();
+        expect(metadata.size, greaterThanOrEqualTo(content.length));
+        expect(metadata.dateUpdated, isNotNull);
+        expect(metadata.md5Hash, isNotNull);
+        expect(metadata.contentType, 'text/plain');
+      });
+
+      test('file_no_type', () async {
+        var content = 'storage_no_meta_detected_test';
+        var file = bucket.file(filePath('test/no_detected_meta/file0.bin'));
+        if (await file.exists()) {
+          await file.delete();
+        }
+        expect(await file.exists(), isFalse);
+
+        try {
+          await file.getMetadata();
+          fail('should fail');
+        } catch (e) {
+          expect(e, isNot(const TypeMatcher<TestFailure>()));
+        }
+
+        await file.upload(utf8.encode(content));
+
+        var metadata = await file.getMetadata();
+        expect(metadata.size, greaterThanOrEqualTo(content.length));
+        expect(metadata.dateUpdated, isNotNull);
+        expect(metadata.md5Hash, isNotNull);
+        expect(metadata.contentType, 'application/octet-stream');
+      });
       test('list_no_files', () async {
         var query = GetFilesOptions(
           maxResults: 2,

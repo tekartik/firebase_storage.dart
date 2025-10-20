@@ -11,6 +11,7 @@ import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase_mixin.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
+import 'package:tekartik_firebase_storage/utils/content_type.dart';
 import 'package:tekartik_firebase_storage/utils/link.dart';
 
 import 'import.dart';
@@ -52,7 +53,7 @@ class FileFs with FileMixin implements File {
   @override
   final BucketFs bucket;
   final String path;
-
+  String get filename => fsFile.fs.path.basename(path);
   String get dataPath => bucket.getFsFileDataPath(path);
 
   String get metaPath => bucket.getFsFileMetaPath(path);
@@ -75,7 +76,7 @@ class FileFs with FileMixin implements File {
     }
   }
 
-  Future<FileMetadataFs> writeFileMeta(
+  Future<FileMetadataFs> _writeFileMeta(
     Uint8List? bytes,
     StorageUploadFileOptions? options,
   ) async {
@@ -83,11 +84,14 @@ class FileFs with FileMixin implements File {
       var md5Hash = md5.convert(bytes!).toString();
       var size = bytes.length;
       var dateUpdated = DateTime.now().toUtc();
+      var contentType =
+          options?.contentType ??
+          firebaseStorageContentTypeFromFilename(filename);
       var metadata = FileMetadataFs(
         md5Hash: md5Hash,
         dateUpdated: dateUpdated,
         size: size,
-        contentType: options?.contentType,
+        contentType: contentType,
       );
       // Write meta
       await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
@@ -133,7 +137,7 @@ class FileFs with FileMixin implements File {
       await doWriteData();
     }
 
-    await writeFileMeta(bytes, options);
+    await _writeFileMeta(bytes, options);
   }
 
   @override
@@ -230,7 +234,7 @@ class BucketFs with BucketMixin implements Bucket {
       print('Generating missing meta');
       var file = this.file(name);
       var bytes = await file.readAsBytes();
-      return await file.writeFileMeta(bytes, null);
+      return await file._writeFileMeta(bytes, null);
     }
   }
 
