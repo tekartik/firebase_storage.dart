@@ -155,12 +155,12 @@ abstract class Bucket {
 mixin BucketMixin implements Bucket {
   @override
   Future<GetFilesResponse> getFiles([GetFilesOptions? options]) {
-    throw UnimplementedError('getFiles');
+    throw UnimplementedError('$runtimeType.getFiles');
   }
 
   @override
   Future<bool> exists() {
-    throw UnimplementedError('exists');
+    throw UnimplementedError('$runtimeType.exists');
   }
 
   @override
@@ -174,7 +174,7 @@ mixin BucketMixin implements Bucket {
   }
 
   @override
-  String get name => throw UnimplementedError('name');
+  String get name => throw UnimplementedError('$runtimeType.name');
 }
 
 /// Represents a reference to a Google Cloud Storage object.
@@ -276,7 +276,7 @@ mixin FileMixin implements File {
 
   @override
   Future<FileMetadata> getMetadata() async =>
-      throw UnimplementedError('getMetadata');
+      throw UnimplementedError('$runtimeType.getMetadata');
   // To implement
   @override
   Bucket get bucket => throw UnimplementedError('bucket');
@@ -294,11 +294,12 @@ mixin FileMixin implements File {
 
   @override
   Future<bool> exists() {
-    throw UnimplementedError('exists');
+    throw UnimplementedError('$runtimeType.exists');
   }
 
   @override
-  FileMetadata? get metadata => throw UnimplementedError('metadata');
+  FileMetadata? get metadata =>
+      throw UnimplementedError('$runtimeType.metadata');
 
   @override
   String get name => throw UnimplementedError('name');

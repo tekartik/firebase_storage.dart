@@ -47,6 +47,10 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
             resultAsMap(parameters),
           );
           return null;
+        case methodBucketGetFiles:
+          return await storageSimPluginServer.handleBucketGetFiles(
+            resultAsMap(parameters),
+          );
         case methodFileExists:
           return await storageSimPluginServer.handleFileExistsRequest(
             resultAsMap(parameters),
@@ -60,6 +64,10 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
           return await storageSimPluginServer.handleFileDownloadRequest(
             resultAsMap(parameters),
           );
+        case methodFileGetMetadata:
+          return await storageSimPluginServer.handleFileGetMetadataRequest(
+            resultAsMap(parameters),
+          );
         case methodFileDelete:
           await storageSimPluginServer.handleFileDeleteRequest(
             resultAsMap(parameters),
@@ -67,76 +75,6 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
           return null;
       }
 
-      /*
-        case methodStorageSet:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageSetRequest(map);
-
-        case methodStorageDelete:
-          return await storageSimPluginServer.handleStorageDeleteRequest(
-            resultAsMap(parameters),
-          );
-        case methodStorageAdd:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageAddRequest(map);
-
-        case methodStorageGet:
-          var map = resultAsMap(parameters);
-
-          return await storageSimPluginServer.handleStorageGetRequest(map);
-
-        case methodStorageGetListen:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageGetListen(map);
-
-        case methodStorageGetStream:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageGetStream(map);
-
-        case methodStorageGetCancel:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageGetCancel(map);
-
-        case methodStorageQuery:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageQuery(map);
-
-        case methodStorageQueryListen:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageQueryListen(map);
-
-        case methodStorageQueryStream:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageQueryStream(map);
-
-        case methodStorageQueryCancel:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageQueryCancel(map);
-
-        case methodStorageUpdate:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageUpdateRequest(map);
-
-        case methodStorageBatch:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageBatch(map);
-
-        case methodStorageTransaction:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageTransaction(map);
-
-        case methodStorageTransactionCancel:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageTransactionCancel(
-            map,
-          );
-
-        case methodStorageTransactionCommit:
-          var map = resultAsMap(parameters);
-          return await storageSimPluginServer.handleStorageTransactionCommit(
-            map,
-          );
-      }*/
       return super.onCall(channel, methodCall);
     } catch (e, st) {
       if (isDebug) {
@@ -238,6 +176,47 @@ class _StorageSimPluginServer {
     var file = _file(requestData);
     var data = await file.readAsBytes();
     return (FileDownloadResponseData()..data = data).toMap();
+  }
+
+  Future<Model> handleBucketGetFiles(Map<String, Object?> resultAsMap) async {
+    var requestData = BucketGetFilesRequestData()..fromMap(resultAsMap);
+    var bucket = storage.bucket(requestData.bucket);
+    var getFilesResult = await bucket.getFiles(
+      GetFilesOptions(
+        autoPaginate: requestData.autoPaginate ?? true,
+        maxResults: requestData.maxResults,
+        pageToken: requestData.pageToken,
+        prefix: requestData.prefix,
+      ),
+    );
+    var responseData = BucketGetFilesResponseData();
+    responseData.files = getFilesResult.files
+        .map(
+          (file) => BucketGetFilesFileData()
+            ..name = file.name
+            ..size = file.metadata!.size
+            ..md5Hash = file.metadata!.md5Hash
+            ..dateUpdated = file.metadata!.dateUpdated
+            ..contentType = file.metadata!.contentType,
+        )
+        .toList();
+    responseData.nextPageToken = getFilesResult.nextQuery?.pageToken;
+
+    return responseData.toMap();
+  }
+
+  Future<Model> handleFileGetMetadataRequest(Map resultAsMap) async {
+    var requestData = FileGetMetadataRequestData()..fromMap(resultAsMap);
+    var file = _file(requestData);
+    var result = await file.getMetadata();
+    var responseData = BucketGetFileMetadataResponseData();
+    responseData
+      ..size = result.size
+      ..md5Hash = result.md5Hash
+      ..dateUpdated = result.dateUpdated
+      ..contentType = result.contentType;
+
+    return responseData.toMap();
   }
 }
 

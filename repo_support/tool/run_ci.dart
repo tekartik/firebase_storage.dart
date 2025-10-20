@@ -7,6 +7,7 @@ Future main() async {
     'storage_browser',
     'storage_fs',
     'storage_test',
+    'storage_sim',
   ]) {
     await packageRunCi(join('..', dir));
   }

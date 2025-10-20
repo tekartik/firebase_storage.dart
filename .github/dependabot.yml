@@ -6,6 +6,10 @@ enable-beta-ecosystems: true
 
 updates:
   - package-ecosystem: "pub"
+    directory: "."
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pub"
     directory: "repo_support"
     schedule:
       interval: "monthly"
@@ -15,6 +19,10 @@ updates:
       interval: "monthly"
   - package-ecosystem: "pub"
     directory: "storage_fs"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pub"
+    directory: "storage_sim"
     schedule:
       interval: "monthly"
   - package-ecosystem: "pub"

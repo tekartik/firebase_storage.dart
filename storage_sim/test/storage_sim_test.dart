@@ -27,13 +27,12 @@ Future main() async {
       .bucket(_bucketName)
       .create(); // Create default bucket
 
-  if (false) // Temp
-    // ignore: dead_code, curly_braces_in_flow_control_structures
-    runStorageAppTests(
-      app,
-      storageService: storageServiceSim,
-      storageOptions: TestStorageOptions(bucket: _bucketName),
-    );
+  // ignore: dead_code, curly_braces_in_flow_control_structures
+  runStorageAppTests(
+    app,
+    storageService: storageServiceSim,
+    storageOptions: TestStorageOptions(bucket: _bucketName),
+  );
 
   test('projectId', () {
     expect(app.options.projectId, 'sim');

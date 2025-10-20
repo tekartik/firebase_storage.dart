@@ -535,13 +535,38 @@ class CollectionReferenceSim extends Object
 }
 */
 
+class _FileMetadataSim with FileMetadataMixin implements FileMetadata {
+  @override
+  final DateTime dateUpdated;
+
+  @override
+  final String md5Hash;
+
+  @override
+  final int size;
+
+  @override
+  final String? contentType;
+
+  _FileMetadataSim({
+    required this.dateUpdated,
+    required this.md5Hash,
+    required this.size,
+    required this.contentType,
+  });
+}
+
 class _FileSim with FileMixin implements File {
   final _BucketSim bucketSim;
+  _FileMetadataSim? metadataSim;
   Future<FirebaseSimClient> get simClient => bucketSim.simClient;
   @override
   final String name;
 
-  _FileSim(this.bucketSim, this.name);
+  _FileSim(this.bucketSim, this.name, this.metadataSim);
+
+  @override
+  _FileMetadataSim get metadata => metadataSim!;
 
   @override
   Future<bool> exists() async {
@@ -576,6 +601,27 @@ class _FileSim with FileMixin implements File {
       StorageSimServerService.serviceName,
       methodFileDelete,
       requestData.toMap(),
+    );
+  }
+
+  @override
+  Future<FileMetadata> getMetadata() async {
+    var simClient = await this.simClient;
+    var requestData = FileGetMetadataRequestData();
+    _fillFileData(requestData);
+
+    var result = await simClient.sendRequest<Map>(
+      StorageSimServerService.serviceName,
+      methodFileGetMetadata,
+      requestData.toMap(),
+    );
+
+    var responseData = BucketGetFileMetadataResponseData()..fromMap(result);
+    return _FileMetadataSim(
+      dateUpdated: responseData.dateUpdated,
+      size: responseData.size,
+      md5Hash: responseData.md5Hash,
+      contentType: responseData.contentType,
     );
   }
 
@@ -627,7 +673,11 @@ class _BucketSim with BucketMixin implements Bucket {
 
   @override
   File file(String path) {
-    return _FileSim(this, path);
+    return _FileSim(this, path, null);
+  }
+
+  void _fillBucketData(BucketData bucketData) {
+    bucketData.bucket = name;
   }
 
   @override
@@ -656,6 +706,52 @@ class _BucketSim with BucketMixin implements Bucket {
 
     var responseData = BucketExistsResponseData()..fromMap(result);
     return responseData.exists;
+  }
+
+  @override
+  /// List files
+  Future<GetFilesResponse> getFiles([GetFilesOptions? options]) async {
+    var simClient = await this.simClient;
+    var requestData = BucketGetFilesRequestData()
+      ..prefix = options?.prefix
+      ..maxResults = options?.maxResults
+      ..autoPaginate = options?.autoPaginate ?? true
+      ..pageToken = options?.pageToken;
+    _fillBucketData(requestData);
+
+    var result = resultAsMap(
+      await simClient.sendRequest<Map>(
+        StorageSimServerService.serviceName,
+        methodBucketGetFiles,
+        requestData.toMap(),
+      ),
+    );
+
+    var responseData = BucketGetFilesResponseData()..fromMap(result);
+    return GetFilesResponse(
+      files: responseData.files
+          .map(
+            (file) => _FileSim(
+              this,
+              file.name,
+              _FileMetadataSim(
+                contentType: file.contentType,
+                dateUpdated: file.dateUpdated,
+                md5Hash: file.md5Hash,
+                size: file.size,
+              ),
+            ),
+          )
+          .toList(),
+      nextQuery: responseData.nextPageToken == null
+          ? null
+          : GetFilesOptions(
+              prefix: options?.prefix,
+              maxResults: options?.maxResults,
+              pageToken: responseData.nextPageToken,
+              autoPaginate: options?.autoPaginate ?? true,
+            ),
+    );
   }
 }
 

@@ -9,15 +9,21 @@ import 'package:test/test.dart';
 
 import 'test_common.dart';
 
+var _bucketName = 'my_sim_io_bucket';
 Future main() async {
   // debugSimServerMessage = true;
 
   var testContext = await initTestContextSimIo();
   var firebase = testContext.firebase;
-  runStorageTests(
-    firebase: firebase,
+  var app = firebase.initializeApp();
+
+  /// Need to create the bucket.
+  await storageServiceSim.storage(app).bucket(_bucketName).create(); // Cre
+  runStorageAppTests(
+    app,
+
     storageService: storageServiceSim,
-    storageOptions: TestStorageOptions(),
+    storageOptions: TestStorageOptions(bucket: _bucketName),
   );
 
   tearDownAll(() async {

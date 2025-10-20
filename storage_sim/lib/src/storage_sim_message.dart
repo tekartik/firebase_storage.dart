@@ -6,7 +6,9 @@ const methodFileExists = 'file/exists';
 const methodFileUpload = 'file/upload';
 const methodFileDownload = 'file/download';
 const methodFileDelete = 'file/delete';
+const methodFileGetMetadata = 'file/get_metadata';
 const methodBucketExists = 'bucket/exists';
+const methodBucketGetFiles = 'bucket/get_files';
 const methodBucketCreate = 'bucket/create';
 const paramBucket = 'bucket';
 const paramName = 'name';
@@ -51,6 +53,7 @@ class FileDownloadResponseData extends BaseData {
 typedef BucketExistsRequestData = BucketData;
 typedef FileExistsRequestData = FileData;
 typedef FileDeleteRequestData = FileData;
+typedef FileGetMetadataRequestData = FileData;
 typedef FileDownloadRequestData = FileData;
 typedef BucketCreateRequestData = BucketData;
 
@@ -76,6 +79,100 @@ class FileUploadRequestData extends FileData {
   }
 }
 
+class BucketGetFileMetadataResponseData extends BaseData {
+  late String? contentType;
+  late DateTime dateUpdated;
+  late String md5Hash;
+  late int size;
+
+  @override
+  void fromMap(Map map) {
+    super.fromMap(map);
+    md5Hash = map['md5Hash'] as String;
+    contentType = map['contentType'] as String?;
+    size = map['size'] as int;
+    var dateUpdatedString = map['dateUpdated'] as String;
+    dateUpdated = DateTime.parse(dateUpdatedString);
+  }
+
+  @override
+  Map<String, Object?> toMap() {
+    var map = super.toMap();
+    if (contentType != null) {
+      map['contentType'] = contentType;
+    }
+
+    map['md5Hash'] = md5Hash;
+
+    map['size'] = size;
+    map['dateUpdated'] = dateUpdated.toIso8601String();
+
+    return map;
+  }
+}
+
+class BucketGetFilesFileData extends BaseData {
+  late String name;
+  late String? contentType;
+  late DateTime dateUpdated;
+  late String md5Hash;
+  late int size;
+
+  @override
+  void fromMap(Map map) {
+    super.fromMap(map);
+    name = map['name'] as String;
+    md5Hash = map['md5Hash'] as String;
+    contentType = map['contentType'] as String?;
+    size = map['size'] as int;
+    var dateUpdatedString = map['dateUpdated'] as String;
+    dateUpdated = DateTime.parse(dateUpdatedString);
+  }
+
+  @override
+  Map<String, Object?> toMap() {
+    var map = super.toMap();
+    map['name'] = name;
+    if (contentType != null) {
+      map['contentType'] = contentType;
+    }
+
+    map['md5Hash'] = md5Hash;
+
+    map['size'] = size;
+    map['dateUpdated'] = dateUpdated.toIso8601String();
+
+    return map;
+  }
+}
+
+class BucketGetFilesResponseData extends BaseData {
+  late List<BucketGetFilesFileData> files;
+  String? nextPageToken;
+
+  @override
+  void fromMap(Map map) {
+    super.fromMap(map);
+    files = (map['files'] as List).cast<Map>().map((item) {
+      var fileData = BucketGetFilesFileData();
+      fileData.fromMap(item);
+      return fileData;
+    }).toList();
+    nextPageToken = map['nextPageToken'] as String?;
+  }
+
+  @override
+  Map<String, Object?> toMap() {
+    var map = super.toMap();
+
+    map['files'] = files.map((file) => file.toMap()).toList();
+    if (nextPageToken != null) {
+      map['nextPageToken'] = nextPageToken;
+    }
+    return map;
+  }
+}
+
 class BucketData extends BaseData {
   late String bucket;
 
@@ -89,6 +186,40 @@ class BucketData extends BaseData {
   Model toMap() {
     var map = super.toMap();
     map[paramBucket] = bucket;
+    return map;
+  }
+}
+
+class BucketGetFilesRequestData extends BucketData {
+  String? prefix;
+  String? pageToken;
+  int? maxResults;
+  bool? autoPaginate;
+
+  @override
+  void fromMap(Map map) {
+    super.fromMap(map);
+    prefix = map['prefix'] as String?;
+    pageToken = map['pageToken'] as String?;
+    maxResults = map['maxResults'] as int?;
+    autoPaginate = map['autoPaginate'] as bool?;
+  }
+
+  @override
+  Model toMap() {
+    var map = super.toMap();
+    if (prefix != null) {
+      map['prefix'] = prefix;
+    }
+    if (pageToken != null) {
+      map['pageToken'] = pageToken;
+    }
+    if (maxResults != null) {
+      map['maxResults'] = maxResults;
+    }
+    if (autoPaginate != null) {
+      map['autoPaginate'] = autoPaginate;
+    }
     return map;
   }
 }
