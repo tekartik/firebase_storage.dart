@@ -7,3 +7,4 @@ workspace:
   - storage
   - storage_fs
   - storage_test
+  - storage_sim

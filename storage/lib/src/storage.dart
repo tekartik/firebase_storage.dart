@@ -91,7 +91,7 @@ typedef StorageMixin = FirebaseStorageMixin;
 mixin FirebaseStorageMixin implements Storage {
   @override
   Bucket bucket([String? name]) {
-    throw UnimplementedError();
+    throw UnimplementedError('$runtimeType.bucket($name)');
   }
 
   @override
@@ -165,12 +165,12 @@ mixin BucketMixin implements Bucket {
 
   @override
   File file(String path) {
-    throw UnimplementedError('file($path)');
+    throw UnimplementedError('$runtimeType.file($path)');
   }
 
   @override
   Future<void> create() {
-    throw UnimplementedError();
+    throw UnimplementedError('$runtimeType.create()');
   }
 
   @override
@@ -255,14 +255,14 @@ mixin FileMetadataMixin implements FileMetadata {
 mixin FileMixin implements File {
   @override
   Future<void> upload(Uint8List bytes, {StorageUploadFileOptions? options}) {
-    throw UnimplementedError('upload');
+    throw UnimplementedError('$runtimeType.upload()');
   }
 
   Uint8List _asUint8List(List<int> data) =>
       data is Uint8List ? data : Uint8List.fromList(data);
 
   @override
-  Future<void> writeAsBytes(Uint8List bytes) => save(bytes);
+  Future<void> writeAsBytes(Uint8List bytes) => upload(bytes);
 
   @override
   Future<void> writeAsString(String text) =>
@@ -283,13 +283,13 @@ mixin FileMixin implements File {
 
   @override
   Future delete() {
-    throw UnimplementedError('delete');
+    throw UnimplementedError('$runtimeType.delete');
   }
 
   // To deprecate
   @override
   Future<Uint8List> download() {
-    throw UnimplementedError('download');
+    throw UnimplementedError('$runtimeType.download()');
   }
 
   @override
