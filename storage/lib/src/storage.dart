@@ -249,6 +249,14 @@ mixin FileMetadataMixin implements FileMetadata {
 
   @override
   String? get contentType => throw UnimplementedError();
+
+  @override
+  String toString() => {
+    'size': size,
+    'dateUpdated': dateUpdated,
+    'md5Hash': md5Hash,
+    if (contentType != null) 'contentType': contentType,
+  }.toString();
 }
 
 /// File mixin

@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:path/path.dart';
 import 'package:tekartik_app_dev_menu/dev_menu.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 
@@ -14,7 +17,38 @@ class StorageMainMenuContext {
 }
 
 void firebaseStorageMainMenu({required StorageMainMenuContext context}) {
+  var bucket = context.storage.bucket(context.bucket);
+  var rootPath = context.rootPath;
+
+  String fixPath(String path) =>
+      rootPath != null ? url.join(rootPath, path) : path;
+  var testFile = bucket.file(fixPath('file0.txt'));
   menu('bucket', () {
+    item('list_files', () async {
+      var files = await bucket.getFiles(GetFilesOptions(prefix: rootPath));
+      write('${files.files.length} files found');
+      for (var file in files.files) {
+        write('name: ${file.name}');
+        write('metadata: ${file.metadata}');
+      }
+    });
+    item('write_file', () async {
+      await testFile.upload(
+        utf8.encode('hello'),
+        options: StorageUploadFileOptions(contentType: 'text/plain'),
+      );
+    });
+    item('delete_file', () async {
+      await testFile.delete();
+    });
+    item('read_file', () async {
+      var content = await testFile.readAsBytes();
+      print('content: ${utf8.decode(content)}');
+    });
+    item('read_metadata', () async {
+      var metadata = await testFile.getMetadata();
+      print('metadata: $metadata');
+    });
     /*
     StreamSubscription? subscription;
     var coll = context.doc.collection('change');
