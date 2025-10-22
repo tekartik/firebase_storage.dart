@@ -6,7 +6,7 @@ import 'package:tekartik_common_utils/common_utils_import.dart';
 import 'package:tekartik_common_utils/env_utils.dart';
 import 'package:tekartik_common_utils/stream/stream_poller.dart';
 import 'package:tekartik_firebase_sim/firebase_sim_mixin.dart';
-import 'package:tekartik_firebase_sim/firebase_sim_server.dart';
+import 'package:tekartik_firebase_sim/firebase_sim_server_mixin.dart';
 import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_sim/src/storage_sim_message.dart';
 
@@ -27,7 +27,7 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
     RpcMethodCall methodCall,
   ) async {
     try {
-      var simServerChannel = firebaseSimServerExpando[channel]!;
+      var simServerChannel = simServer.channel(channel);
       var storageSimPluginServer = _expando[channel] ??= () {
         var app = simServerChannel.app!;
         var storage = storageSimPlugin.storageService.storage(app);

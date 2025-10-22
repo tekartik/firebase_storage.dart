@@ -1,6 +1,6 @@
 import 'package:cv/cv.dart';
 
-import 'package:tekartik_firebase_sim/firebase_sim_message.dart';
+import 'package:tekartik_firebase_sim/firebase_sim_server_mixin.dart';
 
 const methodFileExists = 'file/exists';
 const methodFileUpload = 'file/upload';

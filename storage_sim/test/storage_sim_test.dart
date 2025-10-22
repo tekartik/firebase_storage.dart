@@ -1,8 +1,7 @@
 library;
 
 import 'package:tekartik_common_utils/common_utils_import.dart';
-// ignore: unused_import
-import 'package:tekartik_firebase_sim/firebase_sim_client.dart';
+
 // ignore: unused_import
 import 'package:tekartik_firebase_sim/firebase_sim_server.dart';
 import 'package:tekartik_firebase_storage_sim/storage_sim.dart';
