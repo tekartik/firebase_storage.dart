@@ -12,8 +12,8 @@ import 'test_common.dart';
 
 var _bucketName = 'my_sim_bucket';
 Future main() async {
-  // debugFirebaseSimServer = devWarning(true);
-  // debugFirebaseSimClient = devWarning(true);
+  //debugFirebaseSimServer = devTrue;
+  //debugFirebaseSimClient = devTrue;
   // debugSimServerMessage = true;
 
   var testContext = await initTestContextSim();

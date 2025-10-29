@@ -6,6 +6,7 @@ import 'package:tekartik_firebase_sim/firebase_sim_server.dart';
 import 'package:tekartik_firebase_storage_fs/storage_fs_io.dart';
 import 'package:tekartik_firebase_storage_sim/src/storage_sim_plugin.dart';
 import 'package:tekartik_web_socket_io/web_socket_io.dart';
+export 'package:tekartik_firebase_sim/firebase_sim.dart';
 
 class TestContext {
   late FirebaseSimServer simServer;

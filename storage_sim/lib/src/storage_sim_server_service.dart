@@ -17,19 +17,20 @@ import 'storage_sim_plugin.dart'; // ignore: implementation_imports
 
 class StorageSimServerService extends FirebaseSimServerServiceBase {
   late StorageSimPlugin storageSimPlugin;
-  final _expando = Expando<_StorageSimPluginServer>();
+  final _appServers = <FirebaseSimServerProjectApp, _StorageSimPluginServer>{};
+
   static final serviceName = 'firebase_storage';
   StorageSimServerService() : super(serviceName);
 
   @override
-  FutureOr<Object?> onCall(
+  FutureOr<Object?> onAppCall(
+    FirebaseSimServerProjectApp projectApp,
     RpcServerChannel channel,
     RpcMethodCall methodCall,
   ) async {
     try {
-      var simServerChannel = simServer.channel(channel);
-      var storageSimPluginServer = _expando[channel] ??= () {
-        var app = simServerChannel.app!;
+      var storageSimPluginServer = _appServers[projectApp] ??= () {
+        var app = projectApp.app!;
         var storage = storageSimPlugin.storageService.storage(app);
         //.debugQuickLoggerWrapper();
         // One transaction lock per server
@@ -75,7 +76,7 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
           return null;
       }
 
-      return super.onCall(channel, methodCall);
+      return super.onAppCall(projectApp, channel, methodCall);
     } catch (e, st) {
       if (isDebug) {
         // ignore: avoid_print
