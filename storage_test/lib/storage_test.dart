@@ -78,6 +78,8 @@ void runStorageAppTests(
   test('app', () {
     expect(storage.app, app);
     expect(storage.service, storageService);
+    expect(storageService.storage(app), storage);
+    expect(app.getProduct<FirebaseStorage>(), storage);
   });
   group('storage', () {
     var bucket = storage.bucket(storageBucket);
