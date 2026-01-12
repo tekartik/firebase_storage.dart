@@ -14,6 +14,7 @@ import 'package:tekartik_firebase_storage_sim/src/storage_sim_server_service.dar
 
 import 'import_storage.dart'; // ignore: implementation_imports
 
+/// Storage service simulation.
 class StorageServiceSim
     with FirebaseProductServiceMixin<Storage>, StorageServiceMixin
     implements StorageService {
@@ -26,11 +27,13 @@ class StorageServiceSim
   }
 
   //TODO
+  /// Delete the app.
   Future deleteApp(App app) async {}
 }
 
 StorageServiceSim? _storageServiceSim;
 
+/// Storage service simulation.
 StorageServiceSim get storageServiceSim =>
     _storageServiceSim ?? StorageServiceSim();
 

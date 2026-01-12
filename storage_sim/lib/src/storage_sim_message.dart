@@ -2,21 +2,45 @@ import 'package:cv/cv.dart';
 
 import 'package:tekartik_firebase_sim/firebase_sim_server_mixin.dart';
 
+/// Method file exists.
 const methodFileExists = 'file/exists';
+
+/// Method file upload.
 const methodFileUpload = 'file/upload';
+
+/// Method file download.
 const methodFileDownload = 'file/download';
+
+/// Method file delete.
 const methodFileDelete = 'file/delete';
+
+/// Method file get metadata.
 const methodFileGetMetadata = 'file/get_metadata';
+
+/// Method bucket exists.
 const methodBucketExists = 'bucket/exists';
+
+/// Method bucket get files.
 const methodBucketGetFiles = 'bucket/get_files';
+
+/// Method bucket create.
 const methodBucketCreate = 'bucket/create';
+
+/// Param bucket.
 const paramBucket = 'bucket';
+
+/// Param name.
 const paramName = 'name';
 
+/// Bucket exists response data.
 typedef BucketExistsResponseData = CommonExistsResponseData;
+
+/// File exists response data.
 typedef FileExistsResponseData = CommonExistsResponseData;
 
+/// Common exists response data.
 class CommonExistsResponseData extends BaseData {
+  /// Exists.
   late bool exists;
 
   @override
@@ -33,7 +57,9 @@ class CommonExistsResponseData extends BaseData {
   }
 }
 
+/// File download response data.
 class FileDownloadResponseData extends BaseData {
+  /// Bytes.
   late List<int> data;
 
   @override
@@ -50,15 +76,30 @@ class FileDownloadResponseData extends BaseData {
   }
 }
 
+/// Bucket exists request data.
 typedef BucketExistsRequestData = BucketData;
+
+/// File exists request data.
 typedef FileExistsRequestData = FileData;
+
+/// File delete request data.
 typedef FileDeleteRequestData = FileData;
+
+/// File get metadata request data.
 typedef FileGetMetadataRequestData = FileData;
+
+/// File download request data.
 typedef FileDownloadRequestData = FileData;
+
+/// Bucket create request data.
 typedef BucketCreateRequestData = BucketData;
 
+/// File upload request data.
 class FileUploadRequestData extends FileData {
+  /// Bytes.
   late List<int> data;
+
+  /// Content type.
   String? contentType;
 
   @override
@@ -79,10 +120,18 @@ class FileUploadRequestData extends FileData {
   }
 }
 
+/// Bucket get file metadata response data.
 class BucketGetFileMetadataResponseData extends BaseData {
+  /// Content type.
   late String? contentType;
+
+  /// Date updated.
   late DateTime dateUpdated;
+
+  /// MD5 hash.
   late String md5Hash;
+
+  /// Size.
   late int size;
 
   @override
@@ -111,11 +160,21 @@ class BucketGetFileMetadataResponseData extends BaseData {
   }
 }
 
+/// Bucket get files file data.
 class BucketGetFilesFileData extends BaseData {
+  /// Name.
   late String name;
+
+  /// Content type.
   late String? contentType;
+
+  /// Date updated.
   late DateTime dateUpdated;
+
+  /// MD5 hash.
   late String md5Hash;
+
+  /// Size.
   late int size;
 
   @override
@@ -146,8 +205,12 @@ class BucketGetFilesFileData extends BaseData {
   }
 }
 
+/// Bucket get files response data.
 class BucketGetFilesResponseData extends BaseData {
+  /// Files.
   late List<BucketGetFilesFileData> files;
+
+  /// Next page token.
   String? nextPageToken;
 
   @override
@@ -173,7 +236,9 @@ class BucketGetFilesResponseData extends BaseData {
   }
 }
 
+/// Bucket data.
 class BucketData extends BaseData {
+  /// Bucket.
   late String bucket;
 
   @override
@@ -190,10 +255,18 @@ class BucketData extends BaseData {
   }
 }
 
+/// Bucket get files request data.
 class BucketGetFilesRequestData extends BucketData {
+  /// Prefix.
   String? prefix;
+
+  /// Page token.
   String? pageToken;
+
+  /// Max results.
   int? maxResults;
+
+  /// Auto paginate.
   bool? autoPaginate;
 
   @override
@@ -224,7 +297,9 @@ class BucketGetFilesRequestData extends BucketData {
   }
 }
 
+/// File data.
 class FileData extends BucketData {
+  /// Name.
   late String name;
 
   @override

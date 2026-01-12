@@ -15,11 +15,16 @@ import 'package:tekartik_firebase_storage_sim/src/storage_sim_message.dart';
 import 'storage_sim_plugin.dart'; // ignore: implementation_imports
 // ignore: implementation_imports
 
+/// Storage simulation server service.
 class StorageSimServerService extends FirebaseSimServerServiceBase {
+  /// Storage simulation plugin.
   late StorageSimPlugin storageSimPlugin;
   final _appServers = <FirebaseSimServerProjectApp, _StorageSimPluginServer>{};
 
+  /// Service name.
   static final serviceName = 'firebase_storage';
+
+  /// Create storage simulation server service.
   StorageSimServerService() : super(serviceName);
 
   @override
@@ -89,16 +94,20 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
   }
 }
 
+/// Simulation subscription.
 class SimSubscription<T> {
   late StreamPoller<T> _poller;
 
+  /// Get next event.
   Future<StreamPollerEvent<T?>> getNext() => _poller.getNext();
 
+  /// Create simulation subscription.
   SimSubscription(Stream<T> stream) {
     _poller = StreamPoller<T>(stream);
   }
 
   // Make sure to cancel the pending completer
+  /// Cancel subscription.
   Future cancel() => _poller.cancel();
 }
 
