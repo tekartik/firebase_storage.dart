@@ -1,6 +1,9 @@
 import 'package:path/path.dart';
 
-/// A reference to a file in a storage bucket
+/// A reference to a file in a cloud storage bucket.
+///
+/// This abstraction represents a file location in storage, allowing conversion
+/// between URIs and structured references, similar to Firebase Storage's gs:// URIs.
 class StorageFileRef {
   /// The bucket name
   late final String bucket;

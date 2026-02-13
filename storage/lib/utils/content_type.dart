@@ -1,7 +1,12 @@
-/// A utility file for determining MIME content types for Firebase Storage uploads.
+/// Default MIME content type for Firebase Storage uploads.
+///
+/// Used as a fallback when the content type cannot be determined from the file extension.
 const firebaseStorageDefaultContentType = 'application/octet-stream';
 
-/// A utility function to determine the MIME content type based on file extension.
+/// Determines the MIME content type based on file extension.
+///
+/// This utility function provides an abstraction for inferring content types
+/// from filenames, aiding in proper metadata for cloud storage uploads.
 String? firebaseStorageContentTypeFromFilename(String filename) {
   var extension = filename.split('.').last.toLowerCase();
   switch (extension) {
