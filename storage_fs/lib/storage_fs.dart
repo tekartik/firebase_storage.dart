@@ -11,8 +11,8 @@ StorageService get storageServiceMemory => impl.storageServiceFsMemory;
 StorageService newStorageServiceMemory() => impl.newStorageServiceFsMemory();
 
 /// Quick storage test helper
-Storage newStorageMemory() =>
-    newStorageServiceMemory().storage(FirebaseLocal().app());
+Storage newStorageMemory({String? firebaseAppName}) => newStorageServiceMemory()
+    .storage(FirebaseLocal().initializeApp(name: firebaseAppName));
 
 /// New storage service on a file system
 StorageService newStorageServiceFs({

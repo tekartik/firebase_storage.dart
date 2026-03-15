@@ -22,7 +22,7 @@ void main() {
     );
 
     var fileSystem = (storageServiceIo as StorageServiceFs).fileSystem;
-    var app = firebase.initializeApp();
+    var app = firebase.initializeApp(name: 'fs_io');
     var storage = storageServiceIo.storage(app);
     setUpAll(() async {
       await storage.bucket(_bucketName).create();
@@ -38,7 +38,7 @@ void main() {
         join(
           '.dart_tool',
           'tekartik_firebase_local',
-          '_default',
+          'fs_io',
           'storage',
           '_default',
         ),
@@ -52,7 +52,7 @@ void main() {
       expect(
         downloadUrl.path,
         endsWith(
-          '.dart_tool/tekartik_firebase_local/_default/storage/_default/data/test',
+          '.dart_tool/tekartik_firebase_local/fs_io/storage/_default/data/test',
         ),
       );
       expect(

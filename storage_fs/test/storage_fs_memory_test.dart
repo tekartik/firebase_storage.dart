@@ -24,7 +24,7 @@ void main() {
     );
 
     test('new', () async {
-      var app = firebase.initializeApp();
+      var app = firebase.initializeApp(name: 'memory_other');
 
       var storageService1 = newStorageServiceMemory();
       var storage1 = storageService1.storage(app);
@@ -44,6 +44,7 @@ void main() {
       } catch (e) {
         expect(e, isNot(const TypeMatcher<TestFailure>()));
       }
+      await app.delete();
     });
     test('newStorage', () async {
       var storage = newStorageMemory();
