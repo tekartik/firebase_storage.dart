@@ -18,7 +18,10 @@ Future<void> main() async {
     runStorageTests(
       firebase: firebase,
       storageService: storageServiceIo,
-      options: AppOptions(storageBucket: _bucketName),
+      options: AppOptions(
+        storageBucket: _bucketName,
+        projectId: 'storage_fs_io',
+      ),
       storageOptions: TestStorageOptions(bucket: _bucketName),
     );
 
@@ -39,7 +42,7 @@ Future<void> main() async {
         join(
           '.dart_tool',
           'tekartik_firebase_local',
-          'fs_io',
+          'local',
           'storage',
           '_default',
         ),
@@ -53,7 +56,7 @@ Future<void> main() async {
       expect(
         downloadUrl.path,
         endsWith(
-          '.dart_tool/tekartik_firebase_local/fs_io/storage/_default/data/test',
+          '.dart_tool/tekartik_firebase_local/local/storage/_default/data/test',
         ),
       );
       expect(

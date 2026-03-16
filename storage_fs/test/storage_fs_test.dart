@@ -52,7 +52,7 @@ void main() {
       var bucket = storage.bucket() as BucketFs;
       expect(
         bucket.localPath,
-        '.dart_tool/tekartik_firebase_local/_default/storage/_default',
+        '.dart_tool/tekartik_firebase_local/local/storage/_default',
       );
       var file = bucket.file('test');
       expect(file.fsFile.path, url.join(bucket.localPath, 'data/test'));
