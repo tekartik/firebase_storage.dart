@@ -95,6 +95,7 @@ class FileFs with FileMixin implements File {
         contentType: contentType,
       );
       // Write meta
+      print('fsMetaFile: $fsMetaFile');
       await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
       return metadata;
     }
@@ -196,9 +197,21 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   FileFs file(String path) => FileFs(bucket: this, path: path);
 
+  Future<bool> _exists() async {
+    return await storage.service.fileSystem.directory(localPath).exists();
+  }
+
   @override
   Future<bool> exists() async {
-    return await storage.service.fileSystem.directory(localPath).exists();
+    if (!await _exists()) {
+      // Always create the default bucket
+      if (name == storage.app.options.storageBucket) {
+        await create();
+      } else {
+        return false;
+      }
+    }
+    return true;
   }
 
   @override

@@ -11,13 +11,14 @@ import 'package:tekartik_firebase_storage_test/storage_test.dart';
 import 'package:test/test.dart';
 
 var _bucketName = 'my_bucket';
-void main() {
+Future<void> main() async {
   var firebase = FirebaseLocal();
 
   group('storage_fs_io', () {
     runStorageTests(
       firebase: firebase,
       storageService: storageServiceIo,
+      options: AppOptions(storageBucket: _bucketName),
       storageOptions: TestStorageOptions(bucket: _bucketName),
     );
 
