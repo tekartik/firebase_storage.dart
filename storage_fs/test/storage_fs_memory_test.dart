@@ -53,15 +53,17 @@ void main() {
         await storage.bucket('test').file('cut').readAsString(),
         'the line',
       );
-      storage = newStorageMemory();
+      var storage2 = newStorageMemory();
       try {
-        await storage.bucket('test').file('cut').readAsString();
+        await storage2.bucket('test').file('cut').readAsString();
         fail('should fail');
       } catch (e) {
         // print(e);
         //print(e.runtimeType);
         expect(e, isNot(const TypeMatcher<TestFailure>()));
       }
+      await storage.app.delete();
+      await storage2.app.delete();
     });
   });
 }
