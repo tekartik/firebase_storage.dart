@@ -105,7 +105,7 @@ mixin FirebaseStorageMixin implements Storage {
 
   @override
   Reference ref([String? path]) {
-    throw UnimplementedError();
+    throw UnimplementedError('$runtimeType.ref($path)');
   }
 }
 
