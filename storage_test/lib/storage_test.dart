@@ -17,6 +17,19 @@ class TestStorageOptions {
   String toString() => {'bucket': bucket, 'rootPath': rootPath}.toString();
 }
 
+extension TestStorageOptionsExt on TestStorageOptions {
+  TestStorageOptions withAddedPath(String path) {
+    if (rootPath == null) {
+      return TestStorageOptions(bucket: bucket, rootPath: path);
+    } else {
+      return TestStorageOptions(
+        bucket: bucket,
+        rootPath: url.join(rootPath!, path),
+      );
+    }
+  }
+}
+
 @Deprecated('Use runStorageTests')
 void run({
   required Firebase firebase,

@@ -3,7 +3,10 @@ import 'package:tekartik_firebase_storage/storage.dart';
 /// Storage service mixin providing an abstraction for storage service implementations.
 ///
 /// Allows extending storage services with common functionality.
-mixin StorageServiceMixin implements StorageService {}
+mixin FirebaseStorageServiceMixin implements StorageService {}
+
+/// Compat
+typedef StorageServiceMixin = FirebaseStorageServiceMixin;
 
 /// Extracts the default storage bucket from app options.
 ///
