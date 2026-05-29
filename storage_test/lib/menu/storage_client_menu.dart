@@ -43,11 +43,11 @@ void firebaseStorageMainMenu({required StorageMainMenuContext context}) {
     });
     item('read_file', () async {
       var content = await testFile.readAsBytes();
-      print('content: ${utf8.decode(content)}');
+      writeln('content: ${utf8.decode(content)}');
     });
     item('read_metadata', () async {
       var metadata = await testFile.getMetadata();
-      print('metadata: $metadata');
+      writeln('metadata: $metadata');
     });
     /*
     StreamSubscription? subscription;

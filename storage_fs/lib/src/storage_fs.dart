@@ -95,7 +95,7 @@ class FileFs with FileMixin implements File {
         contentType: contentType,
       );
       // Write meta
-      print('fsMetaFile: $fsMetaFile');
+      // print('fsMetaFile: $fsMetaFile');
       await fsMetaFile.writeAsString(jsonEncode(metadata.toMap()));
       return metadata;
     }
@@ -245,7 +245,8 @@ class BucketFs with BucketMixin implements Bucket {
             as Map,
       );
     } catch (e) {
-      print('Generating missing meta');
+      // ignore: avoid_print
+      print('Generating missing meta for $name');
       var file = this.file(name);
       var bytes = await file.readAsBytes();
       return await file._writeFileMeta(bytes, null);
