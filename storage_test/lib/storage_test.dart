@@ -11,20 +11,35 @@ class TestStorageOptions {
   final String? bucket;
   final String? rootPath;
 
-  TestStorageOptions({this.bucket, this.rootPath});
+  var skipDefaultBucketExists = false;
+  TestStorageOptions({
+    this.bucket,
+    this.rootPath,
+    this.skipDefaultBucketExists = false,
+  });
 
   @override
-  String toString() => {'bucket': bucket, 'rootPath': rootPath}.toString();
+  String toString() => {
+    'bucket': bucket,
+    'rootPath': rootPath,
+    if (skipDefaultBucketExists)
+      'skipDefaultBucketExists': skipDefaultBucketExists,
+  }.toString();
 }
 
 extension TestStorageOptionsExt on TestStorageOptions {
   TestStorageOptions withAddedPath(String path) {
     if (rootPath == null) {
-      return TestStorageOptions(bucket: bucket, rootPath: path);
+      return TestStorageOptions(
+        bucket: bucket,
+        rootPath: path,
+        skipDefaultBucketExists: skipDefaultBucketExists,
+      );
     } else {
       return TestStorageOptions(
         bucket: bucket,
         rootPath: url.join(rootPath!, path),
+        skipDefaultBucketExists: skipDefaultBucketExists,
       );
     }
   }
@@ -117,7 +132,9 @@ void runStorageAppTests(
         }
       });
       test('exists', () async {
-        expect(await bucket.exists(), isTrue);
+        if (!storageOptions.skipDefaultBucketExists) {
+          expect(await bucket.exists(), isTrue);
+        }
         expect(
           await storage.bucket('dummy-azeiourieozuoe-dev.appspot.com').exists(),
           isFalse,
