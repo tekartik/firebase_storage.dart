@@ -410,3 +410,16 @@ class StorageException implements Exception {
   @override
   String toString() => 'StorageException($type) $message';
 }
+
+/// Firebase helper extension
+extension TekartikFirebaseStorageFirebaseAppExt on FirebaseApp {
+  /// Get storage app product.
+  Storage storage() {
+    var storage = getProduct<Storage>();
+    if (storage == null) {
+      throw StateError('No storage product for app $name');
+    } else {
+      return storage;
+    }
+  }
+}

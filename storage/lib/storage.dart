@@ -37,4 +37,5 @@ export 'package:tekartik_firebase_storage/src/storage.dart'
         FirebaseStorageService,
         StorageService,
         GetFilesOptions,
-        GetFilesResponse;
+        GetFilesResponse,
+        TekartikFirebaseStorageFirebaseAppExt;
