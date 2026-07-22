@@ -1,17 +1,24 @@
 import 'package:tekartik_firebase_storage/storage.dart';
 
-/// Storage service mixin providing an abstraction for storage service implementations.
+/// Mixin providing a base for [FirebaseStorageService] implementations.
 ///
-/// Allows extending storage services with common functionality.
+/// Currently adds no members of its own; implementations mix this in
+/// (alongside implementing [FirebaseStorageService]) so that future shared
+/// bookkeeping can be added here without breaking them.
 mixin FirebaseStorageServiceMixin implements StorageService {}
 
-/// Compat
+/// Alias for [FirebaseStorageServiceMixin], kept for backward compatibility.
+///
+/// Prefer [FirebaseStorageServiceMixin] directly; this typedef may be
+/// deprecated in the future.
 typedef StorageServiceMixin = FirebaseStorageServiceMixin;
 
-/// Extracts the default storage bucket from app options.
+/// Resolves the default Cloud Storage bucket name for the given app
+/// [options].
 ///
-/// This utility function provides an abstraction for determining the bucket name
-/// from Firebase app configuration, defaulting to the standard appspot.com format.
+/// Returns [AppOptions.storageBucket] when set; otherwise falls back to the
+/// standard `'<projectId>.appspot.com'` naming convention built from
+/// [AppOptions.projectId].
 String appOptionsGetStorageBucket(AppOptions options) {
   var storageBucket =
       (options.storageBucket ?? '${options.projectId}.appspot.com');

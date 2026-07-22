@@ -1,12 +1,20 @@
 /// Default MIME content type for Firebase Storage uploads.
 ///
-/// Used as a fallback when the content type cannot be determined from the file extension.
+/// Used as a fallback when the content type cannot be determined from the
+/// file extension, e.g. when
+/// [firebaseStorageContentTypeFromFilename] returns `null`.
 const firebaseStorageDefaultContentType = 'application/octet-stream';
 
-/// Determines the MIME content type based on file extension.
+/// Guesses the MIME content type for a file from its extension in
+/// [filename].
 ///
-/// This utility function provides an abstraction for inferring content types
-/// from filenames, aiding in proper metadata for cloud storage uploads.
+/// [filename] is matched case-insensitively against its extension (the
+/// text after the last `.`); the full path is not otherwise inspected, so
+/// a bare name without extension works the same as a path.
+///
+/// Returns the corresponding MIME type (e.g. `'image/png'` for `.png`), or
+/// `null` when the extension is unknown or [filename] has no extension. See
+/// [firebaseStorageDefaultContentType] for a suitable fallback value.
 String? firebaseStorageContentTypeFromFilename(String filename) {
   var extension = filename.split('.').last.toLowerCase();
   switch (extension) {
