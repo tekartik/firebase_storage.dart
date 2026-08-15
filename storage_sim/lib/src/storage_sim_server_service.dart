@@ -82,7 +82,7 @@ class StorageSimServerService extends FirebaseSimServerServiceBase {
           return null;
       }
 
-      return super.onAppCall(projectApp, channel, methodCall);
+      return await super.onAppCall(projectApp, channel, methodCall);
     } catch (e, st) {
       if (isDebug) {
         // ignore: avoid_print

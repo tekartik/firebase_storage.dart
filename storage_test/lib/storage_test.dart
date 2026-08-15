@@ -28,19 +28,23 @@ class TestStorageOptions {
 }
 
 extension TestStorageOptionsExt on TestStorageOptions {
+  TestStorageOptions copyWith({
+    bool? skipDefaultBucketExists,
+    String? rootPath,
+  }) {
+    return TestStorageOptions(
+      bucket: bucket,
+      rootPath: rootPath ?? this.rootPath,
+      skipDefaultBucketExists:
+          skipDefaultBucketExists ?? this.skipDefaultBucketExists,
+    );
+  }
+
   TestStorageOptions withAddedPath(String path) {
     if (rootPath == null) {
-      return TestStorageOptions(
-        bucket: bucket,
-        rootPath: path,
-        skipDefaultBucketExists: skipDefaultBucketExists,
-      );
+      return copyWith(rootPath: path);
     } else {
-      return TestStorageOptions(
-        bucket: bucket,
-        rootPath: url.join(rootPath!, path),
-        skipDefaultBucketExists: skipDefaultBucketExists,
-      );
+      return copyWith(rootPath: url.join(rootPath!, path));
     }
   }
 }
@@ -110,7 +114,11 @@ void runStorageAppTests(
     expect(app.getProduct<FirebaseStorage>(), storage);
   });
   group('storage', () {
-    var bucket = storage.bucket(storageBucket);
+    late Bucket bucket;
+    setUp(() {
+      // Add any setup code here
+      bucket = storage.bucket(storageBucket);
+    });
     test('storage', () {
       expect(storage, isNotNull);
     });
