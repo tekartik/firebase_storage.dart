@@ -7,7 +7,8 @@ description: >-
   StorageMixin, BucketMixin, FileMixin, FileMetadataMixin, ReferenceMixin,
   FirebaseProductServiceMixin.getInstance, FirebaseAppProductMixin, and what a
   Storage, Bucket, File, FileMetadata or GetFilesResponse implementation must
-  provide (upload/download, getFiles paging with GetFilesOptions.pageToken).
+  provide (upload/download with StorageUploadFileOptions contentType and
+  cacheControl, getFiles paging with GetFilesOptions.pageToken).
 ---
 
 # Implementing a Firebase Storage backend (tekartik_firebase_storage)
@@ -68,7 +69,10 @@ fake, a decorator or a partial in-process backend.
   `exists()`, `delete()`, `getMetadata()` and the `metadata` getter.
 * `metadata` is a cache, not a fetch: return the `FileMetadata` captured by
   `getFiles()` (or `null`), and keep `getMetadata()` as the authoritative
-  round trip. `getMetadata()` must throw when the object does not exist.
+  round trip. When the backend listing already returns the object metadata,
+  keep it on the listed files rather than `null`: callers would otherwise
+  make one `getMetadata()` call per file. `getMetadata()` must throw when the
+  object does not exist.
 * `FileMetadataMixin` gives you the `toString()` and the
   `UnimplementedError` defaults; a metadata class provides `size`,
   `dateUpdated` (UTC), `md5Hash` and the nullable `contentType`. When the
@@ -76,6 +80,14 @@ fake, a decorator or a partial in-process backend.
   `firebaseStorageContentTypeFromFilename(name)` from
   `package:tekartik_firebase_storage/utils/content_type.dart` and fall back to
   `firebaseStorageDefaultContentType`.
+* `StorageUploadFileOptions.cacheControl` is stored with the object and read
+  back through `FileMetadata.cacheControl` (`FileMetadataMixin` returns
+  `null`, meaning none was set, until overridden). Map it to the backend
+  field (`cacheControl` of the Cloud Storage object resource,
+  `SettableMetadata.cacheControl` on Flutter, the `metadata` of a node
+  `save`); a local backend keeps it next to the content type. An upload
+  replaces the metadata: uploading without it must leave no cache control.
+  Never guess a value.
 * `getFiles` must be recursive under `options.prefix` (a plain string prefix,
   not a folder), return names relative to the bucket root with `/`
   separators, honour `maxResults` and resume from `options.pageToken`. Build
@@ -187,6 +199,7 @@ class ExampleFile with FileMixin {
   FileMetadata? get metadata => null;
 
   String? _contentType;
+  String? _cacheControl;
 
   @override
   Future<void> upload(Uint8List bytes, {StorageUploadFileOptions? options}) async {
@@ -195,6 +208,8 @@ class ExampleFile with FileMixin {
         options?.contentType ??
         firebaseStorageContentTypeFromFilename(name) ??
         firebaseStorageDefaultContentType;
+    // Replaced on each upload, never guessed.
+    _cacheControl = options?.cacheControl;
     bucket.content![name] = bytes;
   }
 
@@ -217,6 +232,7 @@ class ExampleFile with FileMixin {
   Future<FileMetadata> getMetadata() async => ExampleFileMetadata(
     size: (await readAsBytes()).length,
     contentType: _contentType,
+    cacheControl: _cacheControl,
   );
 }
 
@@ -226,11 +242,17 @@ class ExampleFileMetadata with FileMetadataMixin {
   @override
   final String? contentType;
   @override
+  final String? cacheControl;
+  @override
   final DateTime dateUpdated = DateTime.now().toUtc();
   @override
   final String md5Hash = '';
 
-  ExampleFileMetadata({required this.size, required this.contentType});
+  ExampleFileMetadata({
+    required this.size,
+    required this.contentType,
+    this.cacheControl,
+  });
 }
 ```
 
@@ -311,5 +333,8 @@ class ExampleReference with ReferenceMixin {
   members go through `upload` and `readAsBytes`.
 * Making `metadata` fetch the metadata (it must stay a cheap cached getter)
   or having `getMetadata()` succeed on a missing object.
+* Dropping `StorageUploadFileOptions.cacheControl`, or keeping the previous
+  one when a file is uploaded again without it. The shared
+  `file_with_cache_control` test checks both.
 * Ignoring `pageToken` in `getFiles`, or returning a non-null `nextQuery`
   when the last page has been returned: callers loop until it is `null`.
