@@ -267,6 +267,28 @@ void runStorageAppTests(
         }
       });
 
+      test('list_files_pages', () async {
+        var names = [
+          for (var i = 1; i <= 5; i++) filePath('test/list_files_pages/f$i'),
+        ];
+        for (var name in names) {
+          await bucket.file(name).writeAsString('page');
+        }
+        var listed = <String>[];
+        GetFilesOptions? query = GetFilesOptions(
+          maxResults: 2,
+          prefix: filePath('test/list_files_pages/'),
+          autoPaginate: false,
+        );
+        while (query != null) {
+          var response = await bucket.getFiles(query);
+          listed.addAll(response.files.map((file) => file.name));
+          query = response.nextQuery;
+        }
+        // Every file once, whatever the pages.
+        expect(listed..sort(), names);
+      });
+
       test('list_files_meta', () async {
         var content = 'storage_list_files_test';
         await bucket

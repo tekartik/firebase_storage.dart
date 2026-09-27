@@ -264,7 +264,17 @@ class BucketFs with BucketMixin implements Bucket {
   @override
   Future<GetFilesResponse> getFiles([GetFilesOptions? options]) async {
     var bucketDataPath = dataPath;
-    var parentDataPath = getFsFileDataPath(options?.prefix);
+    // A plain string prefix, like Cloud Storage: 'dir' matches 'dir/a',
+    // 'dir2/b' and 'dirx'. The deepest folder it names is listed, then
+    // filtered on the whole prefix.
+    var prefix = options?.prefix ?? '';
+    if (prefix.startsWith('/')) {
+      prefix = prefix.substring(1);
+    }
+    var lastSlashIndex = prefix.lastIndexOf('/');
+    var parentDataPath = getFsFileDataPath(
+      lastSlashIndex < 0 ? null : prefix.substring(0, lastSlashIndex),
+    );
     List<fs_shim.FileSystemEntity> files;
     try {
       files = await fs.directory(parentDataPath).list(recursive: true).toList();
@@ -274,46 +284,44 @@ class BucketFs with BucketMixin implements Bucket {
     }
     // devPrint(files);
 
-    var paths = <String>[];
-    for (var file in files) {
-      if (await fs.isFile(file.path)) {
-        paths.add(file.path);
-      }
-    }
-    paths.sort();
-
     // Handle windows case to convert to url.
     String toStoragePath(String path) =>
         toPosixPath(fs.path.relative(path, from: bucketDataPath));
 
-    // marker?
-    // TODO too slow for now
-    if (options?.pageToken != null) {
-      int? startIndex;
-      for (var i = 0; i < paths.length; i++) {
-        if (options!.pageToken!.compareTo(toStoragePath(paths[i])) <= 0) {
-          startIndex = i;
+    var names = <String>[];
+    for (var file in files) {
+      if (await fs.isFile(file.path)) {
+        var name = toStoragePath(file.path);
+        if (name.startsWith(prefix)) {
+          names.add(name);
         }
       }
-      if (startIndex != null) {
-        paths = paths.sublist(startIndex);
-      }
+    }
+    // Sorted by storage name, which the page token is compared to.
+    names.sort();
+
+    // The page token is the name of the first file of the page.
+    var pageToken = options?.pageToken;
+    if (pageToken != null) {
+      var startIndex = names.indexWhere(
+        (name) => name.compareTo(pageToken) >= 0,
+      );
+      names = startIndex < 0 ? <String>[] : names.sublist(startIndex);
     }
 
     // limit?
     var maxResults = options?.maxResults ?? 1000;
     String? nextMarker;
-    if (paths.length > maxResults) {
+    if (names.length > maxResults) {
       // set next marker
-      nextMarker = toStoragePath(paths[maxResults]);
+      nextMarker = names[maxResults];
 
-      paths = paths.sublist(0, maxResults);
+      names = names.sublist(0, maxResults);
     }
 
     // Convert
     var storageFiles = <File>[];
-    for (var path in paths) {
-      var name = toStoragePath(path);
+    for (var name in names) {
       var metadata = await getOrGenerateMeta(name);
       storageFiles.add(FileFs(bucket: this, path: name, metadata: metadata));
     }
@@ -322,12 +330,7 @@ class BucketFs with BucketMixin implements Bucket {
       storageFiles,
       nextMarker == null
           ? null
-          : GetFilesOptions(
-              maxResults: options!.maxResults,
-              prefix: options.prefix,
-              pageToken: nextMarker,
-              autoPaginate: options.autoPaginate,
-            ),
+          : (options ?? GetFilesOptions()).copyWith(pageToken: nextMarker),
     );
   }
 }

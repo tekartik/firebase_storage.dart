@@ -83,5 +83,57 @@ void main() {
 
       await app.delete();
     });
+    test('getFiles string prefix and pages', () async {
+      var app = newFirebaseAppLocal();
+      var storageService = newStorageServiceFs(
+        fileSystem: newFileSystemMemory(),
+      );
+      var bucket = storageService.storage(app).bucket();
+      for (var name in [
+        'dir/a.txt',
+        'dir2/b.txt',
+        'dirx.txt',
+        'p/1',
+        'p/2',
+        'p/3',
+        'p/4',
+        'p/5',
+        'p/sub/6',
+      ]) {
+        await bucket.file(name).writeAsString('-');
+      }
+
+      Future<List<String>> names(String prefix) async => (await bucket.getFiles(
+        GetFilesOptions(prefix: prefix),
+      )).files.map((file) => file.name).toList();
+
+      // A plain string prefix, like Cloud Storage, not a folder.
+      expect(await names('dir'), ['dir/a.txt', 'dir2/b.txt', 'dirx.txt']);
+      expect(await names('di'), ['dir/a.txt', 'dir2/b.txt', 'dirx.txt']);
+      expect(await names('dir/'), ['dir/a.txt']);
+      expect(await names('/dir/'), ['dir/a.txt']);
+      expect(await names('p/s'), ['p/sub/6']);
+      expect(await names('none'), isEmpty);
+
+      // Page by page, every file once, in order.
+      var pages = <List<String>>[];
+      GetFilesOptions? query = GetFilesOptions(
+        prefix: 'p/',
+        maxResults: 2,
+        autoPaginate: false,
+      );
+      while (query != null) {
+        var response = await bucket.getFiles(query);
+        pages.add(response.files.map((file) => file.name).toList());
+        query = response.nextQuery;
+      }
+      expect(pages, [
+        ['p/1', 'p/2'],
+        ['p/3', 'p/4'],
+        ['p/5', 'p/sub/6'],
+      ]);
+
+      await app.delete();
+    });
   });
 }
