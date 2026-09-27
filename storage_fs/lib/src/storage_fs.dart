@@ -228,11 +228,18 @@ class BucketFs with BucketMixin implements Bucket {
     if (name.startsWith('/')) {
       name = name.substring(1);
     }
+    if (name.isEmpty) {
+      return name;
+    }
     return toContextPath(fs.path, name);
   }
 
-  String getFsFileDataPath(String? name) =>
-      name == null ? dataPath : fs.path.join(dataPath, _fixFsName(name));
+  /// The data path of [name], the whole bucket data for a null or empty name
+  /// (a `getFiles` prefix).
+  String getFsFileDataPath(String? name) {
+    var fsName = name == null ? '' : _fixFsName(name);
+    return fsName.isEmpty ? dataPath : fs.path.join(dataPath, fsName);
+  }
 
   String getFsFileMetaPath(String? name) => name == null
       ? metaPath

@@ -61,5 +61,27 @@ void main() {
 
       app.delete();
     });
+    test('getFiles empty prefix', () async {
+      var app = newFirebaseAppLocal();
+      var storageService = newStorageServiceFs(
+        fileSystem: newFileSystemMemory(),
+      );
+      var bucket = storageService.storage(app).bucket();
+      await bucket.file('a.txt').writeAsString('a');
+      await bucket.file('dir/b.txt').writeAsString('b');
+
+      Future<List<String>> names(String? prefix) async =>
+          (await bucket.getFiles(
+            GetFilesOptions(prefix: prefix),
+          )).files.map((file) => file.name).toList();
+
+      // An empty prefix (or '/') lists the whole bucket, like no prefix.
+      expect(await names(null), ['a.txt', 'dir/b.txt']);
+      expect(await names(''), ['a.txt', 'dir/b.txt']);
+      expect(await names('/'), ['a.txt', 'dir/b.txt']);
+      expect(await names('dir/'), ['dir/b.txt']);
+
+      await app.delete();
+    });
   });
 }
