@@ -50,11 +50,15 @@ class _FileMetadataSim with FileMetadataMixin implements FileMetadata {
   @override
   final String? contentType;
 
+  @override
+  final String? cacheControl;
+
   _FileMetadataSim({
     required this.dateUpdated,
     required this.md5Hash,
     required this.size,
     required this.contentType,
+    required this.cacheControl,
   });
 }
 
@@ -124,6 +128,7 @@ class _FileSim with FileMixin implements File {
       size: responseData.size,
       md5Hash: responseData.md5Hash,
       contentType: responseData.contentType,
+      cacheControl: responseData.cacheControl,
     );
   }
 
@@ -155,7 +160,8 @@ class _FileSim with FileMixin implements File {
       ..bucket = bucketSim.name
       ..name = name
       ..data = bytes
-      ..contentType = options?.contentType;
+      ..contentType = options?.contentType
+      ..cacheControl = options?.cacheControl;
 
     await simClient.sendRequest<void>(
       StorageSimServerService.serviceName,
@@ -238,6 +244,7 @@ class _BucketSim with BucketMixin implements Bucket {
               file.name,
               _FileMetadataSim(
                 contentType: file.contentType,
+                cacheControl: file.cacheControl,
                 dateUpdated: file.dateUpdated,
                 md5Hash: file.md5Hash,
                 size: file.size,

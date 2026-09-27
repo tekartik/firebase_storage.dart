@@ -170,7 +170,10 @@ class _StorageSimPluginServer {
     var file = _file(requestData);
     await file.upload(
       asUint8List(requestData.data),
-      options: StorageUploadFileOptions(contentType: requestData.contentType),
+      options: StorageUploadFileOptions(
+        contentType: requestData.contentType,
+        cacheControl: requestData.cacheControl,
+      ),
     );
   }
 
@@ -208,7 +211,8 @@ class _StorageSimPluginServer {
             ..size = file.metadata!.size
             ..md5Hash = file.metadata!.md5Hash
             ..dateUpdated = file.metadata!.dateUpdated
-            ..contentType = file.metadata!.contentType,
+            ..contentType = file.metadata!.contentType
+            ..cacheControl = file.metadata!.cacheControl,
         )
         .toList();
     responseData.nextPageToken = getFilesResult.nextQuery?.pageToken;
@@ -225,7 +229,8 @@ class _StorageSimPluginServer {
       ..size = result.size
       ..md5Hash = result.md5Hash
       ..dateUpdated = result.dateUpdated
-      ..contentType = result.contentType;
+      ..contentType = result.contentType
+      ..cacheControl = result.cacheControl;
 
     return responseData.toMap();
   }

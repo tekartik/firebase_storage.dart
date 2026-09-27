@@ -102,11 +102,15 @@ class FileUploadRequestData extends FileData {
   /// Content type.
   String? contentType;
 
+  /// Cache control.
+  String? cacheControl;
+
   @override
   void fromMap(Map map) {
     super.fromMap(map);
     data = (map['data'] as List).cast<int>();
     contentType = map['contentType'] as String?;
+    cacheControl = map['cacheControl'] as String?;
   }
 
   @override
@@ -116,6 +120,9 @@ class FileUploadRequestData extends FileData {
     if (contentType != null) {
       map['contentType'] = contentType;
     }
+    if (cacheControl != null) {
+      map['cacheControl'] = cacheControl;
+    }
     return map;
   }
 }
@@ -124,6 +131,9 @@ class FileUploadRequestData extends FileData {
 class BucketGetFileMetadataResponseData extends BaseData {
   /// Content type.
   late String? contentType;
+
+  /// Cache control.
+  String? cacheControl;
 
   /// Date updated.
   late DateTime dateUpdated;
@@ -139,6 +149,7 @@ class BucketGetFileMetadataResponseData extends BaseData {
     super.fromMap(map);
     md5Hash = map['md5Hash'] as String;
     contentType = map['contentType'] as String?;
+    cacheControl = map['cacheControl'] as String?;
     size = map['size'] as int;
     var dateUpdatedString = map['dateUpdated'] as String;
     dateUpdated = DateTime.parse(dateUpdatedString);
@@ -149,6 +160,9 @@ class BucketGetFileMetadataResponseData extends BaseData {
     var map = super.toMap();
     if (contentType != null) {
       map['contentType'] = contentType;
+    }
+    if (cacheControl != null) {
+      map['cacheControl'] = cacheControl;
     }
 
     map['md5Hash'] = md5Hash;
@@ -168,6 +182,9 @@ class BucketGetFilesFileData extends BaseData {
   /// Content type.
   late String? contentType;
 
+  /// Cache control.
+  String? cacheControl;
+
   /// Date updated.
   late DateTime dateUpdated;
 
@@ -183,6 +200,7 @@ class BucketGetFilesFileData extends BaseData {
     name = map['name'] as String;
     md5Hash = map['md5Hash'] as String;
     contentType = map['contentType'] as String?;
+    cacheControl = map['cacheControl'] as String?;
     size = map['size'] as int;
     var dateUpdatedString = map['dateUpdated'] as String;
     dateUpdated = DateTime.parse(dateUpdatedString);
@@ -194,6 +212,9 @@ class BucketGetFilesFileData extends BaseData {
     map['name'] = name;
     if (contentType != null) {
       map['contentType'] = contentType;
+    }
+    if (cacheControl != null) {
+      map['cacheControl'] = cacheControl;
     }
 
     map['md5Hash'] = md5Hash;

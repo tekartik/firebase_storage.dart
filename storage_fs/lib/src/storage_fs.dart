@@ -93,6 +93,7 @@ class FileFs with FileMixin implements File {
         dateUpdated: dateUpdated,
         size: size,
         contentType: contentType,
+        cacheControl: options?.cacheControl,
       );
       // Write meta
       // print('fsMetaFile: $fsMetaFile');
@@ -392,11 +393,16 @@ class FileMetadataFs implements FileMetadata {
   @override
   final String? contentType;
 
+  /// Cache-Control value
+  @override
+  final String? cacheControl;
+
   Map<String, Object?> toMap() => {
     'md5Hash': md5Hash,
     'dateUpdated': dateUpdated.toUtc().toIso8601String(),
     'size': size,
     if (contentType != null) 'contentType': contentType,
+    if (cacheControl != null) 'cacheControl': cacheControl,
   };
 
   FileMetadataFs({
@@ -404,6 +410,7 @@ class FileMetadataFs implements FileMetadata {
     required this.dateUpdated,
     required this.size,
     required this.contentType,
+    this.cacheControl,
   });
 
   factory FileMetadataFs.fromMap(Map map) {
@@ -411,11 +418,13 @@ class FileMetadataFs implements FileMetadata {
     var dateUpdated = anyToDateTime(mapStringValue(map, 'dateUpdated'))!;
     var size = mapIntValue(map, 'size')!;
     var contentType = mapStringValue(map, 'contentType');
+    var cacheControl = mapStringValue(map, 'cacheControl');
     return FileMetadataFs(
       md5Hash: md5Hash,
       dateUpdated: dateUpdated,
       size: size,
       contentType: contentType,
+      cacheControl: cacheControl,
     );
   }
 }

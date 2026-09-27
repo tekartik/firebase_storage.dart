@@ -339,6 +339,42 @@ void runStorageAppTests(
         expect(metadata.dateUpdated, isNotNull);
         expect(metadata.md5Hash, isNotNull);
         expect(metadata.contentType, 'text/plain');
+        expect(metadata.cacheControl, isNull);
+      });
+      test('file_with_cache_control', () async {
+        var content = 'storage_with_cache_control_test';
+        var cacheControl = 'public, max-age=31536000, immutable';
+        var file = bucket.file(filePath('test/with_cache_control/file0.txt'));
+        await file.upload(
+          utf8.encode(content),
+          options: StorageUploadFileOptions(
+            contentType: 'text/plain',
+            cacheControl: cacheControl,
+          ),
+        );
+
+        var metadata = await file.getMetadata();
+        expect(metadata.size, content.length);
+        expect(metadata.contentType, 'text/plain');
+        expect(metadata.cacheControl, cacheControl);
+        expect(await file.readAsString(), content);
+
+        // Listed files carry it too (no listed metadata on flutter).
+        var response = await bucket.getFiles(
+          GetFilesOptions(
+            prefix: filePath('test/with_cache_control/'),
+            autoPaginate: false,
+          ),
+        );
+        var listedMetadata = response.files.first.metadata;
+        if (listedMetadata != null) {
+          expect(listedMetadata.cacheControl, cacheControl);
+        }
+
+        // Overwritten without it, the file loses it.
+        await file.upload(utf8.encode(content));
+        metadata = await file.getMetadata();
+        expect(metadata.cacheControl, isNull);
       });
       test('file_with_detected_meta', () async {
         var content = 'storage_with_meta_detected_test';

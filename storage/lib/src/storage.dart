@@ -170,9 +170,17 @@ class StorageUploadFileOptions {
   /// inferred from the file name or left unset).
   final String? contentType;
 
-  /// Creates upload options. [contentType] is `null` by default, meaning no
-  /// explicit content type is sent.
-  StorageUploadFileOptions({this.contentType});
+  /// The `Cache-Control` value served with the file (e.g.
+  /// `'public, max-age=31536000, immutable'` for a file that never changes,
+  /// `'no-cache'` for a small file revalidated on each read).
+  ///
+  /// `null` (the default) means no explicit cache control is set and the
+  /// backend default applies.
+  final String? cacheControl;
+
+  /// Creates upload options. [contentType] and [cacheControl] are `null` by
+  /// default, meaning they are not sent.
+  StorageUploadFileOptions({this.contentType, this.cacheControl});
 }
 
 /// The entrypoint for Firebase Storage operations.
@@ -364,6 +372,12 @@ abstract class FileMetadata {
   ///
   /// `null` when the backend has no content type recorded for the file.
   String? get contentType;
+
+  /// The `Cache-Control` value of the file, see
+  /// [StorageUploadFileOptions.cacheControl].
+  ///
+  /// `null` when the file has no cache control recorded.
+  String? get cacheControl;
 }
 
 /// Mixin providing default [FileMetadata] member implementations.
@@ -392,14 +406,21 @@ mixin FileMetadataMixin implements FileMetadata {
   @override
   String? get contentType => throw UnimplementedError();
 
+  /// See [FileMetadata.cacheControl]. Returns `null` (no cache control)
+  /// unless overridden.
+  @override
+  String? get cacheControl => null;
+
   /// Returns a small map-based string representation for debugging,
-  /// listing [size], [dateUpdated], [md5Hash] and, when set, [contentType].
+  /// listing [size], [dateUpdated], [md5Hash] and, when set, [contentType]
+  /// and [cacheControl].
   @override
   String toString() => {
     'size': size,
     'dateUpdated': dateUpdated,
     'md5Hash': md5Hash,
     if (contentType != null) 'contentType': contentType,
+    if (cacheControl != null) 'cacheControl': cacheControl,
   }.toString();
 }
 
