@@ -1,5 +1,7 @@
 library;
 
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs_memory.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
@@ -60,6 +62,32 @@ void main() {
       expect(file.fsFile.path, url.join(bucket.localPath, 'data/test'));
 
       app.delete();
+    });
+    test('file bucket and metadata', () async {
+      var app = newFirebaseAppLocal();
+      var storageService = newStorageServiceFs(
+        fileSystem: newFileSystemMemory(),
+      );
+      var bucket = storageService.storage(app).bucket();
+      var file = bucket.file('a.txt');
+      // Only a listed file has metadata.
+      expect(file.metadata, isNull);
+      expect(file.bucket, bucket);
+      await app.delete();
+    });
+    test('delete without metadata', () async {
+      var app = newFirebaseAppLocal();
+      var fs = newFileSystemMemory();
+      var storageService = newStorageServiceFs(fileSystem: fs, basePath: 'b');
+      var file = storageService.storage(app).bucket().file('nometa.bin');
+      // Data written outside the storage, no metadata file.
+      var fsFile = fs.file('/b/_default/data/nometa.bin');
+      await fsFile.parent.create(recursive: true);
+      await fsFile.writeAsBytes(Uint8List.fromList([1, 2]));
+      expect(await file.exists(), isTrue);
+      await file.delete();
+      expect(await file.exists(), isFalse);
+      await app.delete();
     });
     test('getFiles empty prefix', () async {
       var app = newFirebaseAppLocal();

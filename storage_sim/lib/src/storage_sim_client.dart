@@ -35,7 +35,7 @@ StorageServiceSim? _storageServiceSim;
 
 /// Storage service simulation.
 StorageServiceSim get storageServiceSim =>
-    _storageServiceSim ?? StorageServiceSim();
+    _storageServiceSim ??= StorageServiceSim();
 
 class _FileMetadataSim with FileMetadataMixin implements FileMetadata {
   @override
@@ -71,8 +71,12 @@ class _FileSim with FileMixin implements File {
 
   _FileSim(this.bucketSim, this.name, this.metadataSim);
 
+  /// Only set for a listed file (like the other implementations).
   @override
-  _FileMetadataSim get metadata => metadataSim!;
+  _FileMetadataSim? get metadata => metadataSim;
+
+  @override
+  Bucket get bucket => bucketSim;
 
   @override
   Future<bool> exists() async {
@@ -272,18 +276,7 @@ class _StorageSim extends Object
   final StorageServiceSim storageServiceSim;
   final FirebaseAppSim appSim;
 
-  //final transactionLock = Lock();
-
-  //StorageSettings? storageSettingsSim;
-
-  // The key is the streamId from the server
-  final Map<int, ServerSubscriptionSim> _subscriptions = {};
-
   Future<FirebaseSimAppClient> get simClient => appSim.simAppClient;
-
-  void addSubscription(ServerSubscriptionSim subscription) {
-    _subscriptions[subscription.id!] = subscription;
-  }
 
   @override
   Bucket bucket([String? name]) {
@@ -291,125 +284,8 @@ class _StorageSim extends Object
       this,
       name ?? appSim.options.storageBucket ?? 'sim.bucket',
     );
-  } /*
-  @override
-  CollectionReference collection(String path) =>
-      CollectionReferenceSim(this, path);
-
-  @override
-  DocumentReference doc(String path) => DocumentReferenceSim(this, path);
-  */
-
-  Future removeSubscription(ServerSubscriptionSim subscription) async {
-    _subscriptions.remove(subscription.id);
-    await subscription.close();
   }
 
-  Future close() async {
-    var subscriptions = _subscriptions.values.toList();
-    for (var subscription in subscriptions) {
-      await removeSubscription(subscription);
-    }
-  }
-
-  /*
-  DocumentSnapshotSim documentSnapshotFromData(
-    StorageDocumentSnapshotData documentSnapshotData,
-  ) {
-    var dataMap = documentSnapshotData.data;
-    return DocumentSnapshotSim(
-      DocumentReferenceSim(this, documentSnapshotData.path),
-      dataMap != null,
-      documentDataFromJsonMap(this, dataMap),
-      createTime: documentSnapshotData.createTime,
-      updateTime: documentSnapshotData.updateTime,
-    );
-    /*
-    return documentSnapshotFromDataMap(
-        documentSnapshotData.path, documentSnapshotData.data);
-        */
-  }
-
-  // warning no createTime and update time here
-  DocumentSnapshotSim documentSnapshotFromDataMap(
-    String path,
-    Map<String, Object?>? map,
-  ) {
-    return DocumentSnapshotSim(
-      DocumentReferenceSim(this, path),
-      map != null,
-      documentDataFromJsonMap(this, map),
-      createTime: null,
-      updateTime: null,
-    );
-  }
-
-  DocumentSnapshotSim documentSnapshotFromMessageMap(
-    String path,
-    Map<String, Object?> map,
-  ) {
-    var documentSnapshotData = DocumentSnapshotData.fromMessageMap(map);
-    var data = documentSnapshotData.data;
-    return DocumentSnapshotSim(
-      DocumentReferenceSim(this, path),
-      data != null,
-      documentDataFromJsonMap(this, data),
-      createTime: documentSnapshotData.createTime,
-      updateTime: documentSnapshotData.updateTime,
-    );
-  }
-
-  @override
-  WriteBatch batch() => WriteBatchSim(this);
-
-  @override
-  Future<T> runTransaction<T>(
-    FutureOr<T> Function(Transaction transaction) updateFunction,
-  ) async {
-    var simClient = await this.simClient;
-    var result = resultAsMap(
-      await simClient.sendRequest<Map>(
-        StorageSimServerService.serviceName,
-        methodStorageTransaction,
-        <String, Object?>{},
-      ),
-    );
-
-    var responseData = StorageTransactionResponseData()..fromMap(result);
-    final transactionSim = TransactionSim(this, responseData.transactionId);
-    late T updateResult;
-    try {
-      updateResult = await updateFunction(transactionSim);
-    } catch (_) {
-      // Make sure to clean up on cancel
-      await transactionSim.cancel();
-      rethrow;
-    }
-    await transactionSim.commit();
-    return updateResult;
-  }
-
-  Future<DocumentSnapshot> get(StorageGetRequestData requestData) async {
-    var simClient = await this.simClient;
-    var result = resultAsMap(
-      await simClient.sendRequest<Map>(
-        StorageSimServerService.serviceName,
-        methodStorageGet,
-        requestData.toMap(),
-      ),
-    );
-
-    var documentSnapshotData = StorageDocumentSnapshotDataImpl()
-      ..fromMap(result);
-    return DocumentSnapshotSim(
-      DocumentReferenceSim(this, documentSnapshotData.path),
-      documentSnapshotData.data != null,
-      documentDataFromJsonMap(this, documentSnapshotData.data),
-      createTime: documentSnapshotData.createTime,
-      updateTime: documentSnapshotData.updateTime,
-    );
-  }
-  */
   @override
   String toString() => 'StorageSim[${identityHashCode(this)}]';
 

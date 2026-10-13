@@ -67,15 +67,6 @@ class FileFs with FileMixin implements File {
   @override
   final FileMetadataFs? metadata;
 
-  @override
-  Future save(content) async {
-    if (content is String) {
-      await writeAsString(content);
-    } else {
-      await writeAsBytes(content as Uint8List?);
-    }
-  }
-
   Future<FileMetadataFs> _writeFileMeta(
     Uint8List? bytes,
     StorageUploadFileOptions? options,
@@ -158,9 +149,12 @@ class FileFs with FileMixin implements File {
 
   @override
   Future delete() async {
-    // delete meta first
-    await fsMetaFile.delete();
+    // The data first: it fails for a missing file, the metadata may be
+    // missing (generated on demand by getOrGenerateMeta).
     await fsFile.delete();
+    try {
+      await fsMetaFile.delete();
+    } on fs_shim.FileSystemException catch (_) {}
   }
 
   @override

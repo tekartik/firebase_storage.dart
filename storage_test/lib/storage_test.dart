@@ -133,10 +133,10 @@ void runStorageAppTests(
       test('bucket', () {
         try {
           var bucket = storage.bucket('test');
-          expect(bucket, isNotNull);
           expect(bucket.name, 'test');
-        } catch (_) {
-          // Allow failing here
+        } catch (e) {
+          // An implementation might not support it, test failures still fail.
+          expect(e, isNot(isA<TestFailure>()));
         }
       });
       test('exists', () async {
@@ -167,6 +167,14 @@ void runStorageAppTests(
         expect(await file.readAsString(), 'simple content');
         await file.delete();
         expect(await file.exists(), isFalse);
+      });
+      test('save_bytes', () async {
+        var file = bucket.file(filePath('file.save_bytes.bin'));
+        // A List<int> that is not a Uint8List.
+        // ignore: deprecated_member_use
+        await file.save(<int>[1, 2, 3]);
+        expect(await file.readAsBytes(), [1, 2, 3]);
+        await file.delete();
       });
     });
 
@@ -241,16 +249,6 @@ void runStorageAppTests(
           filePath('test/list_files/yes/other_sub/sub/file3.txt'),
           filePath('test/list_files/yes/sub/file2.txt'),
         ]);
-        expect(names, contains(filePath('test/list_files/yes/file1.txt')));
-        expect(names, contains(filePath('test/list_files/yes/sub/file2.txt')));
-        expect(
-          names,
-          contains(filePath('test/list_files/yes/other_sub/sub/file3.txt')),
-        );
-        expect(
-          names,
-          isNot(contains(filePath('test/list_files/no/file0.txt'))),
-        );
         // Check meta
         var file = files.firstWhere(
           (element) =>
@@ -351,16 +349,17 @@ void runStorageAppTests(
           expect(e, isNot(const TypeMatcher<TestFailure>()));
         }
 
+        // Not the type guessed from the .txt name.
         await file.upload(
           utf8.encode(content),
-          options: StorageUploadFileOptions(contentType: 'text/plain'),
+          options: StorageUploadFileOptions(contentType: 'application/json'),
         );
 
         var metadata = await file.getMetadata();
         expect(metadata.size, greaterThanOrEqualTo(content.length));
         expect(metadata.dateUpdated, isNotNull);
         expect(metadata.md5Hash, isNotNull);
-        expect(metadata.contentType, 'text/plain');
+        expect(metadata.contentType, 'application/json');
         expect(metadata.cacheControl, isNull);
       });
       test('file_with_cache_control', () async {
@@ -370,14 +369,14 @@ void runStorageAppTests(
         await file.upload(
           utf8.encode(content),
           options: StorageUploadFileOptions(
-            contentType: 'text/plain',
+            contentType: 'application/json',
             cacheControl: cacheControl,
           ),
         );
 
         var metadata = await file.getMetadata();
         expect(metadata.size, content.length);
-        expect(metadata.contentType, 'text/plain');
+        expect(metadata.contentType, 'application/json');
         expect(metadata.cacheControl, cacheControl);
         expect(await file.readAsString(), content);
 
@@ -390,6 +389,7 @@ void runStorageAppTests(
         );
         var listedMetadata = response.files.first.metadata;
         if (listedMetadata != null) {
+          expect(listedMetadata.contentType, 'application/json');
           expect(listedMetadata.cacheControl, cacheControl);
         }
 

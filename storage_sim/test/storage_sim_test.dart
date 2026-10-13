@@ -37,6 +37,26 @@ Future main() async {
     expect(app.options.projectId, 'sim');
   });
 
+  test('service and storage singletons', () {
+    expect(identical(storageServiceSim, storageServiceSim), isTrue);
+    expect(storageServiceSim.storage(app), storageServiceSim.storage(app));
+  });
+
+  test('file bucket and metadata', () async {
+    var bucket = storageServiceSim.storage(app).bucket(_bucketName);
+    var file = bucket.file('test/sim_file_bucket.txt');
+    // Only a listed file has metadata.
+    expect(file.metadata, isNull);
+    expect(file.bucket.name, _bucketName);
+    await file.writeAsString('sim');
+    var listed = (await bucket.getFiles(
+      GetFilesOptions(prefix: 'test/sim_file_bucket'),
+    )).files.single;
+    expect(listed.bucket.name, _bucketName);
+    expect(listed.metadata!.size, 3);
+    await file.delete();
+  });
+
   tearDownAll(() async {
     await close(testContext);
   });
