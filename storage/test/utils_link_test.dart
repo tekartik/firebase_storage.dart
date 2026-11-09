@@ -34,5 +34,23 @@ void main() {
       expect(ref.path, 'test/with space/file.jpg');
       expect(ref.toString(), uri.toString());
     });
+    test('special characters round trip', () {
+      for (var path in [
+        'a#1.png',
+        'dir/what?.txt',
+        '100%.txt',
+        'é/ü.txt',
+        'a+b&c=d.txt',
+      ]) {
+        var ref = StorageFileRef('bucket.appspot.com', path);
+        var back = StorageFileRef.fromLink(ref.toLink());
+        expect(back.bucket, 'bucket.appspot.com', reason: path);
+        expect(back.path, path, reason: path);
+        // The string form too
+        back = StorageFileRef.fromLink(Uri.parse(ref.toString()));
+        expect(back.path, path, reason: path);
+      }
+      expect(StorageFileRef('b', 'a#1.png').toString(), 'gs://b/a%231.png');
+    });
   });
 }

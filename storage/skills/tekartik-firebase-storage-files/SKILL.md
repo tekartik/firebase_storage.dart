@@ -74,7 +74,8 @@ downloads, deletes and describes one object. No implementation ships here; a
   know it. Implementations that guess use
   `firebaseStorageContentTypeFromFilename(name)` from
   `package:tekartik_firebase_storage/utils/content_type.dart` (`null` for an
-  unknown extension) and fall back to `firebaseStorageDefaultContentType`
+  unknown extension; it only looks at the text after the last `.`, a bare
+  `png` name counts as an extension) and fall back to `firebaseStorageDefaultContentType`
   (`'application/octet-stream'`).
 * Cache control: `StorageUploadFileOptions(cacheControl: ...)` stores a
   `Cache-Control` value on the object, and Cloud Storage sends it as the
@@ -104,7 +105,8 @@ downloads, deletes and describes one object. No implementation ships here; a
   parse `gs://bucket/path` urls with `StorageFileRef` from
   `package:tekartik_firebase_storage/utils/link.dart`
   (`StorageFileRef(bucket, path)`, `StorageFileRef.fromLink(uri)`, `toLink()`,
-  `toString()`); it percent-encodes paths with spaces for you.
+  `toString()`); it percent-encodes the path (spaces, `#`, `?`...) and
+  `fromLink` decodes it back.
 * There is no exported storage exception type: a missing object, a missing
   bucket or a permission error throws an implementation specific exception.
   Probe with `exists()` instead of catching, and never assume

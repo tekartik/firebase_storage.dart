@@ -9,11 +9,12 @@ const firebaseStorageDefaultContentType = 'application/octet-stream';
 /// [filename].
 ///
 /// [filename] is matched case-insensitively against its extension (the
-/// text after the last `.`); the full path is not otherwise inspected, so
-/// a bare name without extension works the same as a path.
+/// text after the last `.`); the full path is not otherwise inspected.
+/// Without any `.`, the whole name is taken as the extension (`'png'`
+/// gives `'image/png'`).
 ///
 /// Returns the corresponding MIME type (e.g. `'image/png'` for `.png`), or
-/// `null` when the extension is unknown or [filename] has no extension. See
+/// `null` when the extension is unknown. See
 /// [firebaseStorageDefaultContentType] for a suitable fallback value.
 String? firebaseStorageContentTypeFromFilename(String filename) {
   var extension = filename.split('.').last.toLowerCase();

@@ -27,8 +27,11 @@ class StorageFileRef {
   }
 
   /// Builds and returns the `gs://<bucket>/<path>` [Uri] for this reference.
+  ///
+  /// [path] is encoded (a `#` or a `?` in a file name is part of the path),
+  /// [StorageFileRef.fromLink] gives it back.
   Uri toLink() {
-    return Uri.parse(url.join('gs://$bucket/$path'));
+    return Uri(scheme: 'gs', host: bucket, path: '/$path');
   }
 
   /// Returns the `gs://<bucket>/<path>` string form of this reference, same
