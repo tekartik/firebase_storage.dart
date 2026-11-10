@@ -48,8 +48,8 @@ behind a `StorageSimPlugin`; the client side only sees `Storage`, `Bucket` and
   plugins: [StorageSimPlugin(storageService: newStorageServiceMemory())])`
   (`firebaseSimServe` and `FirebaseSimServer` come from
   `package:tekartik_firebase_sim/firebase_sim_server.dart`). The returned
-  server exposes `url` / `uri` (port `0` or a null `port` picks
-  `firebaseSimDefaultPort`, 4996) and `close()`. The `storageService` you pass
+  server exposes `url` / `uri` (a null `port` is `firebaseSimDefaultPort`,
+  4996, `0` picks a free port: read `simServer.uri`) and `close()`. The `storageService` you pass
   is the one that really stores the bytes; the plugin creates one product per
   client app, on the server's own local app.
 * Client: `var firebase = getFirebaseSim(uri: Uri.parse('ws://localhost:4996'),
@@ -58,10 +58,11 @@ behind a `StorageSimPlugin`; the client side only sees `Storage`, `Bucket` and
   `firebase.initializeApp()` and `storageServiceSim.storage(app)`. The app
   must come from a `FirebaseSim` (a plain `assert` fires otherwise). Its
   default `projectId` is `'sim'`.
-* `storageServiceSim` is a getter that builds a new `StorageServiceSim` on
-  every read: assign it once to a variable (or a final field) and reuse that
-  instance, otherwise each access creates a separate product for the same app
-  and `app.storage()` may not be the instance you hold.
+* `storageServiceSim` is a single instance: `storageServiceSim.storage(app)`
+  returns the same `Storage` for an app (also `app.storage()`).
+* `await app.delete()` leaves the connection of the app open: keep
+  `await (app as FirebaseAppSim).simClient` and `close()` it after the
+  delete, or a program does not exit.
 * Buckets: `storage.bucket(name)`, or `storage.bucket()` which falls back to
   `app.options.storageBucket` and then to the literal `'sim.bucket'`. Create
   the bucket once (`await storage.bucket(name).create()`) before writing:
@@ -70,12 +71,12 @@ behind a `StorageSimPlugin`; the client side only sees `Storage`, `Bucket` and
 * Supported over the wire: `bucket.create()`, `bucket.exists()`,
   `bucket.getFiles()` (with `prefix`, `maxResults` and a real `pageToken` in
   `nextQuery`), `file.exists()`, `file.upload()` (with
-  `StorageUploadFileOptions.contentType`), `file.readAsBytes()` /
+  `StorageUploadFileOptions` `contentType` and `cacheControl`), `file.readAsBytes()` /
   `readAsString()`, `file.delete()` and `file.getMetadata()`.
   `storage.ref(...)` is **not** implemented: it throws `UnimplementedError`,
   so there is no `getDownloadUrl()` in a simulation.
 * `file.metadata` only holds the metadata cached by `bucket.getFiles()`;
-  reading it on a `bucket.file(path)` reference throws. Use
+  it is null on a `bucket.file(path)` reference: use
   `await file.getMetadata()` there.
 * Payloads are JSON arrays of byte values, so an upload or a download costs
   several times the file size in memory and message size on both ends: keep
@@ -100,7 +101,6 @@ import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_sim/firebase_sim_server.dart';
 import 'package:tekartik_firebase_storage_fs/storage_fs.dart';
 import 'package:tekartik_firebase_storage_sim/storage_sim_server.dart';
-import 'package:tekartik_web_socket_io/web_socket_io.dart';
 
 Future<void> main(List<String> args) async {
   var simServer = await firebaseSimServe(
@@ -123,7 +123,7 @@ import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_sim/storage_sim.dart';
 import 'package:tekartik_web_socket_io/web_socket_io.dart';
 
-var storageService = storageServiceSim; // Read the getter once.
+var storageService = storageServiceSim; // A single instance.
 
 Future<void> main() async {
   var firebase = getFirebaseSim(
@@ -142,7 +142,10 @@ Future<void> main() async {
   );
   print(await file.readAsString());
   print((await file.getMetadata()).size);
+  // delete() leaves the connection of the app open: close it to exit.
+  var simClient = await (app as FirebaseAppSim).simClient;
   await app.delete();
+  await simClient.close();
 }
 ```
 
@@ -155,7 +158,6 @@ can be guessed from the extension.
 import 'package:tekartik_firebase_local/firebase_local.dart';
 import 'package:tekartik_firebase_sim/firebase_sim.dart';
 import 'package:tekartik_firebase_sim/firebase_sim_server.dart';
-import 'package:tekartik_firebase_storage/storage.dart';
 import 'package:tekartik_firebase_storage_fs/storage_fs.dart';
 import 'package:tekartik_firebase_storage_sim/storage_sim.dart';
 import 'package:tekartik_firebase_storage_sim/storage_sim_server.dart';
@@ -243,8 +245,8 @@ Future<void> main() async {
 
 ## Common mistakes
 
-* Reading `storageServiceSim` several times and comparing the resulting
-  `Storage` instances (each read is a new service).
+* Ending a client program with `app.delete()` only: the connection of the
+  app stays open, close `await app.simClient` too.
 * Expecting `storage.ref(path)` / `getDownloadUrl()` to work: the simulation
   has no url scheme.
 * Writing before `await bucket.create()`, or assuming
