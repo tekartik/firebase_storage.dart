@@ -28,7 +28,6 @@ bucket by hand.
       git:
         url: https://github.com/tekartik/firebase_storage.dart
         path: storage_test
-      version: '>=0.4.1'
   ```
   It brings `tekartik_firebase_storage` and `dev_test`; add `test` yourself,
   the suite does not re-export it.
@@ -71,10 +70,14 @@ bucket by hand.
   throw on a missing object and then report `size`, `dateUpdated`, `md5Hash`
   and a `contentType` of `text/plain` for a `.txt` upload, of
   `application/octet-stream` for a `.bin` one, and whatever
-  `StorageUploadFileOptions.contentType` asked for; `getFiles` must page
-  through a prefix with `maxResults: 2` and `autoPaginate: false`, walking
+  `StorageUploadFileOptions.contentType` asked for, the
+  `StorageUploadFileOptions.cacheControl` given (also on the listed file,
+  gone once overwritten without it); `getFiles` with `maxResults: 2` and
+  `autoPaginate: false` must give pages of at most 2 files (5 files: 3 pages
+  at least, every file once, failing after 10 pages), walking
   sub-directories, exposing consistent `file.metadata` (or `null`) and an
-  empty result for an unknown prefix.
+  empty result for an unknown prefix. The admin sdk implementation returns
+  every file in one page: its emulator run fails `list_files_pages`.
 * The suite really writes objects, so point it at a scratch bucket. Against a
   local backend (`tekartik_firebase_storage_fs` memory or io) it is hermetic
   and fast; against a real bucket give it a `rootPath` and expect leftovers

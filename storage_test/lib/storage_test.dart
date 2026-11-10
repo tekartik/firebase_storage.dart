@@ -1,3 +1,7 @@
+/// The shared storage tests: [runStorageTests] (on its own app),
+/// [runStorageAppTests] (on your app) and [TestStorageOptions].
+library;
+
 import 'package:dev_test/test.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_common_utils/common_utils_import.dart';
@@ -6,7 +10,9 @@ import 'package:tekartik_firebase_storage_test/src/import.dart';
 
 export 'package:tekartik_firebase_storage/storage.dart';
 
-/// Storage option
+/// Where the suite works: [bucket] (default: the app storage bucket),
+/// [rootPath] (prefix of every file path) and [skipDefaultBucketExists] (do
+/// not check that the bucket exists).
 class TestStorageOptions {
   final String? bucket;
   final String? rootPath;
@@ -62,6 +68,8 @@ void run({
   storageOptions: storageOptions,
 );
 
+/// Declares the storage tests on a new app of [firebase] (with [options]),
+/// deleted in `tearDownAll`.
 void runStorageTests({
   required Firebase firebase,
   required StorageService storageService,
@@ -92,6 +100,7 @@ void runApp(
   storageOptions: storageOptions,
 );
 
+/// Declares the storage tests on [app] (not deleted).
 void runStorageAppTests(
   App app, {
   required StorageService storageService,
@@ -233,7 +242,10 @@ void runStorageAppTests(
         files.addAll(response.files);
 
         String? lastFirstPath;
+        var pageCount = 1;
         while (response.nextQuery != null) {
+          // Bounded: a backend always giving a next query fails here.
+          expect(++pageCount, lessThan(10));
           response = await bucket.getFiles(response.nextQuery);
           var firstPath = response.files.firstOrNull?.name;
           if (firstPath != null) {
@@ -273,6 +285,7 @@ void runStorageAppTests(
           await bucket.file(name).writeAsString('page');
         }
         var listed = <String>[];
+        var pageCount = 0;
         GetFilesOptions? query = GetFilesOptions(
           maxResults: 2,
           prefix: filePath('test/list_files_pages/'),
@@ -280,12 +293,17 @@ void runStorageAppTests(
         );
         while (query != null) {
           var response = await bucket.getFiles(query);
+          // maxResults is the page size: 5 files need 3 pages at least.
+          expect(response.files.length, lessThanOrEqualTo(2));
           listed.addAll(response.files.map((file) => file.name));
           query = response.nextQuery;
+          // Bounded: a backend always giving a next query fails here.
+          expect(++pageCount, lessThan(10));
         }
+        expect(pageCount, greaterThanOrEqualTo(3));
         // Every file once, whatever the pages.
         expect(listed..sort(), names);
-      });
+      }, timeout: const Timeout(Duration(minutes: 2)));
 
       test('list_files_meta', () async {
         var content = 'storage_list_files_test';
