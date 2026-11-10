@@ -71,7 +71,10 @@ under `data/`, their metadata a JSON file under `meta/`.
   `await bucket.create()` first when a test asserts on `exists()`.
 * A leading `/` in a file path is stripped: `bucket.file('/a/b')` and
   `bucket.file('a/b')` are the same object. Paths always use `/`, converted to
-  the native separator internally.
+  the native separator internally. `..` segments are resolved by the file
+  system: `bucket.file('../x')` is written outside the bucket folder (and not
+  listed). Never pass an unchecked name (a user upload name) to the io
+  service.
 * Metadata is written on every upload: `md5Hash` (hex), `size`,
   `dateUpdated` (UTC) and `contentType`, taken from
   `StorageUploadFileOptions.contentType`, else guessed from the extension,
@@ -80,13 +83,15 @@ under `data/`, their metadata a JSON file under `meta/`.
   returns a `File` whose `metadata` is `null`, use `getMetadata()`.
 * `getFiles()` lists recursively under `prefix`, sorted by path, with a
   default `maxResults` of 1000 and a real `pageToken`: loop while
-  `response.nextQuery != null`. Deleted or missing prefixes yield an empty
+  `response.nextQuery != null` (`autoPaginate` is ignored). Deleted or missing prefixes yield an empty
   page instead of throwing.
 * `storage.ref(path)` expects a full `gs://<bucket>/<path>` link (build it
   with `StorageFileRef` from
   `package:tekartik_firebase_storage/utils/link.dart`) and
-  `getDownloadUrl()` returns a `file://` url of the backing file, which only
-  makes sense with the io file system.
+  `getDownloadUrl()` returns the `file://` url of the backing file (encoded:
+  `Uri.parse(url).toFilePath()` gives the path back, even with a `#`, `?` or
+  `%` in the name), which only makes sense with the io file system; it does
+  not check that the file exists.
 * Reads of a missing file throw the underlying `fs_shim`
   `FileSystemException`; prefer `await file.exists()`. The store is not
   transactional and not process-safe: one io service per directory at a time.

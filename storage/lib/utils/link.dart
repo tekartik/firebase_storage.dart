@@ -28,10 +28,14 @@ class StorageFileRef {
 
   /// Builds and returns the `gs://<bucket>/<path>` [Uri] for this reference.
   ///
-  /// [path] is encoded (a `#` or a `?` in a file name is part of the path),
-  /// [StorageFileRef.fromLink] gives it back.
+  /// [path] is encoded (a `#`, a `?` or a `%` in a file name is part of the
+  /// path), [StorageFileRef.fromLink] gives it back.
   Uri toLink() {
-    return Uri(scheme: 'gs', host: bucket, path: '/$path');
+    if (path.isEmpty) {
+      return Uri(scheme: 'gs', host: bucket, path: '/');
+    }
+    // Each segment is encoded as is: a '%20' in a name is not an escape.
+    return Uri(scheme: 'gs', host: bucket, pathSegments: path.split('/'));
   }
 
   /// Returns the `gs://<bucket>/<path>` string form of this reference, same

@@ -39,6 +39,8 @@ void main() {
         'a#1.png',
         'dir/what?.txt',
         '100%.txt',
+        'p%20q.txt',
+        '%41/b.txt',
         'é/ü.txt',
         'a+b&c=d.txt',
       ]) {

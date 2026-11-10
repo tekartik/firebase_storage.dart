@@ -6,6 +6,7 @@ import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:fs_shim/fs_memory.dart' as fs;
 import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:fs_shim/utils/path.dart';
+import 'package:path/path.dart' as p;
 import 'package:tekartik_common_utils/date_time_utils.dart';
 import 'package:tekartik_common_utils/map_utils.dart';
 import 'package:tekartik_firebase/firebase_mixin.dart';
@@ -362,8 +363,11 @@ class ReferenceFs with ReferenceMixin {
     var context = storage.service.fileSystem.path;
     var dataPath = context.absolute(storage.bucket(refLink.bucket).dataPath);
     var filePath = context.join(dataPath, toContextPath(context, refLink.path));
-    var uri = 'file://${toPosixPath(filePath)}';
-    return uri;
+    // Encoded: a '#', a '?' or a '%' in a name stays in the path.
+    return Uri.file(
+      filePath,
+      windows: context.style == p.Style.windows,
+    ).toString();
   }
 }
 

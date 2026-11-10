@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_firebase_local/firebase_local.dart';
+import 'package:tekartik_firebase_storage/utils/link.dart';
 import 'package:tekartik_firebase_storage_fs/src/storage_fs.dart';
 import 'package:tekartik_firebase_storage_fs/storage_fs.dart';
 import 'package:test/test.dart';
@@ -87,6 +88,27 @@ void main() {
       expect(await file.exists(), isTrue);
       await file.delete();
       expect(await file.exists(), isFalse);
+      await app.delete();
+    });
+    test('getDownloadUrl encodes the file path', () async {
+      var app = newFirebaseAppLocal();
+      var fs = newFileSystemMemory();
+      var storage = newStorageServiceFs(
+        fileSystem: fs,
+        basePath: '/base',
+      ).storage(app);
+      var bucket = storage.bucket('bkt');
+      for (var name in ['a#1.png', 'what?.txt', 'p%20q.txt', 'a b.png']) {
+        await bucket.file(name).writeAsString(name);
+        var link = StorageFileRef('bkt', name).toLink().toString();
+        var url = Uri.parse(await storage.ref(link).getDownloadUrl());
+        expect(url.scheme, 'file');
+        expect(url.toFilePath(windows: false), '/base/bkt/data/$name');
+        expect(
+          await fs.file(url.toFilePath(windows: false)).readAsString(),
+          name,
+        );
+      }
       await app.delete();
     });
     test('getFiles empty prefix', () async {
